@@ -132,14 +132,10 @@
   }
   function closeLightbox(){const d=$('#lightbox');if(d.open)d.close()}
   function turn(delta){if(!filtered.length)return;lightboxIndex=(lightboxIndex+delta+filtered.length)%filtered.length;renderLightbox()}
-  function stopSlides(){if(slideTimer)clearInterval(slideTimer);slideTimer=null;$('#lightboxPlay').textContent='自动播放 ▷'}
   function setupLightbox(){
     const d=$('#lightbox');$('#closeLightbox').addEventListener('click',closeLightbox);
     $('#prevPhoto').addEventListener('click',()=>turn(-1));$('#nextPhoto').addEventListener('click',()=>turn(1));
-    $('#lightboxPlay').addEventListener('click',()=>{
-      if(slideTimer){stopSlides();return;}slideTimer=setInterval(()=>turn(1),3600);$('#lightboxPlay').textContent='暂停播放 Ⅱ';
-    });
-    d.addEventListener('close',()=>{stopSlides();document.body.classList.remove('modal-open');lastFocus?.focus?.()});
+    d.addEventListener('close',()=>{document.body.classList.remove('modal-open');lastFocus?.focus?.()});
     d.addEventListener('click',e=>{if(e.target===d)closeLightbox()});
     addEventListener('keydown',e=>{
       if(!d.open)return;
@@ -150,28 +146,6 @@
     d.addEventListener('touchend',e=>{const delta=e.changedTouches[0].screenX-touchStart;if(Math.abs(delta)>60)turn(delta>0?-1:1)},{passive:true});
   }
 
-  class Weather {
-    constructor(canvas){
-      this.canvas=canvas;this.ctx=canvas.getContext('2d');this.items=[];this.season='autumn';this.enabled=!reduced.matches;
-      this.w=innerWidth;this.h=innerHeight;this.last=performance.now();this.frame=this.frame.bind(this);
-      this.resize();this.fill();requestAnimationFrame(this.frame);
-      addEventListener('resize',()=>{this.resize();this.fill()},{passive:true});
-      document.addEventListener('visibilitychange',()=>{this.last=performance.now()});
-    }
-    resize(){this.w=innerWidth;this.h=innerHeight;const dpi=Math.min(devicePixelRatio||1,2);this.canvas.width=this.w*dpi;this.canvas.height=this.h*dpi;this.ctx.setTransform(dpi,0,0,dpi,0,0)}
-    item(random=true){return {x:Math.random()*this.w,y:random?Math.random()*this.h:-30-Math.random()*90,r:2+Math.random()*5,speed:.25+Math.random()*.6,phase:Math.random()*6.28,rotation:Math.random()*6.28,alpha:.21+Math.random()*.32}}
-    fill(){this.items=Array.from({length:this.w<650?25:43},()=>this.item())}
-    setSeason(season){this.season=season;this.fill()}
-    setEnabled(v){this.enabled=v;this.last=performance.now();if(!v)this.ctx.clearRect(0,0,this.w,this.h)}
-    frame(now){requestAnimationFrame(this.frame);const dt=Math.min(2,(now-this.last)/16.67);this.last=now;if(!this.enabled||document.hidden)return;
-      const ctx=this.ctx;ctx.clearRect(0,0,this.w,this.h);
-      this.items.forEach((p,i)=>{p.y+=p.speed*dt;p.x+=Math.sin(now*.0004+p.phase)*.36*dt;p.rotation+=.006*dt;if(p.y>this.h+20){this.items[i]=this.item(false);return}
-        ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation);ctx.globalAlpha=p.alpha;
-        if(this.season==='winter'){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,p.r*.6,0,Math.PI*2);ctx.fill()}
-        else{const palettes={spring:['#e7a4b4','#e2b6b6','#f4ccd4'],summer:['#4c8257','#76a56d','#a9b77e'],autumn:['#a65a34','#c88747','#d5aa64']};ctx.fillStyle=palettes[this.season][i%3];ctx.beginPath();ctx.moveTo(0,-p.r*1.5);ctx.bezierCurveTo(p.r*1.7,-p.r,p.r*1.4,p.r*1.1,0,p.r*1.4);ctx.bezierCurveTo(-p.r*1.4,p.r,-p.r*1.7,-p.r,0,-p.r*1.5);ctx.fill()}
-        ctx.restore();});
-    }
-  }
   function renderSeasonPreview(){
     const root=$('#seasonPreview');root.replaceChildren();
     const shown=seasonFilter==='all'?photos:photos.filter(p=>p.season===seasonFilter);
@@ -187,26 +161,28 @@
     });
   }
   function setupSeasons(){
-    let weather;try{weather=new Weather($('#seasonCanvas'))}catch(err){console.warn('No canvas effect:',err)}
-    const messages={spring:'春天的照片，花瓣也轻轻落下来。',summer:'盛夏的影像，藏着树影和绿意。',autumn:'金色的照片，像北京的落叶。',winter:'雪里的瞬间，天地安静了下来。'};
+    const messages={spring:'春天的照片，留住温柔的色彩。',summer:'盛夏的影像，藏着树影和绿意。',autumn:'静静收藏金色的秋天。',winter:'雪里的瞬间，天地安静了下来。'};
     let visual='autumn';try{visual=localStorage.getItem('noticing-season')||'autumn'}catch(_){}
     function applySeason(name,filterPhotos=true){
       if(!messages[name])return;
-      document.documentElement.dataset.season=name;weather?.setSeason(name);
-      if(filterPhotos){seasonFilter=name;focusIDs=null;chooseFilter('all');}
-      $$('[data-season]').forEach(b=>{const active=b.dataset.season===seasonFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
-      $('#seasonDescription').textContent=filterPhotos?messages[name]:'点击季节，查看对应照片；秋叶只是眼前的氛围。';
+      document.documentElement.dataset.season=name;
+      if(filterPhotos){seasonFilter=name;focusIDs=null;chooseFilter('all')}
+      $$('[data-season]').forEach(b=>{
+        const active=b.dataset.season===seasonFilter;
+        b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));
+      });
+      $('#seasonDescription').textContent=filterPhotos?messages[name]:'点击季节，浏览对应的静态照片。';
       renderSeasonPreview();
       try{localStorage.setItem('noticing-season',name)}catch(_){}
     }
     $$('[data-season]').forEach(b=>b.addEventListener('click',()=>applySeason(b.dataset.season,true)));
-    $('#resetSeason').addEventListener('click',()=>{seasonFilter='all';focusIDs=null;chooseFilter('all');$$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});$('#seasonDescription').textContent='四季的照片重新汇在一起。';renderSeasonPreview()});
+    $('#resetSeason').addEventListener('click',()=>{
+      seasonFilter='all';focusIDs=null;chooseFilter('all');
+      $$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      $('#seasonDescription').textContent='四季的照片重新汇在一起。';renderSeasonPreview();
+    });
     applySeason(visual,false);
-    const motion=$('#motionToggle');let playing=!reduced.matches;function updateMotion(){weather?.setEnabled(playing);motion.textContent=playing?'暂停动态 Ⅱ':'开启动态 ✳';motion.setAttribute('aria-pressed',String(playing))}
-    motion.addEventListener('click',()=>{playing=!playing;updateMotion()});updateMotion();
-    reduced.addEventListener?.('change',e=>{if(e.matches){playing=false;updateMotion()}});
   }
-
 
   function setupFootprints(){
     const located=photos.filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lng)&&p.city&&p.country);
@@ -556,166 +532,6 @@
     finally{btn.disabled=false;btn.textContent='导出纪念手帐 PNG ↗'}
   }
 
-  // A moving photograph — adapted from the user's "四时画廊" Kunming Lake tile reveal.
-  // Uses the SAME photos catalog as the archive, atlas, seasons and scrapbook.
-  function initMomentTiles(){
-    const stage=$('#momentStage'),canvas=$('#momentTiles'),fallback=$('#momentFallback');
-    const select=$('#momentPhotoSelect'),replayButton=$('#momentReplay');
-    const title=$('#momentPhotoTitle'),place=$('#momentPhotoPlace'),status=$('#momentStatus');
-    if(!stage||!canvas||!fallback||!select||!replayButton||!photos.length)return;
-    const context=canvas.getContext('2d');
-    if(!context){status.textContent='当前浏览器不支持画布，已显示原照片。';return;}
-    const choices=[...photos];
-    select.replaceChildren();
-    choices.forEach(p=>{
-      const option=document.createElement('option');
-      option.value=p.id;option.textContent=p.title+(p.location?' · '+p.location:'');
-      select.append(option);
-    });
-
-    let photo=null,image=null,tiles=[],width=0,height=0,frame=0,loadId=0;
-    let started=false,observer=null,resizeTimer=null;
-    const abort=()=>{
-      if(frame)cancelAnimationFrame(frame);
-      frame=0;
-      stage.classList.remove('is-playing');
-    };
-    const sizeCanvas=()=>{
-      const rect=canvas.getBoundingClientRect();
-      width=Math.max(1,rect.width);height=Math.max(1,rect.height);
-      const scale=Math.min(window.devicePixelRatio||1,2);
-      canvas.width=Math.round(width*scale);
-      canvas.height=Math.round(height*scale);
-      context.setTransform(scale,0,0,scale,0,0);
-      context.clearRect(0,0,width,height);
-      context.imageSmoothingEnabled=true;
-      const columns=width<650?9:14;
-      const cell=width/columns;
-      const rows=Math.ceil(height/cell);
-      const halfDiagonal=Math.hypot(width/2,height/2)||1;
-      tiles=[];
-      for(let y=0;y<rows;y++)for(let x=0;x<columns;x++){
-        const left=x*cell,top=y*cell,w=Math.min(cell,width-left),h=Math.min(cell,height-top);
-        if(w<=0||h<=0)continue;
-        const dist=Math.hypot(left+w/2-width/2,top+h/2-height/2)/halfDiagonal;
-        tiles.push({
-          x:left,y:top,w,h,
-          delay:dist*.54+Math.random()*.22,
-          offsetX:(Math.random()-.5)*Math.min(width*.58,330),
-          offsetY:(Math.random()-.5)*Math.min(height*.9,270)+45,
-          angle:(Math.random()-.5)*1.25
-        });
-      }
-    };
-    const paint=seconds=>{
-      if(!image||!image.naturalWidth)return true;
-      context.clearRect(0,0,width,height);
-      const scale=Math.max(width/image.naturalWidth,height/image.naturalHeight);
-      const cropX=(image.naturalWidth-width/scale)/2;
-      const cropY=(image.naturalHeight-height/scale)/2;
-      let finished=true;
-      for(const tile of tiles){
-        const fraction=Math.max(0,Math.min(1,(seconds-tile.delay)/.88));
-        if(fraction<1)finished=false;
-        if(fraction<=0)continue;
-        const ease=1-Math.pow(1-fraction,3);
-        context.save();
-        context.globalAlpha=ease;
-        context.translate(tile.x+tile.w/2+tile.offsetX*(1-ease),tile.y+tile.h/2+tile.offsetY*(1-ease));
-        context.rotate(tile.angle*(1-ease));
-        context.drawImage(image,
-          cropX+tile.x/scale,cropY+tile.y/scale,tile.w/scale,tile.h/scale,
-          -tile.w/2,-tile.h/2,tile.w+.6,tile.h+.6);
-        context.restore();
-      }
-      return finished;
-    };
-    function play(){
-      abort();
-      if(!image||!image.naturalWidth){status.textContent='照片正在加载…';return;}
-      if(reduced.matches){
-        status.textContent='已遵循减少动态设置，显示完整照片。';
-        return;
-      }
-      sizeCanvas();
-      status.textContent='碎片正在回到它们的位置…';
-      stage.classList.add('is-playing');
-      const startTime=performance.now();
-      const loop=now=>{
-        frame=0;
-        if(paint((now-startTime)/1000)){
-          abort();
-          status.textContent='拼好了。还可以再看一次。';
-        }else{
-          frame=requestAnimationFrame(loop);
-        }
-      };
-      frame=requestAnimationFrame(loop);
-    }
-    function setPhoto(id){
-      const next=choices.find(p=>p.id===id)||choices[0];
-      if(!next)return;
-      abort();
-      photo=next;image=null;
-      select.value=next.id;
-      title.textContent=next.title;
-      place.textContent=next.location||next.place||'一个值得收藏的瞬间';
-      fallback.src=next.src;
-      fallback.alt=next.alt||next.title;
-      canvas.setAttribute('aria-label',next.title+'：碎片重新拼成完整照片');
-      status.textContent='照片正在加载…';
-      const token=++loadId;
-      const nextImage=new Image();
-      nextImage.onload=()=>{
-        if(token!==loadId)return;
-        image=nextImage;
-        play();
-      };
-      nextImage.onerror=()=>{
-        if(token!==loadId)return;
-        status.textContent='这张照片暂时无法加载，可以换另一张。';
-      };
-      nextImage.src=next.src;
-    }
-    replayButton.addEventListener('click',()=>{
-      if(!started){started=true;observer?.disconnect();setPhoto(select.value);return;}
-      if(image)play();
-      else setPhoto(select.value);
-    });
-    select.addEventListener('change',()=>{
-      started=true;observer?.disconnect();setPhoto(select.value);
-    });
-    const start=()=>{
-      if(started)return;
-      started=true;
-      observer?.disconnect();
-      setPhoto(choices.some(p=>p.id==='beijing-05')?'beijing-05':choices[0].id);
-    };
-    if('IntersectionObserver' in window){
-      observer=new IntersectionObserver(entries=>{
-        if(entries.some(entry=>entry.isIntersecting))start();
-      },{threshold:.18});
-      observer.observe(stage);
-    }else{
-      start();
-    }
-    window.addEventListener('resize',()=>{
-      clearTimeout(resizeTimer);
-      resizeTimer=setTimeout(()=>{
-        if(!started)return;
-        abort();
-        context.clearRect(0,0,canvas.width,canvas.height);
-        if(image&&image.naturalWidth)status.textContent='调整完窗口后，点击重新拼合还可以再看一次。';
-      },140);
-    },{passive:true});
-    reduced.addEventListener?.('change',event=>{
-      if(event.matches){
-        abort();
-        status.textContent='已切换为静态照片（减少动态）。';
-      }
-    });
-  }
-
   // Publishing takes place through GitHub commits, not an isolated browser database.
   // Isolate optional features: a failure in one view must never hide the gallery or map.
   function safelyInitialize(label,fn){
@@ -739,7 +555,6 @@
     safelyInitialize('season filters',setupSeasons);
     safelyInitialize('map footprints',setupFootprints);
     safelyInitialize('memory scrapbook',initCollage);
-    safelyInitialize('photo reassembly',initMomentTiles);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
