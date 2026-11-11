@@ -4,12 +4,11 @@
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const source = window.PHOTO_JOURNAL || {photos:[]};
-  const originalPhotos = [...source.photos];
-  let photos = [...originalPhotos], filtered = [...photos], filter='all', view='editorial';
+  // data/photos.json is the published source of truth for every view.
+  let originalPhotos = [], photos = [], filtered = [];
+  let filter='all', seasonFilter='all', focusIDs=null, view='editorial';
   let lightboxIndex=0, slideTimer=null, lastFocus=null, toastTimer=null;
-  const localURLs = [], imported = [];
-  const collageIDs = ['cat','opera','lizard','sunset','snow'];
+  let collageIDs = ['cat','opera','lizard','sunset','snow'];
   const collageLayouts = {
     scattered:[{x:19,y:37,r:-12},{x:48,y:28,r:8},{x:79,y:39,r:-9},{x:34,y:73,r:10},{x:68,y:74,r:-7}],
     orbit:[{x:50,y:20,r:4},{x:22,y:47,r:-14},{x:78,y:47,r:12},{x:34,y:79,r:7},{x:66,y:79,r:-8}],
@@ -21,6 +20,28 @@
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
   function toast(message){const t=$('#toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3300)}
+  async function loadCatalog(){
+    const response = await fetch('data/photos.json',{cache:'no-store'});
+    if(!response.ok)throw Error('照片目录加载失败: '+response.status);
+    const catalog = await response.json();
+    if(!Array.isArray(catalog.photos))throw Error('照片目录格式无效');
+    const embedded=window.NOTICING_EMBEDDED||{};
+    originalPhotos=catalog.photos.map(p=>({
+      ...p,
+      src:embedded[p.src]||p.src,
+      thumb:embedded[p.thumb]||p.thumb||embedded[p.src]||p.src
+    }));
+    photos=[...originalPhotos];
+    // The cover and chapter previews also reuse the same image sources.
+    $('img[src^="assets/photos/"]').forEach(img=>{
+      const path=img.getAttribute('src');if(embedded[path])img.src=embedded[path];
+    });
+    const featured={ 'feature-encounters':'cat','feature-architecture':'ceiling','feature-landscapes':'sunset','feature-beijing':'beijing-01' };
+    Object.entries(featured).forEach(([className,id])=>{
+      const photo=photos.find(p=>p.id===id),img=$('.'+className+' .feature-image img');
+      if(photo&&img){img.src=photo.thumb||photo.src;img.alt=photo.alt||photo.title}
+    });
+  }
   function handleMissingImages(){
     document.addEventListener('error',e=>{
       if(!(e.target instanceof HTMLImageElement))return;
@@ -42,20 +63,25 @@
   }
   function renderGallery(){
     const root=$('#photoWall');if(!root)return;
-    filtered=photos.filter(p=>filter==='all'||p.series===filter);
+    filtered=photos.filter(p=>(filter==='all'||p.series===filter)
+      &&(seasonFilter==='all'||p.season===seasonFilter)
+      &&(!focusIDs||focusIDs.has(p.id)));
     root.classList.toggle('grid-mode',view==='grid');root.replaceChildren();
     filtered.forEach((photo,i)=>{
-      const card=document.createElement('article');card.className='photo-card';
+      const card=document.createElement('article');card.className='photo-card frame-'+(['chinese','western'].includes(photo.style)?photo.style:'neutral');
       const b=document.createElement('button');b.type='button';b.className='photo-card-button';b.setAttribute('aria-label','查看照片：'+photo.title);
       b.innerHTML='<div class="photo-figure"><img loading="lazy" decoding="async" alt="'+escapeHTML(photo.alt)+'"><span class="photo-counter">'+String(i+1).padStart(2,'0')+'</span><span class="photo-open-icon" aria-hidden="true">↗</span></div><div class="photo-details"><small>'+escapeHTML(photo.location||'A LITTLE MOMENT')+'</small><h3>'+escapeHTML(photo.title)+'</h3><p>'+escapeHTML(photo.en||'')+'</p></div>';
       $('img',b).src=photo.thumb||photo.src;
       b.addEventListener('click',()=>openLightbox(i));card.append(b);root.append(card);
     });
     $('#photoCount').textContent=String(photos.length).padStart(2,'0');
-    $('#archiveSummary').textContent=String(filtered.length).padStart(2,'0')+' moments, still counting.';
+    $('#archiveSummary').textContent=String(filtered.length).padStart(2,'0')+' / '+String(photos.length).padStart(2,'0')+' photographs';
+    $('#activeFilterNote').textContent=(seasonFilter==='all'?'全部季节':({spring:'春',summer:'夏',autumn:'秋',winter:'冬'}[seasonFilter]||seasonFilter))
+      +' · '+(filter==='all'?'全部章节':filter)+' · '+(focusIDs?'地图精选 · ':'')+'共 '+filtered.length+' 张';
+    if(!filtered.length)root.innerHTML='<p class="empty-gallery">这一组暂时没有照片。试试其他章节或季节。</p>';
   }
   function chooseFilter(name){
-    filter=name;$$('[data-filter]').forEach(btn=>{
+    filter=name;focusIDs=null;$$('[data-filter]').forEach(btn=>{
       const active=btn.dataset.filter===name;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));
     });renderGallery();
   }
@@ -120,18 +146,114 @@
         ctx.restore();});
     }
   }
+  function renderSeasonPreview(){
+    const root=$('#seasonPreview');root.replaceChildren();
+    const shown=seasonFilter==='all'?photos:photos.filter(p=>p.season===seasonFilter);
+    $('#seasonPreviewCount').textContent=(seasonFilter==='all'?'所有季节':'这个季节')+' · '+shown.length+' 张影像';
+    shown.slice(0,6).forEach(p=>{
+      const button=document.createElement('button');button.className='season-shot';button.type='button';
+      const img=document.createElement('img');img.src=p.thumb||p.src;img.alt=p.alt||p.title;img.loading='lazy';
+      const title=document.createElement('span');title.textContent=p.title;button.append(img,title);
+      button.addEventListener('click',()=>{
+        chooseFilter('all');const index=filtered.findIndex(x=>x.id===p.id);if(index>=0)openLightbox(index);
+      });
+      root.append(button);
+    });
+  }
   function setupSeasons(){
     let weather;try{weather=new Weather($('#seasonCanvas'))}catch(err){console.warn('No canvas effect:',err)}
-    const messages={spring:'花瓣飘下来，日子也轻快了一点。',summer:'风吹过绿荫，夏天慢慢醒来。',autumn:'落叶轻轻落下来，像一封写给秋天的信。',winter:'初雪慢慢落下，回忆依然温暖。'};
-    let selected='autumn';try{selected=localStorage.getItem('noticing-season')||'autumn'}catch(_){}
-    function applySeason(name){if(!messages[name])return;document.documentElement.dataset.season=name;weather?.setSeason(name);$$('[data-season]').forEach(b=>{const active=b.dataset.season===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});$('#seasonDescription').textContent=messages[name];try{localStorage.setItem('noticing-season',name)}catch(_){}}
-    $$('[data-season]').forEach(b=>b.addEventListener('click',()=>applySeason(b.dataset.season)));applySeason(selected);
+    const messages={spring:'春天的照片，花瓣也轻轻落下来。',summer:'盛夏的影像，藏着树影和绿意。',autumn:'金色的照片，像北京的落叶。',winter:'雪里的瞬间，天地安静了下来。'};
+    let visual='autumn';try{visual=localStorage.getItem('noticing-season')||'autumn'}catch(_){}
+    function applySeason(name,filterPhotos=true){
+      if(!messages[name])return;
+      document.documentElement.dataset.season=name;weather?.setSeason(name);
+      if(filterPhotos){seasonFilter=name;focusIDs=null;chooseFilter('all');}
+      $('[data-season]').forEach(b=>{const active=b.dataset.season===seasonFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+      $('#seasonDescription').textContent=filterPhotos?messages[name]:'点击季节，查看对应照片；秋叶只是眼前的氛围。';
+      renderSeasonPreview();
+      try{localStorage.setItem('noticing-season',name)}catch(_){}
+    }
+    $('[data-season]').forEach(b=>b.addEventListener('click',()=>applySeason(b.dataset.season,true)));
+    $('#resetSeason').addEventListener('click',()=>{seasonFilter='all';focusIDs=null;chooseFilter('all');$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});$('#seasonDescription').textContent='四季的照片重新汇在一起。';renderSeasonPreview()});
+    applySeason(visual,false);
     const motion=$('#motionToggle');let playing=!reduced.matches;function updateMotion(){weather?.setEnabled(playing);motion.textContent=playing?'暂停动态 Ⅱ':'开启动态 ✳';motion.setAttribute('aria-pressed',String(playing))}
     motion.addEventListener('click',()=>{playing=!playing;updateMotion()});updateMotion();
     reduced.addEventListener?.('change',e=>{if(e.matches){playing=false;updateMotion()}});
   }
 
-  function collagePhoto(i){return photos.find(p=>p.id===collageIDs[i])||photos[i]}
+
+  function setupFootprints(){
+    const located=photos.filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lng)&&p.city&&p.country);
+    const cities=new Map();
+    located.forEach(p=>{const key=p.country+'|'+p.city;if(!cities.has(key))cities.set(key,[]);cities.get(key).push(p)});
+    const names={Beijing:'北京',Astana:'阿斯塔纳'};
+    const back=$('#mapBack'),scope=$('#mapScopeTitle'),description=$('#mapScopeNote'),list=$('#mapPlaces');
+    let active=null,map=null,layer=null;
+    if(window.L){
+      map=L.map('footprintMap',{scrollWheelZoom:false,worldCopyJump:true}).setView([47,92],3);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        attribution:'© OpenStreetMap contributors',maxZoom:18
+      }).addTo(map);
+      layer=L.layerGroup().addTo(map);
+    }else{$('#mapFallback').hidden=false;}
+    function addMarker(lat,lng,label,action){
+      if(!layer)return;
+      const marker=L.marker([lat,lng]).addTo(layer).bindTooltip(label);
+      marker.on('click',action);
+    }
+    function item(title,subtitle,thumb,action){
+      const button=document.createElement('button');button.className='map-place';button.type='button';
+      const img=document.createElement('img');img.src=thumb;img.alt='';img.loading='lazy';
+      const copy=document.createElement('span');const strong=document.createElement('strong');strong.textContent=title;
+      const small=document.createElement('small');small.textContent=subtitle;copy.append(strong,small);
+      const arrow=document.createElement('span');arrow.className='map-arrow';arrow.textContent='↗';
+      button.append(img,copy,arrow);button.addEventListener('click',action);list.append(button);
+    }
+    function openMappedPhoto(ids){
+      filter='all';seasonFilter='all';focusIDs=new Set(ids);
+      $('[data-filter]').forEach(b=>{const v=b.dataset.filter==='all';b.classList.toggle('active',v);b.setAttribute('aria-pressed',String(v))});
+      $('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      renderGallery();$('#archive').scrollIntoView({behavior:reduced.matches?'auto':'smooth',block:'start'});
+    }
+    function world(){
+      active=null;back.hidden=true;list.replaceChildren();
+      scope.textContent='世界那么大，先记住这几座城。';
+      description.textContent='点击城市，打开这一站的照片与地点。';
+      layer?.clearLayers();
+      for(const [key,group] of cities){
+        const city=group[0].city,country=group[0].country;
+        const center=city==='Beijing'?[39.9042,116.4074]:city==='Astana'?[51.1694,71.4491]:[group[0].lat,group[0].lng];
+        const action=()=>enterCity(key);
+        item((names[city]||city)+' / '+country,group.length+' 张照片 · 点击进入',group[0].thumb||group[0].src,action);
+        addMarker(center[0],center[1],names[city]||city,action);
+      }
+      if(map&&cities.size>1){
+        const centers=[...cities.values()].map(g=>g[0].city==='Beijing'?[39.9042,116.4074]:g[0].city==='Astana'?[51.1694,71.4491]:[g[0].lat,g[0].lng]);
+        map.fitBounds(centers,{padding:[55,55],maxZoom:4,animate:false});
+      }
+    }
+    function enterCity(key){
+      const group=cities.get(key);if(!group)return;
+      active=key;back.hidden=false;list.replaceChildren();layer?.clearLayers();
+      scope.textContent=(names[group[0].city]||group[0].city)+' · '+group[0].country;
+      description.textContent=group.length+' 张影像记录在这座城市的公共景点附近。请选择地点，查看照片。';
+      const places=new Map();
+      group.forEach(p=>{const name=p.place||p.location||'未命名地点';if(!places.has(name))places.set(name,[]);places.get(name).push(p)});
+      for(const [name,records] of places){
+        const first=records[0],action=()=>openMappedPhoto(records.map(p=>p.id));
+        item(name,records.length+' 张照片 · 看这一站',first.thumb||first.src,action);
+        addMarker(first.lat,first.lng,name,action);
+      }
+      if(map){
+        const bounds=[...places.values()].map(v=>[v[0].lat,v[0].lng]);
+        if(bounds.length===1)map.setView(bounds[0],12,{animate:true});
+        else map.fitBounds(bounds,{padding:[52,52],maxZoom:12});
+      }
+    }
+    back.addEventListener('click',world);world();
+  }
+
+  function collagePhoto(i){return photos.find(p=>p.id===collageIDs[i])||photos[i]||photos[0]}
   function saveCollage(){try{localStorage.setItem('noticing-collage-v2',JSON.stringify({mode:collageMode,positions}))}catch(_){}}
   function loadCollage(){try{const v=JSON.parse(localStorage.getItem('noticing-collage-v2')||'null');if(v&&v.positions?.length===5&&v.positions.every(p=>[p.x,p.y,p.r].every(Number.isFinite))){positions=v.positions.map(p=>({x:clamp(p.x,10,90),y:clamp(p.y,14,86),r:clamp(p.r,-30,30)}));collageMode=v.mode||'custom'}}catch(_){}}
   function placeTile(i){const p=positions[i],tile=collageTiles[i];tile.style.left=p.x+'%';tile.style.top=p.y+'%';tile.style.setProperty('--rotate',p.r+'deg')}
@@ -143,7 +265,7 @@
       const p=collagePhoto(i),tile=document.createElement('div');tile.className='collage-tile';tile.dataset.index=String(i);tile.tabIndex=0;tile.setAttribute('role','button');tile.setAttribute('aria-label',p.title+'；拖动位置或按方向键微调；按回车查看大图');
       const img=document.createElement('img');img.src=p.thumb||p.src;img.alt=p.alt||p.title;img.draggable=false;
       const caption=document.createElement('span');caption.textContent=String(i+1).padStart(2,'0')+' / '+p.title;tile.append(img,caption);
-      tile.addEventListener('click',()=>{if(suppressClick)return;chooseFilter('all');const idx=filtered.findIndex(x=>x.id===p.id);if(idx>=0)openLightbox(idx)});
+      tile.addEventListener('click',()=>{if(suppressClick)return;chooseFilter('all');const current=collagePhoto(i);const idx=filtered.findIndex(x=>x.id===current.id);if(idx>=0)openLightbox(idx)});
       tile.addEventListener('keydown',e=>{
         const offsets={ArrowLeft:[-2,0],ArrowRight:[2,0],ArrowUp:[0,-2],ArrowDown:[0,2]};
         if(offsets[e.key]){e.preventDefault();positions[i].x=clamp(positions[i].x+offsets[e.key][0],10,90);positions[i].y=clamp(positions[i].y+offsets[e.key][1],14,86);collageMode='custom';placeTile(i);updateLayouts();saveCollage()}
@@ -151,6 +273,21 @@
       });
       board.append(tile);collageTiles.push(tile);placeTile(i);
     }
+    $('#collageCollection').addEventListener('change',e=>{
+      const group=e.target.value;
+      const selected=group==='all'
+        ?['cat','opera','lizard','sunset','snow'].map(id=>photos.find(p=>p.id===id)).filter(Boolean)
+        :photos.filter(p=>p.series===group);
+      const rest=photos.filter(p=>!selected.includes(p));
+      collageIDs=[...selected,...rest].slice(0,5).map(p=>p.id);
+      collageTiles.forEach((tile,i)=>{
+        const photo=collagePhoto(i);$('img',tile).src=photo.thumb||photo.src;
+        $('img',tile).alt=photo.alt||photo.title;
+        $('span',tile).textContent=String(i+1).padStart(2,'0')+' / '+photo.title;
+        tile.setAttribute('aria-label',photo.title+'；拖动位置或按方向键微调；按回车查看大图');
+      });
+      toast('拼贴已经换成这一组照片');
+    });
     board.addEventListener('pointerdown',e=>{
       const tile=e.target.closest('.collage-tile');if(!tile||e.button!==0)return;
       const i=Number(tile.dataset.index),r=board.getBoundingClientRect();drag={id:e.pointerId,i,x:e.clientX,y:e.clientY,sx:positions[i].x,sy:positions[i].y,w:r.width,h:r.height,moved:false};tile.setPointerCapture(e.pointerId);tile.classList.add('dragging');
@@ -189,29 +326,17 @@
     finally{btn.disabled=false;btn.textContent='导出拼贴 PNG ↗'}
   }
 
-  // Optional persistent browser-only uploads: no server, credentials, or external provider.
-  function dbOpen(){return new Promise((resolve,reject)=>{if(!('indexedDB' in window)){reject(Error('IndexedDB unavailable'));return}const req=indexedDB.open('noticing-personal-photos',1);req.onupgradeneeded=()=>req.result.createObjectStore('photos',{keyPath:'id'});req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
-  async function localRecords(){const db=await dbOpen();return new Promise((resolve,reject)=>{const req=db.transaction('photos','readonly').objectStore('photos').getAll();req.onsuccess=()=>{db.close();resolve(req.result)};req.onerror=()=>{db.close();reject(req.error)}})}
-  async function saveRecord(data){const db=await dbOpen();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').put(data);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}})}
-  async function optimizeFile(file){return new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const canvas=document.createElement('canvas');const scale=Math.min(1,1600/Math.max(img.width,img.height));canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);URL.revokeObjectURL(url);canvas.toBlob(b=>b?resolve(b):reject(Error('Encoding failed')),'image/webp',.83)};img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('Invalid image'))};img.src=url})}
-  async function hydratePhotos(){try{const rows=await localRecords();for(const row of rows){const url=URL.createObjectURL(row.blob);localURLs.push(url);imported.push({...row,src:url,thumb:url});}photos=[...originalPhotos,...imported];renderGallery()}catch(err){console.warn('Local photos disabled',err)}}
-  function setupImport(){
-    const picker=$('#photoPicker'),dialog=$('#importDialog'),preview=$('#importPreview');const queue=[];let selected=null,temporaryURL=null;
-    function next(){if(temporaryURL){URL.revokeObjectURL(temporaryURL);temporaryURL=null}selected=queue.shift()||null;if(!selected)return;
-      temporaryURL=URL.createObjectURL(selected);preview.src=temporaryURL;$('#importTitleInput').value=selected.name.replace(/\.[^.]+$/,'').slice(0,45);$('#importNoteInput').value='';$('#importCategory').value='landscapes';dialog.showModal();}
-    $('#addPhotos').addEventListener('click',()=>picker.click());
-    picker.addEventListener('change',()=>{const files=[...picker.files].filter(f=>f.type.startsWith('image/')).slice(0,12);queue.push(...files);picker.value='';if(!dialog.open)next()});
-    dialog.addEventListener('close',async()=>{
-      const result=dialog.returnValue,file=selected;selected=null;
-      if(result==='confirm'&&file){
-        try{const blob=await optimizeFile(file);const id='local-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);const row={id,blob,title:$('#importTitleInput').value.trim()||'一张新照片',en:'A New Little Moment',series:$('#importCategory').value,season:'autumn',location:'我的私人收藏',note:$('#importNoteInput').value.trim(),alt:$('#importTitleInput').value.trim()||'私人照片'};
-          await saveRecord(row);const url=URL.createObjectURL(blob);localURLs.push(url);imported.push({...row,src:url,thumb:url});photos=[...originalPhotos,...imported];chooseFilter('all');toast('已经收进你的浏览器私人画廊 ♡');
-        }catch(err){console.warn('Photo import failed',err);toast('保存失败，可能是浏览器存储空间不足。')}}
-      next();
-    });
-    $('#importSave').addEventListener('click',e=>{if(!$('#importTitleInput').value.trim()){e.preventDefault();$('#importTitleInput').focus()}});
-    addEventListener('pagehide',()=>localURLs.forEach(u=>URL.revokeObjectURL(u)),{once:true});
+  // Publishing takes place through GitHub commits, not an isolated browser database.
+  async function init(){
+    handleMissingImages();reveal();setupLightbox();
+    try{
+      await loadCatalog();
+      setupFilters();setupSeasons();setupFootprints();initCollage();
+    }catch(err){
+      console.error('Photo journal could not load',err);
+      $('#activeFilterNote').textContent='照片清单未能加载。请通过 GitHub Pages 或本地 HTTP 服务器打开网页，而不是双击 file:// 文件。';
+      $('#mapFallback').hidden=false;
+    }
   }
-  function init(){handleMissingImages();reveal();setupFilters();setupLightbox();setupSeasons();initCollage();setupImport();hydratePhotos()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
