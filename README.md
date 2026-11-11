@@ -13,7 +13,7 @@
 
 网站地址：<https://56vpc2nv5y-lang.github.io/Gallary/>
 
-GitHub Pages 设置：Settings → Pages → Deploy from a branch → `main` / `/(root)`。GitHub Pages 可能需要一点时间更新。地图现为无需第三方资源的内建可点击地理示意图，页面不会因为地图 CDN 不可用而空白。
+GitHub Pages 设置：Settings → Pages → Deploy from a branch → `main` / `/(root)`。GitHub Pages 可能需要一点时间更新。地图现为无需第三方资源的内建可点击地理示意图。世界陆地轮廓来自 public-domain Natural Earth（已打包在 `data/worldmap.js`）；地点标注是经确认的公共地标而非原始拍摄 GPS。
 
 V4 已支持双击 `index.html` 打开静态展厅与足迹示意图（依赖同文件夹下的 `data/photos.js`、图片缓存）。建议使用 HTTP 服务进行完整预览：
 
@@ -115,7 +115,7 @@ scripts/sync_photos.py             新照片自动入库（不会发布 EXIF GPS
 - 选集按照北京、偶遇、建筑、光影展开，四个章节直达同一套正式照片清单。
 - 展厅使用人工编排的图片跨度、适度留白和原比例图片；过滤和灯箱仍然可用。
 - 昆明湖照片保持静止，四季不再有装饰性动画，灯箱不自动播放。
-- 地图保留无需第三方 API 的离线地点示意图；它不是具有真实街道数据的导航地图。
+- 地图使用已经打包的 Natural Earth 陆地轮廓，城市层使用地点相对位置坐标，不再虚构道路。它不是街道导航地图。
 - 纪念手帐成为按需展开的工作区，原来的拖拽、选图、填写文字与导出 PNG 继续可用。
 - `css/editorial-v2.css` 是摄影排版层，尽量不修改既有地图与手帐的交互逻辑。
 - `scripts/check_gallery_runtime.mjs` 会检查每张已发布照片拥有真实文件或内嵌备份，避免出现空白照片墙。
