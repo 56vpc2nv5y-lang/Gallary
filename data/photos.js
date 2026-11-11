@@ -1,4 +1,4 @@
-/* Generated from data/photos.json. Do not edit directly: run scripts/sync_photos.py. */
+/* Generated from data/photos.json; do not edit directly. */
 window.PHOTO_JOURNAL = {
   "title": "The Art of Noticing",
   "owner": "Sunny",
