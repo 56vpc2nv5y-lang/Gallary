@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-season="autumn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>四时画廊</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍁</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Cormorant+Garamond:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--serif:"Noto Serif SC","Songti SC","STSong","SimSun",serif;--latin:"Cormorant Garamond",Georgia,serif}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root[data-season=autumn]{--bg:#1b1310;--bg2:#2a1b15;--ink:#f4e8d2;--mute:#b9a58c;--accent:#d2452c;--gold:#e0ad4a;--glow:rgba(224,130,50,.22)}
+:root[data-season=spring]{--bg:#171519;--bg2:#251f27;--ink:#f6ebee;--mute:#b9a3ab;--accent:#e58aa3;--gold:#e8c3a0;--glow:rgba(229,138,163,.18)}
+:root[data-season=summer]{--bg:#0e1a17;--bg2:#162a22;--ink:#e9f2e4;--mute:#9db5a4;--accent:#58b58a;--gold:#d9c36a;--glow:rgba(88,181,138,.18)}
+:root[data-season=winter]{--bg:#10151d;--bg2:#1a2330;--ink:#eaf1f8;--mute:#9aaabb;--accent:#8fb8dc;--gold:#cfd9e6;--glow:rgba(143,184,220,.2)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:radial-gradient(120% 60% at 50% 0,var(--glow),transparent 70%),var(--bg);color:var(--ink);font:400 17px/1.8 var(--serif);transition:background-color .8s,color .8s;min-height:100vh;overflow-x:hidden}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+header,main,footer{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 clamp(16px,4vw,40px)}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-top:22px;padding-bottom:18px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:22px;letter-spacing:.3em}
+.seal{display:inline-grid;place-items:center;width:34px;height:34px;background:var(--accent);color:var(--bg);font-size:19px;letter-spacing:0;border-radius:3px;transform:rotate(-4deg);transition:background .8s}
+.seasons{display:flex;gap:10px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,.piece>button:focus-visible,.pin:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.seasons button{width:40px;height:40px;border-radius:50%;border:1px solid color-mix(in srgb,var(--ink) 30%,transparent);background:transparent;font-weight:700;transition:all .3s}
+.seasons button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.hero{position:relative;aspect-ratio:16/8;min-height:300px;border-radius:4px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.5)}
+#tiles{position:absolute;inset:0;width:100%;height:100%}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(10,6,4,.78),transparent 55%);pointer-events:none}
+.hero-text{position:absolute;left:clamp(16px,4vw,44px);bottom:clamp(14px,3vw,34px);z-index:2}
+.hero h1{margin:0;font-weight:900;font-size:clamp(34px,7vw,76px);letter-spacing:.12em;line-height:1.15}
+.hero p{margin:.3em 0 0;color:#eadcc4;font-size:clamp(14px,1.6vw,18px)}
+.regroup{position:absolute;right:16px;bottom:16px;z-index:2;background:rgba(20,12,8,.55);border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:4px 16px;font-size:14px;backdrop-filter:blur(6px)}
+section{padding:clamp(48px,9vw,96px) 0 0}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:34px}
+h2{margin:0;font-size:clamp(26px,4vw,38px);font-weight:900;letter-spacing:.3em}
+.sub{color:var(--mute);font-size:15px}
+.seg{display:flex;gap:4px;font-size:14px}
+.seg button{background:none;border:0;border-bottom:1px solid transparent;padding:2px 10px;color:var(--mute)}
+.seg button[aria-pressed=true]{color:var(--ink);border-bottom-color:var(--gold)}
+.wall{display:flex;flex-wrap:wrap;gap:60px 56px;align-items:flex-start;justify-content:center}
+.piece{--ar:1;flex:calc(var(--ar)*10) 1 280px;max-width:calc(var(--ar)*540px);text-align:center}
+.piece:nth-child(even){margin-top:70px}
+.piece>button{all:unset;display:block;width:100%;cursor:zoom-in}
+.frame{position:relative;transition:transform .4s}
+.piece>button:hover .frame{transform:translateY(-4px) rotate(-.4deg)}
+.frame img{display:block;width:100%;height:auto}
+.frame.cn{padding:18px;background:linear-gradient(#8e1f15,#6a130c);box-shadow:inset 0 0 0 2px #e0ad4a,inset 0 0 0 6px #6a130c,inset 0 0 0 7px rgba(224,173,74,.6),0 24px 44px rgba(0,0,0,.55)}
+.frame.cn::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,rgba(224,173,74,.7) 1.2px,transparent 1.8px) 0 0/10px 10px;opacity:.45}
+.frame.cn .mat{position:relative;padding:8px;background:#efe3c8;box-shadow:0 0 0 2px #3d0c07}
+.frame.intl{padding:22px;background:linear-gradient(135deg,#f5dc92,#b7842a 35%,#f0d27c 55%,#8a5f14);box-shadow:inset 0 0 0 2px #5c3d0a,inset 0 0 0 5px rgba(255,240,190,.6),0 24px 44px rgba(0,0,0,.55)}
+.frame.intl .mat{padding:16px;background:#f7f3ea;box-shadow:inset 0 0 8px rgba(0,0,0,.4)}
+.plaque{display:inline-block;margin-top:26px;padding:.2em 1.3em;background:#2a3f9e;color:#f0cf7a;font-weight:700;letter-spacing:.25em;border:2px solid #d9b25a;outline:2px solid #2a3f9e;outline-offset:-6px;box-shadow:0 8px 18px rgba(0,0,0,.45)}
+.place{display:block;margin-top:8px;color:var(--mute);font-size:14px}
+.mapbox{background:var(--bg2);border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);border-radius:4px;padding:clamp(8px,2vw,20px);transition:background .8s}
+.mapbox svg{display:block;width:100%;height:auto}
+.pin{cursor:pointer;transform-box:fill-box;transform-origin:center;transition:transform .25s}
+.pin:hover{transform:scale(1.18)}
+.map-note{margin:14px 0 0;color:var(--mute);font-size:14px}
+footer{padding-top:80px;padding-bottom:60px;color:var(--mute);font-size:14px;text-align:center}
+.latin{font-family:var(--latin);font-style:italic;font-size:18px}
+dialog{border:0;padding:0;background:transparent;max-width:min(94vw,1000px);max-height:94vh;color:var(--ink);overflow:visible}
+dialog::backdrop{background:rgba(8,5,3,.88)}
+dialog img{display:block;max-width:100%;max-height:80vh;margin:0 auto;box-shadow:0 20px 60px #000}
+dialog p{text-align:center;margin:14px 0 0}
+dialog .x{position:absolute;right:0;top:-44px;background:none;border:1px solid rgba(255,255,255,.4);border-radius:50%;width:36px;height:36px}
+@media(max-width:640px){.piece:nth-child(even){margin-top:0}.hero{aspect-ratio:4/3}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<header>
+  <div class="brand"><span class="seal">景</span>四时画廊</div>
+  <div class="seasons" role="group" aria-label="切换季节">
+    <button data-s="spring" aria-pressed="false">春</button>
+    <button data-s="summer" aria-pressed="false">夏</button>
+    <button data-s="autumn" aria-pressed="true">秋</button>
+    <button data-s="winter" aria-pressed="false">冬</button>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <canvas id="tiles" role="img" aria-label="昆明湖落日"></canvas>
+    <div class="hero-text"><h1>颐和园，秋</h1><p>昆明湖的落日，勤政殿前的秋叶。</p></div>
+    <button class="regroup" id="regroup">重新拼合</button>
+  </div>
+
+  <section id="wall-sec">
+    <div class="sec-head">
+      <h2>展厅</h2>
+      <div class="seg" id="frames" role="group" aria-label="画框风格">
+        <button data-f="auto" aria-pressed="true">按地区</button>
+        <button data-f="cn" aria-pressed="false">中式</button>
+        <button data-f="intl" aria-pressed="false">欧式</button>
+      </div>
+    </div>
+    <div class="wall" id="wall"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>足迹</h2><span class="sub" id="count"></span></div>
+    <div class="mapbox">
+      <svg viewBox="0 0 640 420" role="img" aria-label="颐和园打卡示意图" id="map">
+        <path d="M50 150C130 50 300 22 450 72c60 20 100 42 130 76-150-24-340-28-530 6z" fill="var(--accent)" opacity=".16" stroke="var(--ink)" stroke-opacity=".3"/>
+        <path d="M70 192C130 164 340 172 520 194c80 40 76 140-20 178-120 40-300 30-390-30C46 300 34 230 70 192z" fill="#5f8fa8" opacity=".24" stroke="var(--ink)" stroke-opacity=".3"/>
+        <path d="M122 204c-12 56 8 110 52 156" fill="none" stroke="var(--ink)" stroke-opacity=".35" stroke-dasharray="4 5"/>
+        <rect x="498" y="150" width="62" height="40" fill="var(--gold)" opacity=".3" stroke="var(--ink)" stroke-opacity=".3"/>
+        <g fill="var(--mute)" font-family="var(--serif)" text-anchor="middle">
+          <text x="300" y="92" font-size="20" letter-spacing="10">万寿山</text>
+          <text x="290" y="300" font-size="22" letter-spacing="14" opacity=".7">昆明湖</text>
+          <text x="104" y="250" font-size="12" transform="rotate(-90 104 250)">西堤</text>
+          <text x="529" y="208" font-size="12">东宫门</text>
+        </g>
+        <g id="pins"></g>
+      </svg>
+    </div>
+    <p class="map-note">示意图，不按比例。点印章看照片；位置在 PHOTOS 里的 map 字段调整。</p>
+  </section>
+</main>
+<footer>
+  <p class="latin">Four Seasons Gallery</p>
+  <p>添加照片：放进 photos 文件夹，在 index.html 的 PHOTOS 里加一项。</p>
+</footer>
+
+<dialog id="lb"><button class="x" aria-label="关闭">✕</button><img alt=""><p></p></dialog>
+
+<script>
+// ===== 照片数据：新增照片只需在这里加一项 =====
+// region: cn=中式画框 / intl=欧式画框；map: 示意图坐标 [x,y]；seal: 印章上的字；hero: true 用作顶部拼图
+const PHOTOS=[
+ {src:"photos/kunming-sunset.jpg",title:"昆明湖落日",place:"颐和园 · 昆明湖畔",season:"autumn",region:"cn",ar:4/3,map:[360,245],seal:"湖",hero:true},
+ {src:"photos/qinzheng-autumn.jpg",title:"勤政殿前的秋叶",place:"颐和园 · 勤政殿",season:"autumn",region:"cn",ar:3/4,map:[529,172],seal:"殿"}
+];
+const $=s=>document.querySelector(s),reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+// ===== 展厅 =====
+const wall=$("#wall");let frameMode="auto";
+function renderWall(){wall.innerHTML="";PHOTOS.forEach((p,i)=>{
+ const f=frameMode==="auto"?p.region:frameMode,el=document.createElement("figure");
+ el.className="piece";el.style.setProperty("--ar",p.ar);el.style.margin="";
+ el.innerHTML=`<button data-i="${i}" aria-label="查看大图：${p.title}"><div class="frame ${f}"><div class="mat"><img src="${p.src}" alt="${p.title}，${p.place}" loading="lazy"></div></div></button><span class="plaque">${p.title}</span><span class="place">${p.place}</span>`;
+ wall.append(el)})}
+renderWall();
+document.querySelectorAll("#frames button").forEach(b=>b.onclick=()=>{frameMode=b.dataset.f;document.querySelectorAll("#frames button").forEach(x=>x.setAttribute("aria-pressed",x===b));renderWall()});
+
+// ===== 大图 =====
+const lb=$("#lb");
+function openPhoto(i){const p=PHOTOS[i];lb.querySelector("img").src=p.src;lb.querySelector("img").alt=p.title;lb.querySelector("p").textContent=p.title+"　"+p.place;lb.showModal()}
+wall.addEventListener("click",e=>{const b=e.target.closest("button[data-i]");if(b)openPhoto(+b.dataset.i)});
+lb.addEventListener("click",e=>{if(e.target===lb||e.target.classList.contains("x"))lb.close()});
+
+// ===== 足迹地图 =====
+const NS="http://www.w3.org/2000/svg";
+PHOTOS.forEach((p,i)=>{if(!p.map)return;const g=document.createElementNS(NS,"g");g.setAttribute("class","pin");g.setAttribute("tabindex","0");g.setAttribute("role","button");g.setAttribute("aria-label","打卡：打开"+p.title);
+ g.innerHTML=`<rect x="${p.map[0]-14}" y="${p.map[1]-14}" width="28" height="28" rx="3" fill="var(--accent)" transform="rotate(-5 ${p.map[0]} ${p.map[1]})"/><text x="${p.map[0]}" y="${p.map[1]+7}" text-anchor="middle" font-size="19" font-weight="900" fill="var(--bg)" font-family="var(--serif)">${p.seal||"印"}</text><text x="${p.map[0]}" y="${p.map[1]+34}" text-anchor="middle" font-size="13" fill="var(--ink)" font-family="var(--serif)">${p.title}</text>`;
+ g.onclick=()=>openPhoto(i);g.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openPhoto(i)}};$("#pins").append(g)});
+$("#count").textContent=`已打卡 ${PHOTOS.filter(p=>p.map).length} 处`;
+
+// ===== 开场：照片碎片拼合 =====
+const tc=$("#tiles"),tx=tc.getContext("2d"),heroP=PHOTOS.find(p=>p.hero)||PHOTOS[0],himg=new Image();
+let tiles=[],T0=0,raf=0,TW=0,TH=0;
+function setupTiles(){const r=tc.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);TW=r.width;TH=r.height;tc.width=TW*d;tc.height=TH*d;tx.setTransform(d,0,0,d,0,0);
+ const cols=14,s=TW/cols,rows=Math.ceil(TH/s);tiles=[];
+ for(let r_=0;r_<rows;r_++)for(let c=0;c<cols;c++){const cx=c*s+s/2,cy=r_*s+s/2,dist=Math.hypot(cx-TW/2,cy-TH/2)/Math.hypot(TW/2,TH/2);
+  tiles.push({x:c*s,y:r_*s,s,delay:dist*.55+Math.random()*.25,ox:(Math.random()-.5)*260,oy:(Math.random()-.5)*260+80,rot:(Math.random()-.5)*1.4})}}
+function paint(t){tx.clearRect(0,0,TW,TH);if(!himg.complete||!himg.naturalWidth)return;
+ const sc=Math.max(TW/himg.naturalWidth,TH/himg.naturalHeight),ox=(himg.naturalWidth-TW/sc)/2,oy=(himg.naturalHeight-TH/sc)/2;let done=true;
+ for(const k of tiles){let p=Math.min(1,Math.max(0,(t-k.delay)/.9));if(p<1)done=false;const e=1-Math.pow(1-p,3);
+  tx.save();tx.globalAlpha=e;tx.translate(k.x+k.s/2+k.ox*(1-e),k.y+k.s/2+k.oy*(1-e));tx.rotate(k.rot*(1-e));
+  tx.drawImage(himg,ox+k.x/sc,oy+k.y/sc,(k.s+1)/sc,(k.s+1)/sc,-k.s/2,-k.s/2,k.s+1,k.s+1);tx.restore()}
+ return done}
+function playTiles(){cancelAnimationFrame(raf);setupTiles();if(reduce){paint(9);return}T0=performance.now();
+ const loop=n=>{if(!paint((n-T0)/1000))raf=requestAnimationFrame(loop)};raf=requestAnimationFrame(loop)}
+himg.onload=playTiles;himg.src=heroP.src;$("#regroup").onclick=playTiles;
+let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{cancelAnimationFrame(raf);setupTiles();paint(9)},150)});
+
+// ===== 季节粒子 =====
+const fx=$("#fx"),cx=fx.getContext("2d");let W,H,parts=[],season="autumn",fraf;
+const R=(a,b)=>a+Math.random()*(b-a);
+const cfg={
+ autumn:()=>({s:R(6,13),vy:R(.5,1.3),vx:R(-.4,.5),c:["#e8742a","#f2a53a","#c8412b","#f6c84c"][Math.random()*4|0]}),
+ spring:()=>({s:R(4,8),vy:R(.4,1),vx:R(-.3,.6),c:["#f7c6d3","#f2a0b8","#fff0f3"][Math.random()*3|0]}),
+ summer:()=>({s:R(1.5,3.2),vy:R(-.25,.25),vx:R(-.25,.25),c:"#e6f27a"}),
+ winter:()=>({s:R(1.4,3.8),vy:R(.5,1.5),vx:R(-.3,.3),c:"#ffffff"})};
+function sizeFx(){const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;fx.width=W*d;fx.height=H*d;cx.setTransform(d,0,0,d,0,0)}
+function setSeason(s){season=s;document.documentElement.dataset.season=s;
+ document.querySelectorAll(".seasons button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.s===s));
+ const n=Math.round(Math.min(s==="summer"?30:55,W/22));parts=Array.from({length:n},()=>({...cfg[s](),x:R(0,W),y:R(0,H),r:R(0,6.28),vr:R(-.03,.03),ph:R(0,6.28)}))}
+function drawP(p,t){cx.save();cx.translate(p.x,p.y);cx.fillStyle=p.c;
+ if(season==="autumn"){cx.rotate(p.r);cx.globalAlpha=.9;cx.beginPath();for(let i=0;i<10;i++){const r=i%2?p.s*.5:p.s,a=i*Math.PI/5;cx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}cx.fill()}
+ else if(season==="spring"){cx.rotate(p.r);cx.globalAlpha=.85;cx.beginPath();cx.ellipse(0,0,p.s,p.s*.55,0,0,6.28);cx.fill()}
+ else if(season==="summer"){const a=.35+.65*Math.abs(Math.sin(t/900+p.ph));cx.globalAlpha=a*.25;cx.beginPath();cx.arc(0,0,p.s*4,0,6.28);cx.fill();cx.globalAlpha=a;cx.beginPath();cx.arc(0,0,p.s,0,6.28);cx.fill()}
+ else{cx.globalAlpha=.85;cx.beginPath();cx.arc(0,0,p.s,0,6.28);cx.fill()}
+ cx.restore()}
+function tick(t){cx.clearRect(0,0,W,H);for(const p of parts){p.ph+=.012;p.x+=p.vx+Math.sin(p.ph)*(season==="summer"?.35:.5);p.y+=p.vy;p.r+=p.vr;
+  if(p.y>H+20){p.y=-20;p.x=R(0,W)}if(p.y<-30)p.y=H+20;if(p.x>W+20)p.x=-20;if(p.x<-20)p.x=W+20;drawP(p,t)}
+ fraf=requestAnimationFrame(tick)}
+sizeFx();addEventListener("resize",sizeFx);
+document.querySelectorAll(".seasons button").forEach(b=>b.onclick=()=>setSeason(b.dataset.s));
+const m=new Date().getMonth()+1;setSeason(m>=3&&m<=5?"spring":m>=6&&m<=8?"summer":m>=9&&m<=11?"autumn":"winter");
+if(!reduce)fraf=requestAnimationFrame(tick);
+</script>
+</body>
+</html>
