@@ -1,52 +1,44 @@
-# The Last Golden Days · 北京四季影像馆 🍁
+# The Art of Noticing · 看见的艺术
 
-一个从 **Beijing Farewell Diary** 独立出来的、桌面优先的私人摄影画廊。记录 2026 年 11 月 10 日的香山与颐和园，收录 5 张真实拍摄照片。
+一本以四季为线索、可以自由拼贴的私人摄影杂志。第一期收藏 **2026 年 11 月 10 日，北京香山和颐和园** 的五张原创照片。
 
-## 预览与技术
+## 立即打开
 
-- **打开方式：** 把本仓库下载/解压后，直接双击 `index.html`，Chrome / Edge / Safari 均可查看。也可以使用 VS Code Live Server。
-- **部署方式：** 原生 HTML + CSS + JavaScript + 本地 JPG，**不需要 npm、Node、数据库、API 密钥或 CDN**。可直接部署到 GitHub Pages。
-- **推荐体验：** 电脑浏览器 1440px 及以上，手机也会自动排版。
-- **原创交互：** Canvas 程序化叶片/雪花/花瓣/绿叶动画，季节切换、粒子密度、动画暂停、照片筛选、双布局、全屏灯箱、键盘/触摸翻页、自动播放、章节叙事。
-- **无障碍：** 支持键盘焦点、语义化图像描述与 `prefers-reduced-motion` 低动态偏好。
+- GitHub Pages: https://56vpc2nv5y-lang.github.io/Gallary/ （如果暂未启用 Pages，先去仓库 Settings → Pages → Deploy from a branch → main / root）
+- 本地预览：下载仓库，双击根目录的 `index.html`，不需要安装 npm、Node 或数据库。
 
-## 目录结构
+## 已有功能
+
+- **可拖拽拼贴工作台**：5 张 Polaroid 照片自由移动；「杂志散页」「星点排列」「时光长卷」三种模板；随机洗牌与恢复排版。
+- **保存拼贴位置**：使用浏览器 `localStorage`，仅本机保存，不会上云。
+- **导出 PNG 海报**：以原图生成可收藏的拼贴画面，浏览器本地处理，不上传照片。
+- **完整摄影展**：杂志式不规则排版与整齐网格两种模式、香山/颐和园筛选、点开大图、左右翻页、自动播放、照片故事。
+- **四季影像篇章**：春、夏、秋、冬封面；现仅秋季有真实作品，其他季节是待收录空白章节。点击季节可切换整站配色与动态气氛。
+- **四季动态**：落叶、初雪、花瓣、夏叶的原创 Canvas 动画，可暂停或调整浓度。支持低动态偏好。
+- **响应式**：手机、平板、桌面浏览器可用；触摸拖动及键盘方向键微调拼贴。
+- **本地临时加图**：仅当次浏览器会话预览，不会写入 GitHub。
+
+## 项目结构
 
 ```text
-Beijing_Golden_Seasons_Gallery/
-├── index.html               # 画廊首页
-├── css/style.css            # 原创布局、颜色及动画
-├── js/app.js                # 粒子效果、照片墙与灯箱交互
-├── data/gallery.js          # 照片信息（新照片改这里）
-├── assets/
-│   ├── favicon.svg
-│   └── photos/
-│       ├── 01-qinzhengdian.jpg
-│       ├── 01-qinzhengdian-thumb.jpg
-│       └── ... 其余照片和缩略图
-├── docs/ADDING_PHOTOS.md   # 添加新作品的中文说明
-├── .nojekyll
-└── README.md
+index.html                 主页面、拼贴工作台、四季封面
+css/style.css              视觉与响应式样式
+js/app.js                  画廊、季节动画与灯箱
+js/magazine.js             拖动排版、本地保存、PNG 导出
+data/gallery.js            作品清单及叙事文案
+assets/photos/             五张原始照片及五张缩略图
+assets/favicon.svg         图标
+docs/ADDING_PHOTOS.md      添加照片说明
 ```
 
-## 上传 GitHub Pages
+## 添加未来季节作品
 
-1. 在 GitHub 新建一个 Repository，建议仓库名 `beijing-golden-seasons`。
-2. 把 ZIP **解压后的文件和文件夹**上传到仓库**根目录**，确保仓库最外层就有 `index.html`（不要多套一层目录）。
-3. 打开仓库 `Settings → Pages`，在 **Build and deployment** 选择 **Deploy from a branch**。
-4. Branch 选择 `main`，目录选 `/(root)`，保存。
-5. 发布成功后，访问：`https://你的用户名.github.io/beijing-golden-seasons/`。
+照片放在 `assets/photos/`，并在 `data/gallery.js` 中新增对象。可选字段 `season` 设为 `spring`、`summer`、`autumn` 或 `winter`；老照片默认归入 `autumn`。
 
-GitHub 官方文档：https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site
+新图正式收录后，别忘了更新相关叙事文字、章节和首页照片数量。拼贴工作台为了保持一期封面排版，目前固定采用前五张照片；完整摄影展可以展示更多条目。
 
-## 后续添加照片
+详见 [docs/ADDING_PHOTOS.md](docs/ADDING_PHOTOS.md)。
 
-参见 [docs/ADDING_PHOTOS.md](docs/ADDING_PHOTOS.md)。网页上的「暂时放进几张新照片」按钮**仅提供本地临时预览**，并不会上传或自动保存到 GitHub；正式收录仍需把照片加入 `assets/photos/`，并在 `data/gallery.js` 中添加条目。
+## 技术和隐私
 
-## 关于设计灵感与版权
-
-- 参考过 tsParticles 的粒子场设计、PhotoSwipe 的灯箱交互和 GSAP 动画画廊的滚动编排思路，但本站的前端结构、粒子渲染和灯箱逻辑均为**独立编写**，未复制上述仓库代码。
-- 照片由画廊主人拍摄提供。未经其许可请勿再次使用或转载照片。
-- 字体使用浏览器系统自带的中文宋体/衬线字体及无衬线字体，核心页面没有外部字体下载依赖。
-
-**一句话**：*The Colors I Came For. The Sunset I Stayed For.*
+原生 HTML/CSS/JavaScript、无外部服务依赖。照片只作为网站静态文件展示；PNG 在浏览器 Canvas 本地生成。请勿在未经作者许可的情况下转载照片。
