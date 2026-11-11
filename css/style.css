@@ -137,28 +137,20 @@ html[data-season='winter']{--season:#719ab0;--glow:#c6dce5;--accent:#678ca2}
 .studio-import-help{font:11px/1.8 var(--serif);margin:-2px 0 13px;color:#9b8274}
 @media(max-width:560px){.picker-head-actions{width:100%}.collage-picker-head .studio-file-label{flex:1}.collage-picker-head button{flex:1}}
 
-/* Interactive photo essay: Kunming Lake fragment reveal, inspired by 四时画廊. */
-.moment-section{padding-top:clamp(70px,9vw,128px);padding-bottom:clamp(54px,7vw,100px)}
-.moment-section .section-heading{margin-bottom:27px}
-.moment-stage{position:relative;isolation:isolate;width:100%;aspect-ratio:16 / 8.6;min-height:345px;overflow:hidden;background:#252724;box-shadow:0 26px 55px #46332429}
-.moment-fallback,.moment-canvas{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover}
-.moment-fallback{z-index:1;opacity:1;transition:opacity .4s ease}
-.moment-canvas{z-index:2;opacity:0;transition:opacity .14s ease}
-.moment-stage.is-playing .moment-fallback{opacity:0}
-.moment-stage.is-playing .moment-canvas{opacity:1}
-.moment-stage-shade{position:absolute;z-index:3;inset:0;pointer-events:none;background:linear-gradient(to top,#181515bf 0%,#22211d12 54%,#15121032 100%)}
-.moment-overlay{position:absolute;z-index:4;inset:0;display:flex;justify-content:space-between;flex-direction:column;color:#f7eee3;padding:clamp(20px,3vw,46px);pointer-events:none}
-.moment-edition{font:10px/1.6 var(--sans);letter-spacing:.22em;color:#f9f2e8db}
-.moment-overlay h3{font:500 clamp(26px,4vw,58px)/1.2 var(--serif);margin:0 0 10px;text-shadow:0 3px 15px #15110b66}
-.moment-overlay p{font:15px/1.7 var(--serif);margin:0;color:#f7eee4df}
-.moment-controls{display:flex;align-items:center;flex-wrap:wrap;column-gap:25px;row-gap:12px;padding:20px 0 0;border-bottom:1px solid #e1d6c9;padding-bottom:21px}
-.moment-controls label{display:flex;gap:12px;align-items:center;font:12px/1.5 var(--serif);color:#836e61}
-.moment-controls select{min-width:185px;max-width:min(320px,65vw);padding:10px 29px 10px 12px;border:1px solid #d5c5b6;background:#faf7f0;color:#655145;font:12px/1.6 var(--serif)}
-.moment-replay{border:1px solid #8e6154;color:#805546;background:transparent;padding:10px 19px;cursor:pointer;border-radius:22px;white-space:nowrap;font:13px/1.6 var(--serif);transition:background .2s ease,transform .2s ease}
-.moment-replay span{font-size:17px;vertical-align:-1px}
-.moment-replay:hover{background:#efe4d8;transform:translateY(-1px)}
-.moment-replay:focus-visible,.moment-controls select:focus-visible{outline:2px solid #aa7556;outline-offset:3px}
-.moment-status{color:#9b897c;font:12px/1.6 var(--serif);margin-left:auto}
-@media(max-width:780px){.moment-stage{aspect-ratio:4 / 3;min-height:290px}.moment-section{padding-top:65px;padding-bottom:65px}.moment-status{margin-left:0}}
-@media(max-width:520px){.moment-stage{aspect-ratio:3 / 3.2;min-height:290px}.moment-overlay{padding:20px}.moment-edition{font-size:8px;letter-spacing:.14em}.moment-overlay h3{font-size:29px}.moment-overlay p{font-size:12px}.moment-controls{align-items:stretch}.moment-controls label{width:100%;justify-content:space-between;gap:5px}.moment-controls select{max-width:65%;min-width:0}.moment-replay{width:max-content}}
-@media(prefers-reduced-motion:reduce){.moment-canvas,.moment-fallback{transition:none!important}}
+
+/* Static photo edition: preserve the editorial layout, not the animations. */
+.still-feature{padding-top:65px;padding-bottom:85px}
+.still-feature .section-heading{margin-bottom:24px}
+.still-feature-photo{margin:0;background:#eee4d9}
+.still-feature-photo img{width:100%;max-height:690px;object-fit:cover;display:block}
+.still-feature-photo figcaption{font:13px/1.8 var(--serif);color:#846e60;padding:18px 2px 0}
+.static-gallery{scroll-behavior:auto}
+.static-gallery *, .static-gallery *::before, .static-gallery *::after{animation:none!important;transition:none!important}
+.static-gallery .reveal{opacity:1!important;transform:none!important}
+.static-gallery .photo-card-button:hover img,
+.static-gallery .feature-card:hover img,
+.static-gallery .cover-main:hover,
+.static-gallery .cover-floating:hover,
+.static-gallery .season-shot:hover img{transform:none!important;filter:none!important}
+.static-gallery .season-canvas{display:none!important}
+@media(max-width:680px){.still-feature{padding-top:45px;padding-bottom:55px}.still-feature-photo img{max-height:400px}}
