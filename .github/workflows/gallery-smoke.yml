@@ -5,6 +5,7 @@ on:
     paths:
       - "index.html"
       - "js/**"
+      - "css/**"
       - "data/photos.js"
       - "data/photos.json"
       - "scripts/check_gallery_runtime.mjs"
@@ -14,9 +15,11 @@ on:
     paths:
       - "index.html"
       - "js/**"
+      - "css/**"
       - "data/photos.js"
       - "data/photos.json"
       - "scripts/check_gallery_runtime.mjs"
+      - "scripts/check_ambience_runtime.mjs"
       - ".github/workflows/gallery-smoke.yml"
 
 permissions:
@@ -34,3 +37,22 @@ jobs:
         run: node scripts/check_gallery_runtime.mjs
       - name: Smoke test seasonal particles and interaction controls
         run: node scripts/check_ambience_runtime.mjs
+      - name: Headless Chrome checks the actually rendered photo wall and ambience
+        shell: bash
+        run: |
+          python3 -m http.server 8055 --bind 127.0.0.1 >/tmp/gallery-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          sleep 2
+          BROWSER="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)"
+          if [ -z "$BROWSER" ]; then
+            echo "No Chrome/Chromium binary on runner"; exit 1
+          fi
+          "$BROWSER" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --no-first-run --virtual-time-budget=4000 --dump-dom http://127.0.0.1:8055/ > /tmp/gallery-dom.html 2>/tmp/gallery-chrome.log || {
+            tail -40 /tmp/gallery-chrome.log; exit 1;
+          }
+          grep -q 'class="photo-card' /tmp/gallery-dom.html || { echo "Photos did not render"; exit 1; }
+          grep -q 'class="season-canvas ambient-on"' /tmp/gallery-dom.html || { echo "Seasonal particles did not activate"; exit 1; }
+          grep -q 'class="studio-disclosure" open' /tmp/gallery-dom.html || { echo "Scrapbook is not visible"; exit 1; }
+          echo "Browser render passed: photos, particle canvas and visible scrapbook."
+
