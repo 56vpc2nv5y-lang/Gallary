@@ -71,6 +71,13 @@ def sync() -> int:
         print(f"Indexed: {rel} (date={date or 'unconfirmed'}, no GPS published)")
     if added:
         MANIFEST.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # Static JavaScript mirror loads even when file:// disallows fetch(JSON).
+    # photos.json remains the only file humans should edit.
+    bundle = ("/* Generated automatically from data/photos.json. Do not edit directly. */\\n"
+              "window.PHOTO_JOURNAL = " + json.dumps(doc, ensure_ascii=False, indent=2) + ";\\n")
+    # Convert escaped source markers into real line breaks.
+    bundle = bundle.replace("\\\\n", "\\n")
+    (ROOT / "data" / "photos.js").write_text(bundle, encoding="utf-8")
     print(f"Catalog: {len(photos)} photos; {added} new")
     return added
 
