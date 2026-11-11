@@ -116,3 +116,27 @@ The page now includes a dedicated **special feature** based on the user's earlie
 - On smaller screens it uses fewer tiles, caps display pixel ratio for performance, and respects `prefers-reduced-motion` by showing a stable image.
 - The existing gallery, map and scrapbook render independently if an optional animation fails. Regression checks live in `scripts/check_gallery_runtime.mjs`.
 
+
+
+## V6 · Living Photographs / 每张照片的动态记忆
+
+每张照片都可以有一种轻量的「像 GIF 一样循环」的动效，但**不是把单张静态照片生成真实视频，也不会改变人物、动物或原始照片的细节**。网站的 JS/CSS 在查看大图时实现光线移动、缓慢推镜头与少量粒子变化。缩略图仅在悬停/键盘聚焦时展示小幅镜头运动，以免整页同时播放影响性能和视觉阅读。
+
+现有 **16 张已发布照片** 均在 `data/photos.json` 拥有自己的 `motion` 和 `motionLabel`。共 11 种效果：
+
+- `ripples`：昆明湖、水面波光（静态照片上叠加透明涟漪）
+- `leaves`：秋叶飘落
+- `snow`：细雪飘落
+- `sunbeam` / `golden`：林间或建筑光线缓慢移动
+- `sunset`：晚霞光晕与缓慢推镜
+- `breeze`：绿色微风和轻微镜头平移
+- `twinkle`：夜景与灯光的细小闪烁
+- `geometry`：建筑细节里的光线扫描
+- `focus` / `closeup`：小动物的温柔镜头推进（**不会伪造动物运动**）
+
+照片详情页可暂停、重播，或临时选择其他动效预览。预览选择仅在当前页面会话有效，不会假装已公开保存。是否播放动态通过浏览器本地存储保存；打开「减少动态效果」系统设置时始终显示静态图。
+
+已编排但尚未上传到 `assets/photos/` 的 21 张精选新照片，在 `data/curated-v5.json` 里也预设了动效标签；等图片真正发布后由现有索引脚本合并。在未上传图像文件之前，不应宣称它们已经出现在公开网站。
+
+动效预览不是可下载的 GIF；纪念手帐仍然导出 PNG。如果未来需要真实 GIF 或短视频，可以另外设计导出流程，而不必再复制一份照片库。
+
