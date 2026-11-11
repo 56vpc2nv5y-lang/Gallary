@@ -95,9 +95,8 @@
     root.classList.toggle('grid-mode',view==='grid');root.replaceChildren();
     filtered.forEach((photo,i)=>{
       const card=document.createElement('article');card.className='photo-card frame-'+(['chinese','western'].includes(photo.style)?photo.style:'neutral');
-      card.dataset.motion=getPhotoMotion(photo);
-      const b=document.createElement('button');b.type='button';b.className='photo-card-button';b.setAttribute('aria-label','查看动态照片：'+photo.title);
-      b.innerHTML='<div class="photo-figure"><img loading="lazy" decoding="async" alt="'+escapeHTML(photo.alt)+'"><span class="photo-counter">'+String(i+1).padStart(2,'0')+'</span><span class="photo-open-icon" aria-hidden="true">↗</span><span class="photo-motion-icon" aria-hidden="true">✳ 会动的瞬间</span></div><div class="photo-details"><small>'+escapeHTML(photo.location||'A LITTLE MOMENT')+'</small><h3>'+escapeHTML(photo.title)+'</h3><p>'+escapeHTML(photo.en||'')+'</p></div>';
+      const b=document.createElement('button');b.type='button';b.className='photo-card-button';b.setAttribute('aria-label','查看照片：'+photo.title);
+      b.innerHTML='<div class="photo-figure"><img loading="lazy" decoding="async" alt="'+escapeHTML(photo.alt)+'"><span class="photo-counter">'+String(i+1).padStart(2,'0')+'</span><span class="photo-open-icon" aria-hidden="true">↗</span></div><div class="photo-details"><small>'+escapeHTML(photo.location||'A LITTLE MOMENT')+'</small><h3>'+escapeHTML(photo.title)+'</h3><p>'+escapeHTML(photo.en||'')+'</p></div>';
       $('img',b).src=photo.thumb||photo.src;
       b.addEventListener('click',()=>openLightbox(i));card.append(b);root.append(card);
     });
@@ -120,138 +119,27 @@
     $$('[data-target-filter]').forEach(link=>link.addEventListener('click',()=>chooseFilter(link.dataset.targetFilter)));
     renderGallery();
   }
-  // Eleven lightweight, photo-specific motion treatments. All effects are
-  // optical interpretations of still images; never fabricated video footage.
-  const livingMotionNames={
-    focus:'寻找那个小小的身影',breeze:'风在绿色里轻轻经过',sunbeam:'把树梢的光留住',
-    geometry:'光沿着建筑的线条移动',sunset:'晚霞正在慢慢变亮',leaves:'落叶从画面经过',
-    golden:'午后的一道金色光',closeup:'镜头温柔地靠近',twinkle:'一点点夜色微光',
-    snow:'雪花慢慢落下',ripples:'湖面亮起细碎的波光'
-  };
-  const livingOverrides=new Map(); // Optional temporary preview; the published photo metadata stays unchanged.
-  function getPhotoMotion(p){
-    const override=livingOverrides.get(p.id);
-    if(override&&livingMotionNames[override])return override;
-    if(p.motion&&livingMotionNames[p.motion])return p.motion;
-    if(p.season==='winter')return 'snow';
-    if(p.series==='encounters')return 'closeup';
-    if(p.series==='architecture')return 'geometry';
-    if(p.season==='autumn')return 'leaves';
-    return p.series==='landscapes'?'sunbeam':'focus';
-  }
-  let livingEnabled=true;
-  try{livingEnabled=localStorage.getItem('noticing-living-motion')!=='off'}catch(_){}
-  function livingCanMove(){return livingEnabled&&!reduced.matches&&!document.hidden}
-  function syncLivingMotion(){
-    const stage=$('#livingStage'),toggle=$('#livingToggle'),replay=$('#livingReplay'),dialog=$('#lightbox');
-    if(!stage||!toggle||!replay)return;
-    const enabled=livingCanMove()&&Boolean(dialog?.open);
-    stage.classList.toggle('is-live',enabled);
-    stage.classList.toggle('is-paused',!enabled);
-    toggle.setAttribute('aria-pressed',String(livingEnabled));
-    toggle.disabled=reduced.matches;
-    replay.disabled=reduced.matches;
-    toggle.textContent=reduced.matches?'系统已减少动态':livingEnabled?'暂停动态 Ⅱ':'播放动态 ▷';
-  }
-  function replayLivingMotion(){
-    const stage=$('#livingStage');
-    if(!stage||reduced.matches)return;
-    livingEnabled=true;
-    try{localStorage.setItem('noticing-living-motion','on')}catch(_){}
-    stage.classList.remove('is-live');
-    // Force a style reset, so CSS animations restart with no extra animation loop.
-    void stage.offsetWidth;
-    syncLivingMotion();
-  }
-  function makeLivingParticles(p,type){
-    const host=$('#livingParticles');if(!host)return;
-    host.replaceChildren();
-    const counts={snow:24,leaves:14,twinkle:16,breeze:10};
-    const count=counts[type]||0;
-    let seed=Array.from(p.id||'photo').reduce((h,c)=>(Math.imul(h,31)+c.charCodeAt(0))>>>0,12345);
-    const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
-    for(let i=0;i<count;i++){
-      const part=document.createElement('span');
-      part.className='living-particle';
-      part.style.setProperty('--x',(random()*96+2).toFixed(1)+'%');
-      part.style.setProperty('--y',(random()*90+5).toFixed(1)+'%');
-      part.style.setProperty('--delay',(-random()*9).toFixed(2)+'s');
-      part.style.setProperty('--duration',(5+random()*5).toFixed(2)+'s');
-      part.style.setProperty('--size',(2+random()*7).toFixed(1)+'px');
-      part.style.setProperty('--drift',((random()-.5)*150).toFixed(1)+'px');
-      host.append(part);
-    }
-  }
-  function renderLivingPhoto(photo){
-    const stage=$('#livingStage');
-    if(!stage)return;
-    const type=getPhotoMotion(photo);
-    stage.dataset.motion=type;
-    const label=$('#livingEffectLabel');
-    if(label)label.textContent=livingOverrides.has(photo.id)?livingMotionNames[type]:(photo.motionLabel||livingMotionNames[type]);
-    const picker=$('#livingEffectSelect');
-    if(picker)picker.value=livingOverrides.get(photo.id)||'auto';
-    const special=$('#livingToTiles');
-    if(special)special.hidden=photo.id!=='beijing-05';
-    makeLivingParticles(photo,type);
-    replayLivingMotionIfEnabled();
-  }
-  function replayLivingMotionIfEnabled(){
-    const stage=$('#livingStage');
-    if(!stage)return;
-    stage.classList.remove('is-live');
-    void stage.offsetWidth;
-    syncLivingMotion();
-  }
   function renderLightbox(){
     const p=filtered[lightboxIndex];if(!p)return;
     $('#lightboxImg').src=p.src;$('#lightboxImg').alt=p.alt||p.title;
     $('#lightboxNum').textContent=String(lightboxIndex+1).padStart(2,'0')+' / '+String(filtered.length).padStart(2,'0');
     $('#lightboxTitle').textContent=p.title;$('#lightboxEnglish').textContent=p.en||'';
     $('#lightboxNote').textContent=p.note||'';$('#lightboxPlace').textContent=p.location||'';
-    renderLivingPhoto(p);
   }
   function openLightbox(i){
-    const d=$('#lightbox');if(!filtered[i])return;lastFocus=document.activeElement;lightboxIndex=i;
-    d.showModal();document.body.classList.add('modal-open');renderLightbox();
+    const d=$('#lightbox');if(!filtered[i])return;lastFocus=document.activeElement;lightboxIndex=i;renderLightbox();
+    d.showModal();document.body.classList.add('modal-open');
   }
   function closeLightbox(){const d=$('#lightbox');if(d.open)d.close()}
   function turn(delta){if(!filtered.length)return;lightboxIndex=(lightboxIndex+delta+filtered.length)%filtered.length;renderLightbox()}
   function stopSlides(){if(slideTimer)clearInterval(slideTimer);slideTimer=null;$('#lightboxPlay').textContent='自动播放 ▷'}
   function setupLightbox(){
     const d=$('#lightbox');$('#closeLightbox').addEventListener('click',closeLightbox);
-    $('#livingToggle').addEventListener('click',()=>{
-      if(reduced.matches)return;
-      livingEnabled=!livingEnabled;
-      try{localStorage.setItem('noticing-living-motion',livingEnabled?'on':'off')}catch(_){}
-      syncLivingMotion();
-    });
-    $('#livingReplay').addEventListener('click',replayLivingMotion);
-    const effectPicker=$('#livingEffectSelect');
-    if(effectPicker){
-      for(const [key,label] of Object.entries(livingMotionNames)){
-        const option=document.createElement('option');option.value=key;option.textContent=label;effectPicker.append(option);
-      }
-      effectPicker.addEventListener('change',()=>{
-        const photo=filtered[lightboxIndex];if(!photo)return;
-        if(effectPicker.value==='auto')livingOverrides.delete(photo.id);
-        else if(livingMotionNames[effectPicker.value])livingOverrides.set(photo.id,effectPicker.value);
-        renderLivingPhoto(photo);
-      });
-    }
-    $('#livingToTiles').addEventListener('click',closeLightbox);
-    document.addEventListener('visibilitychange',syncLivingMotion);
-    reduced.addEventListener?.('change',syncLivingMotion);
     $('#prevPhoto').addEventListener('click',()=>turn(-1));$('#nextPhoto').addEventListener('click',()=>turn(1));
     $('#lightboxPlay').addEventListener('click',()=>{
-      if(slideTimer){stopSlides();return;}slideTimer=setInterval(()=>turn(1),6500);$('#lightboxPlay').textContent='暂停播放 Ⅱ';
+      if(slideTimer){stopSlides();return;}slideTimer=setInterval(()=>turn(1),3600);$('#lightboxPlay').textContent='暂停播放 Ⅱ';
     });
-    d.addEventListener('close',()=>{
-      stopSlides();
-      $('#livingStage').classList.remove('is-live');
-      $('#livingParticles').replaceChildren();
-      document.body.classList.remove('modal-open');lastFocus?.focus?.();
-    });
+    d.addEventListener('close',()=>{stopSlides();document.body.classList.remove('modal-open');lastFocus?.focus?.()});
     d.addEventListener('click',e=>{if(e.target===d)closeLightbox()});
     addEventListener('keydown',e=>{
       if(!d.open)return;
