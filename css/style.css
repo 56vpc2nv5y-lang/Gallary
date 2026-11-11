@@ -215,10 +215,10 @@ html[data-season='winter']{--season:#719ab0;--glow:#c6dce5;--accent:#678ca2}
 .living-particle{position:absolute;display:block;left:var(--x);top:-10%;width:var(--size);height:var(--size);opacity:0}
 .living-stage.is-live[data-motion="snow"] .living-particle{border-radius:50%;background:#f9fcff;box-shadow:0 0 5px #f9fdff;animation:living-fall var(--duration) linear var(--delay) infinite}
 .living-stage.is-live[data-motion="leaves"] .living-particle{background:#c78a4d;border-radius:2px 65% 2px 65%;box-shadow:0 0 2px #50321d55;animation:living-fall var(--duration) linear var(--delay) infinite}
-@keyframes living-fall{0%{transform:translate3d(0,-3vh,0) rotate(0deg);opacity:0}8%{opacity:.7}87%{opacity:.65}100%{transform:translate3d(var(--drift),95vh,0) rotate(250deg);opacity:0}}
+@keyframes living-fall{0%{top:-10%;transform:translate3d(0,0,0) rotate(0deg);opacity:0}8%{opacity:.7}87%{opacity:.65}100%{top:110%;transform:translate3d(var(--drift),0,0) rotate(250deg);opacity:0}}
 .living-stage.is-live[data-motion="breeze"] .living-particle{top:var(--y);background:#d4eebc;border-radius:50%;filter:blur(3px);box-shadow:0 0 12px #d1ef9b;animation:living-dust var(--duration) ease-in-out var(--delay) infinite alternate}
 @keyframes living-dust{0%{transform:translateX(-18px);opacity:0}30%{opacity:.2}100%{transform:translateX(65px);opacity:.5}}
-.living-stage.is-live[data-motion="twinkle"] .living-particle{top:var(--y);background:#f8ebbe;border-radius:50%;box-shadow:0 0 7px 2px #ffdb9b99;animation:living-twinkle calc(var(--duration)*.65) ease-in-out var(--delay) infinite alternate}
+.living-stage.is-live[data-motion="twinkle"] .living-particle{top:var(--y);background:#f8ebbe;border-radius:50%;box-shadow:0 0 7px 2px #ffdb9b99;animation:living-twinkle var(--duration) ease-in-out var(--delay) infinite alternate}
 @keyframes living-twinkle{0%{opacity:.03;transform:scale(.5)}100%{opacity:.7;transform:scale(1.35)}}
 .lightbox figcaption{max-height:calc(100dvh - 125px);overflow-y:auto}
 .living-controls{margin-top:24px;padding-top:18px;border-top:1px solid #ffffff2e}
@@ -238,3 +238,7 @@ html[data-season='winter']{--season:#719ab0;--glow:#c6dce5;--accent:#678ca2}
  .living-stage *{animation:none!important;transition:none!important}
  .living-atmosphere,.living-beam,.living-ripples,.living-particles{display:none!important}
 }
+
+.living-effect-picker{display:flex;flex-direction:column;align-items:stretch;gap:7px;margin:0 0 17px;max-width:290px;color:#c7ae9d;font:11px/1.5 var(--serif)}
+.living-effect-picker select{padding:9px 12px;background:#2f2522;color:#fff1e4;border:1px solid #ffffff66;border-radius:3px;font:12px/1.5 var(--serif);width:100%;min-width:0}
+.living-effect-picker select:focus-visible{outline:2px solid #f6c79a;outline-offset:2px}
