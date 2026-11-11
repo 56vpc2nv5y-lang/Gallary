@@ -1,266 +1,217 @@
-/* THE LAST GOLDEN DAYS. Original client-side photo gallery and four-season particle engine.
-   No external JavaScript libraries, build tools, API keys, or server dependencies. */
+/* The Art of Noticing — original, dependency-free photo journal */
 (() => {
   'use strict';
-  const $ = (s, parent=document) => parent.querySelector(s);
-  const $$ = (s, parent=document) => [...parent.querySelectorAll(s)];
-  const root = document.documentElement;
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let photos = Array.isArray(window.GOLDEN_PHOTOS) ? [...window.GOLDEN_PHOTOS] : [];
-  const ephemeralURLs = [];
-  let filter = 'all';
-  let view = 'editorial';
-  let lightboxPhotos = [];
-  let lightboxIndex = 0;
-  let lightboxTimer = null;
-  let toastTimeout = null;
-  let lastLightboxFocus = null;
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const source = window.PHOTO_JOURNAL || {photos:[]};
+  const originalPhotos = [...source.photos];
+  let photos = [...originalPhotos], filtered = [...photos], filter='all', view='editorial';
+  let lightboxIndex=0, slideTimer=null, lastFocus=null, toastTimer=null;
+  const localURLs = [], imported = [];
+  const collageIDs = ['cat','opera','lizard','sunset','snow'];
+  const collageLayouts = {
+    scattered:[{x:19,y:37,r:-12},{x:48,y:28,r:8},{x:79,y:39,r:-9},{x:34,y:73,r:10},{x:68,y:74,r:-7}],
+    orbit:[{x:50,y:20,r:4},{x:22,y:47,r:-14},{x:78,y:47,r:12},{x:34,y:79,r:7},{x:66,y:79,r:-8}],
+    ribbon:[{x:14,y:49,r:-12},{x:32,y:45,r:7},{x:50,y:49,r:-5},{x:68,y:45,r:9},{x:86,y:49,r:-12}]
+  };
+  let positions = collageLayouts.scattered.map(p=>({...p})), collageMode='scattered', drag=null, suppressClick=false;
+  const collageTiles=[];
+  const escapeHTML=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-  const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g,c=>({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  })[c]);
-
-  function showToast(message) {
-    const el = $('#toast');
-    if (!el) return;
-    el.textContent = message;
-    el.classList.add('show');
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => el.classList.remove('show'), 3100);
+  function toast(message){const t=$('#toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3300)}
+  function handleMissingImages(){
+    document.addEventListener('error',e=>{
+      if(!(e.target instanceof HTMLImageElement))return;
+      const img=e.target,src=img.getAttribute('src')||'';
+      if(src.startsWith('assets/photos/')&&!img.dataset.githubFallback){
+        img.dataset.githubFallback='1';
+        img.src='https://raw.githubusercontent.com/56vpc2nv5y-lang/Gallary/main/'+src;
+      } else {img.classList.add('image-unavailable');img.alt=(img.alt||'')+'（图片暂时未能加载）';}
+    },true);
   }
-
-  // Scroll progress + reveal animations.
-  function setupScroll() {
-    const bar = $('#scrollProgress');
-    const update = () => {
-      const max = document.documentElement.scrollHeight - innerHeight;
-      if (bar) bar.style.width = `${max>0 ? Math.min(100,scrollY/max*100):100}%`;
-    };
-    addEventListener('scroll',update,{passive:true}); addEventListener('resize',update,{passive:true}); update();
-    const reveals = $$('.reveal');
-    if (prefersReducedMotion.matches || !('IntersectionObserver' in window)) {
-      reveals.forEach(el=>el.classList.add('visible'));
-    } else {
-      const io = new IntersectionObserver(entries=>{
-        entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}});
-      },{threshold:.07,rootMargin:'0px 0px -20px 0px'});
-      reveals.forEach(el=>io.observe(el));
-    }
-    const halo = $('#cursorHalo');
-    if (halo && matchMedia('(pointer:fine)').matches && !prefersReducedMotion.matches) {
-      let x=innerWidth/2, y=innerHeight/2, dx=x,dy=y,raf;
-      addEventListener('pointermove',(e)=>{x=e.clientX;y=e.clientY},{passive:true});
-      const follow=()=>{dx+=(x-dx)*.07;dy+=(y-dy)*.07;halo.style.transform=`translate(${dx-140}px,${dy-140}px)`;raf=requestAnimationFrame(follow)};
-      follow();
-      addEventListener('pagehide',()=>cancelAnimationFrame(raf),{once:true});
-    }
+  function reveal(){
+    const els=$$('.reveal');
+    if(reduced.matches||!('IntersectionObserver' in window)){els.forEach(x=>x.classList.add('visible'));return;}
+    const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.06});
+    els.forEach(el=>io.observe(el));
+    const bar=$('#scrollIndicator');
+    const progress=()=>{const max=document.documentElement.scrollHeight-innerHeight;bar.style.width=(max>0?scrollY/max*100:0)+'%'};
+    addEventListener('scroll',progress,{passive:true});addEventListener('resize',progress,{passive:true});progress();
   }
-
-  // Build an entire editorial photo exhibition from one small manifest file.
-  function visiblePhotos() {return photos.filter(p=>filter==='all'||p.place===filter)}
-  function cardMarkup(p,idx) {
-    return `<article class="photo-card" style="--idx:${idx}" data-card="${escapeHtml(p.id)}">
-      <button class="photo-open" type="button" data-open-id="${escapeHtml(p.id)}" aria-label="放大查看 ${escapeHtml(p.title)}">
-        <div class="photo-picture"><img loading="lazy" decoding="async" src="${escapeHtml(p.thumb||p.image)}" alt="${escapeHtml(p.alt||p.title)}"><span class="photo-number">${escapeHtml(p.number)}</span><span class="photo-expand" aria-hidden="true">↗︎</span></div>
-        <div class="photo-meta"><div class="photo-location"><span>${escapeHtml(p.placeName)}</span><span>${escapeHtml(p.date)}</span></div><h3 class="photo-title">${escapeHtml(p.title)}</h3><p class="photo-note">${escapeHtml(p.note)}</p></div>
-      </button></article>`;
-  }
-  function renderGallery() {
-    const el = $('#photoGrid');
-    const visible = visiblePhotos();
-    el.classList.toggle('is-grid',view==='grid');
-    el.innerHTML = visible.length?visible.map(cardMarkup).join(''):'<div class="gallery-empty">这里还没有照片。</div>';
-    if ($('#totalCount')) $('#totalCount').textContent=String(photos.length).padStart(2,'0');
-    $$('[data-open-id]',el).forEach(button=>button.addEventListener('click',()=>{
-      openPhoto(button.dataset.openId,visible);
-    }));
-    $$('[data-filter]').forEach(b=>{
-      const v=b.dataset.filter;
-      const n=photos.filter(p=>v==='all'||p.place===v).length;
-      const count=b.querySelector('span'); if(count)count.textContent=String(n).padStart(2,'0');
+  function renderGallery(){
+    const root=$('#photoWall');if(!root)return;
+    filtered=photos.filter(p=>filter==='all'||p.series===filter);
+    root.classList.toggle('grid-mode',view==='grid');root.replaceChildren();
+    filtered.forEach((photo,i)=>{
+      const card=document.createElement('article');card.className='photo-card';
+      const b=document.createElement('button');b.type='button';b.className='photo-card-button';b.setAttribute('aria-label','查看照片：'+photo.title);
+      b.innerHTML='<div class="photo-figure"><img loading="lazy" decoding="async" alt="'+escapeHTML(photo.alt)+'"><span class="photo-counter">'+String(i+1).padStart(2,'0')+'</span><span class="photo-open-icon" aria-hidden="true">↗</span></div><div class="photo-details"><small>'+escapeHTML(photo.location||'A LITTLE MOMENT')+'</small><h3>'+escapeHTML(photo.title)+'</h3><p>'+escapeHTML(photo.en||'')+'</p></div>';
+      $('img',b).src=photo.thumb||photo.src;
+      b.addEventListener('click',()=>openLightbox(i));card.append(b);root.append(card);
     });
+    $('#photoCount').textContent=String(photos.length).padStart(2,'0');
+    $('#archiveSummary').textContent=String(filtered.length).padStart(2,'0')+' moments, still counting.';
   }
-  function setupGallery() {
-    $$('[data-filter]').forEach(button=>button.addEventListener('click',()=>{
-      filter=button.dataset.filter;
-      $$('[data-filter]').forEach(b=>{const act=b===button;b.classList.toggle('active',act);b.setAttribute('aria-pressed',String(act))});
-      renderGallery();
+  function chooseFilter(name){
+    filter=name;$$('[data-filter]').forEach(btn=>{
+      const active=btn.dataset.filter===name;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));
+    });renderGallery();
+  }
+  function setupFilters(){
+    $$('[data-filter]').forEach(b=>b.addEventListener('click',()=>chooseFilter(b.dataset.filter)));
+    $$('[data-mode]').forEach(b=>b.addEventListener('click',()=>{
+      view=b.dataset.mode;$$('[data-mode]').forEach(btn=>{const active=btn.dataset.mode===view;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});renderGallery();
     }));
-    $$('[data-view]').forEach(button=>button.addEventListener('click',()=>{
-      view=button.dataset.view;
-      $$('[data-view]').forEach(b=>{const act=b===button;b.classList.toggle('selected',act);b.setAttribute('aria-pressed',String(act))});
-      renderGallery();
-    }));
-    $$('[data-open-photo]').forEach(button=>button.addEventListener('click',()=>openPhoto(button.dataset.openPhoto,photos)));
-    const input=$('#uploadInput');
-    $('#addPhotos').addEventListener('click',()=>input.click());
-    input.addEventListener('change',e=>{
-      const selected=[...(e.target.files||[])].filter(f=>/^image\/(jpeg|png|webp)$/.test(f.type)).slice(0,20);
-      if(!selected.length) return;
-      selected.forEach((file,i)=>{
-        if(file.size>12*1024*1024) return;
-        const url=URL.createObjectURL(file);ephemeralURLs.push(url);
-        photos.push({id:`local-${Date.now()}-${i}`,number:String(photos.length+1).padStart(2,'0'),date:'LOCAL PREVIEW',place:'local',placeName:'本地预览 · 尚未保存',title:file.name.replace(/\.[^.]+$/,'').slice(0,35),en:'A new little memory',image:url,thumb:url,alt:file.name,note:'只在当前页面可见，刷新后消失。',story:'这是一张仅存在于当前浏览器会话的照片。将图片放入 assets/photos 并更新 data/gallery.js 后，可正式成为网站的一部分。'});
-      });
-      filter='all';$$('[data-filter]').forEach(b=>{const act=b.dataset.filter==='all';b.classList.toggle('active',act);b.setAttribute('aria-pressed',String(act))});
-      renderGallery(); input.value='';
-      showToast(`已临时添加 ${selected.length} 张照片 · 刷新页面后不会保留`);
-    });
-    addEventListener('pagehide',()=>ephemeralURLs.forEach(u=>URL.revokeObjectURL(u)),{once:true});
+    $$('[data-target-filter]').forEach(link=>link.addEventListener('click',()=>chooseFilter(link.dataset.targetFilter)));
     renderGallery();
   }
-
-  // Custom full-screen photo viewing with keyboard, touch and autoplay.
-  function stopSlideShow() {
-    if(lightboxTimer){clearInterval(lightboxTimer);lightboxTimer=null;}
-    const play=$('#lightboxPlay'); if(play)play.textContent='自动播放 ▷';
+  function renderLightbox(){
+    const p=filtered[lightboxIndex];if(!p)return;
+    $('#lightboxImg').src=p.src;$('#lightboxImg').alt=p.alt||p.title;
+    $('#lightboxNum').textContent=String(lightboxIndex+1).padStart(2,'0')+' / '+String(filtered.length).padStart(2,'0');
+    $('#lightboxTitle').textContent=p.title;$('#lightboxEnglish').textContent=p.en||'';
+    $('#lightboxNote').textContent=p.note||'';$('#lightboxPlace').textContent=p.location||'';
   }
-  function showLightboxFrame() {
-    const p=lightboxPhotos[lightboxIndex];
-    if(!p) return;
-    const dialog=$('#lightbox');dialog.classList.remove('zoomed');
-    $('#lightboxZoom').textContent='放大 ＋';
-    const img=$('#lightboxImage');img.src=p.image;img.alt=p.alt||p.title;
-    $('#lightboxCounter').textContent=`${String(lightboxIndex+1).padStart(2,'0')} / ${String(lightboxPhotos.length).padStart(2,'0')}`;
-    $('#lightboxPlace').textContent=`${p.placeName} · ${p.date}`;
-    $('#lightboxTitle').textContent=p.title;
-    $('#lightboxStory').textContent=p.story||p.note||'';
+  function openLightbox(i){
+    const d=$('#lightbox');if(!filtered[i])return;lastFocus=document.activeElement;lightboxIndex=i;renderLightbox();
+    d.showModal();document.body.classList.add('modal-open');
   }
-  function openPhoto(id, list=photos) {
-    const found=list.findIndex(p=>p.id===id);
-    if(found<0)return;
-    lightboxPhotos=[...list];lightboxIndex=found;
-    const dialog=$('#lightbox');lastLightboxFocus=document.activeElement;
-    showLightboxFrame();
-    if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
-    document.body.classList.add('modal-open');
-  }
-  function closePhoto() {
-    const dlg=$('#lightbox');stopSlideShow();
-    if(dlg.open&&typeof dlg.close==='function')dlg.close();else dlg.removeAttribute('open');
-    document.body.classList.remove('modal-open');
-    lastLightboxFocus?.focus?.();
-  }
-  function changePhoto(delta) {if(!lightboxPhotos.length)return;lightboxIndex=(lightboxIndex+delta+lightboxPhotos.length)%lightboxPhotos.length;showLightboxFrame()}
-  function setupLightbox() {
-    const dlg=$('#lightbox');
-    $('#lightboxClose').addEventListener('click',closePhoto);
-    $('#lightboxPrev').addEventListener('click',()=>changePhoto(-1));
-    $('#lightboxNext').addEventListener('click',()=>changePhoto(1));
-    $('#lightboxZoom').addEventListener('click',toggleZoom);
-    $('#lightboxImage').addEventListener('click',toggleZoom);
+  function closeLightbox(){const d=$('#lightbox');if(d.open)d.close()}
+  function turn(delta){if(!filtered.length)return;lightboxIndex=(lightboxIndex+delta+filtered.length)%filtered.length;renderLightbox()}
+  function stopSlides(){if(slideTimer)clearInterval(slideTimer);slideTimer=null;$('#lightboxPlay').textContent='自动播放 ▷'}
+  function setupLightbox(){
+    const d=$('#lightbox');$('#closeLightbox').addEventListener('click',closeLightbox);
+    $('#prevPhoto').addEventListener('click',()=>turn(-1));$('#nextPhoto').addEventListener('click',()=>turn(1));
     $('#lightboxPlay').addEventListener('click',()=>{
-      if(lightboxTimer){stopSlideShow();return;}
-      lightboxTimer=setInterval(()=>changePhoto(1),3400);
-      $('#lightboxPlay').textContent='暂停播放 Ⅱ';
+      if(slideTimer){stopSlides();return;}slideTimer=setInterval(()=>turn(1),3600);$('#lightboxPlay').textContent='暂停播放 Ⅱ';
     });
-    function toggleZoom(){dlg.classList.toggle('zoomed');$('#lightboxZoom').textContent=dlg.classList.contains('zoomed')?'缩小 −':'放大 ＋';}
-    dlg.addEventListener('close',()=>{stopSlideShow();document.body.classList.remove('modal-open');lastLightboxFocus?.focus?.()});
+    d.addEventListener('close',()=>{stopSlides();document.body.classList.remove('modal-open');lastFocus?.focus?.()});
+    d.addEventListener('click',e=>{if(e.target===d)closeLightbox()});
     addEventListener('keydown',e=>{
-      if(!dlg.open)return;
-      if(e.key==='ArrowLeft'){e.preventDefault();changePhoto(-1)}
-      else if(e.key==='ArrowRight'){e.preventDefault();changePhoto(1)}
-      else if(e.key==='Escape'){closePhoto()}
+      if(!d.open)return;
+      if(e.key==='ArrowLeft'){e.preventDefault();turn(-1)}
+      else if(e.key==='ArrowRight'){e.preventDefault();turn(1)}
     });
-    let xStart=0,yStart=0;
-    dlg.addEventListener('touchstart',e=>{xStart=e.changedTouches[0].clientX;yStart=e.changedTouches[0].clientY},{passive:true});
-    dlg.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-xStart,dy=e.changedTouches[0].clientY-yStart;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.25)changePhoto(dx>0?-1:1)},{passive:true});
+    let touchStart=0;d.addEventListener('touchstart',e=>{touchStart=e.changedTouches[0].screenX},{passive:true});
+    d.addEventListener('touchend',e=>{const delta=e.changedTouches[0].screenX-touchStart;if(Math.abs(delta)>60)turn(delta>0?-1:1)},{passive:true});
   }
 
-  // Canvas-driven atmosphere for the four seasons. Original procedural shapes.
-  class Atmosphere {
+  class Weather {
     constructor(canvas){
-      this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:true});this.season='autumn';this.density=52;
-      this.running=!prefersReducedMotion.matches;this.items=[];this.frame=0;this.last=performance.now();this.wind=0;this.mouseX=0;
-      this.width=innerWidth;this.height=innerHeight;this.dpr=1;
-      this.resize();this.reset();this.loop=this.loop.bind(this);requestAnimationFrame(this.loop);
-      addEventListener('resize',()=>{this.resize();this.reset()},{passive:true});
-      addEventListener('pointermove',e=>{this.mouseX=(e.clientX/Math.max(1,innerWidth)-.5)*2},{passive:true});
+      this.canvas=canvas;this.ctx=canvas.getContext('2d');this.items=[];this.season='autumn';this.enabled=!reduced.matches;
+      this.w=innerWidth;this.h=innerHeight;this.last=performance.now();this.frame=this.frame.bind(this);
+      this.resize();this.fill();requestAnimationFrame(this.frame);
+      addEventListener('resize',()=>{this.resize();this.fill()},{passive:true});
       document.addEventListener('visibilitychange',()=>{this.last=performance.now()});
     }
-    resize(){
-      this.width=innerWidth;this.height=innerHeight;this.dpr=Math.min(devicePixelRatio||1,2);
-      this.canvas.width=Math.floor(this.width*this.dpr);this.canvas.height=Math.floor(this.height*this.dpr);
-      this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0);
-    }
-    desiredCount(){return Math.round(this.density*(this.width<600?.54:.92))}
-    make(yRandom=true){
-      const snow=this.season==='winter', spring=this.season==='spring';
-      return {x:Math.random()*this.width,y:yRandom?Math.random()*this.height:-40-Math.random()*this.height*.25,
-        r:(snow?1.3:3)+Math.random()*(snow?3.7:spring?4.6:6),speed:(snow ? .28 : .56)+Math.random()*(snow ? .95 : 1.2),
-        ang:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.025,wobble:Math.random()*6.28,wave:.28+Math.random()*.72,
-        alpha:.25+Math.random()*.55,side:(Math.random()-.5)*.65,colorSeed:Math.floor(Math.random()*5)};
-    }
-    reset(){this.items=Array.from({length:this.desiredCount()},()=>this.make(true));}
-    setSeason(s){this.season=s;this.reset()}
-    setDensity(n){this.density=n;this.reset()}
-    setRunning(v){this.running=v;this.ctx.clearRect(0,0,this.width,this.height)}
-    loop(now){
-      requestAnimationFrame(this.loop);
-      if(!this.running||document.hidden)return;
-      const dt=Math.min((now-this.last)/16.6667,2.2);this.last=now;
-      const ctx=this.ctx;ctx.clearRect(0,0,this.width,this.height);
-      this.frame+=dt;this.wind+=(this.mouseX*.50-this.wind)*.006;
-      for(let i=0;i<this.items.length;i++){
-        const p=this.items[i]; p.y+=p.speed*dt; p.x+=(p.side+this.wind+Math.sin(this.frame*.013+p.wobble)*p.wave)*dt;
-        p.ang+=p.spin*dt;
-        if(p.y>this.height+30||p.x>this.width+80||p.x< -100){this.items[i]=this.make(false);this.items[i].x=Math.random()*this.width;continue;}
-        ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.ang);
-        if(this.season==='winter')this.snow(ctx,p);
-        else if(this.season==='spring')this.petal(ctx,p);
-        else if(this.season==='summer')this.leaf(ctx,p,true);
-        else this.leaf(ctx,p,false);
-        ctx.restore();
-      }
-    }
-    snow(ctx,p){
-      const a=p.alpha*.9;ctx.globalAlpha=a;const rr=p.r;
-      ctx.fillStyle=p.colorSeed===0?'#d7eaf4':'#ffffff';ctx.beginPath();ctx.arc(0,0,rr,0,Math.PI*2);ctx.fill();
-      if(rr>3.2){ctx.strokeStyle='rgba(255,255,255,.34)';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(-rr*2,0);ctx.lineTo(rr*2,0);ctx.moveTo(0,-rr*2);ctx.lineTo(0,rr*2);ctx.stroke();}
-    }
-    petal(ctx,p){
-      ctx.globalAlpha=p.alpha;ctx.fillStyle=['#ffc4cc','#f1a5b9','#fce3dd','#e8aac3','#f7c7a6'][p.colorSeed];
-      ctx.beginPath();ctx.moveTo(0,-p.r*1.5);ctx.bezierCurveTo(p.r*1.15,-p.r*1.45,p.r*1.5,p.r*.4,0,p.r*1.4);ctx.bezierCurveTo(-p.r*1.7,p.r*.4,-p.r*.95,-p.r*1.45,0,-p.r*1.5);ctx.fill();
-      ctx.strokeStyle='rgba(132,64,82,.28)';ctx.lineWidth=.4;ctx.beginPath();ctx.moveTo(0,-p.r);ctx.lineTo(0,p.r);ctx.stroke();
-    }
-    leaf(ctx,p,green){
-      const r=p.r;ctx.scale(1,.55+Math.abs(Math.sin(p.ang))*.45);ctx.globalAlpha=p.alpha;
-      ctx.fillStyle=green?['#90b17d','#5e966f','#b4c986','#497963','#8cae68'][p.colorSeed]:['#c46f39','#d89a56','#a64c38','#e3aa5d','#b96946'][p.colorSeed];
-      ctx.beginPath();ctx.moveTo(0,-r*1.9);ctx.bezierCurveTo(r*.6,-r*1.6,r*1.35,-r*1.1,r*1.25,-r*.25);ctx.bezierCurveTo(r*2,r*.25,r*.8,r*1.4,0,r*1.6);ctx.bezierCurveTo(-r*1.15,r*.8,-r*1.75,0,-r*1.25,-r*.35);ctx.bezierCurveTo(-r*1.1,-r*1.2,-r*.6,-r*1.65,0,-r*1.9);ctx.fill();
-      ctx.strokeStyle=green?'rgba(24,72,38,.35)':'rgba(86,42,27,.37)';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(0,-r*1.6);ctx.quadraticCurveTo(-r*.2,r*.1,0,r*1.95);ctx.stroke();
+    resize(){this.w=innerWidth;this.h=innerHeight;const dpi=Math.min(devicePixelRatio||1,2);this.canvas.width=this.w*dpi;this.canvas.height=this.h*dpi;this.ctx.setTransform(dpi,0,0,dpi,0,0)}
+    item(random=true){return {x:Math.random()*this.w,y:random?Math.random()*this.h:-30-Math.random()*90,r:2+Math.random()*5,speed:.25+Math.random()*.6,phase:Math.random()*6.28,rotation:Math.random()*6.28,alpha:.21+Math.random()*.32}}
+    fill(){this.items=Array.from({length:this.w<650?25:43},()=>this.item())}
+    setSeason(season){this.season=season;this.fill()}
+    setEnabled(v){this.enabled=v;this.last=performance.now();if(!v)this.ctx.clearRect(0,0,this.w,this.h)}
+    frame(now){requestAnimationFrame(this.frame);const dt=Math.min(2,(now-this.last)/16.67);this.last=now;if(!this.enabled||document.hidden)return;
+      const ctx=this.ctx;ctx.clearRect(0,0,this.w,this.h);
+      this.items.forEach((p,i)=>{p.y+=p.speed*dt;p.x+=Math.sin(now*.0004+p.phase)*.36*dt;p.rotation+=.006*dt;if(p.y>this.h+20){this.items[i]=this.item(false);return}
+        ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rotation);ctx.globalAlpha=p.alpha;
+        if(this.season==='winter'){ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,p.r*.6,0,Math.PI*2);ctx.fill()}
+        else{const palettes={spring:['#e7a4b4','#e2b6b6','#f4ccd4'],summer:['#4c8257','#76a56d','#a9b77e'],autumn:['#a65a34','#c88747','#d5aa64']};ctx.fillStyle=palettes[this.season][i%3];ctx.beginPath();ctx.moveTo(0,-p.r*1.5);ctx.bezierCurveTo(p.r*1.7,-p.r,p.r*1.4,p.r*1.1,0,p.r*1.4);ctx.bezierCurveTo(-p.r*1.4,p.r,-p.r*1.7,-p.r,0,-p.r*1.5);ctx.fill()}
+        ctx.restore();});
     }
   }
-  const seasonText={
-    autumn:'一阵风吹过，秋天落在你的屏幕上。',winter:'雪慢慢落下来，记忆依旧温暖。',
-    spring:'让一场花瓣雨，落进北京的秋天。',summer:'风吹起绿叶，像把时间又倒回盛夏。'
-  };
   function setupSeasons(){
-    let atmo=null;
-    try{atmo=new Atmosphere($('#seasonCanvas'))}catch(err){console.warn('Canvas atmosphere unavailable:',err)}
-    let season='autumn';let ambient=!prefersReducedMotion.matches;
-    try{const saved=localStorage.getItem('golden-season');if(saved in seasonText)season=saved}catch(_){/* storage may be disabled */}
-    function selectSeason(name,announced=false){
-      season=name;root.dataset.season=name;atmo?.setSeason(name);
-      $$('[data-season-btn]').forEach(b=>{const active=b.dataset.seasonBtn===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
-      $('#seasonMessage').textContent=seasonText[name];
-      try{localStorage.setItem('golden-season',name)}catch(_){/* optional */}
-      if(announced)showToast(seasonText[name]);
-    }
-    $$('[data-season-btn]').forEach(b=>b.addEventListener('click',()=>selectSeason(b.dataset.seasonBtn,true)));
-    const density=$('#density');density.addEventListener('input',()=>{const n=Number(density.value);$('#densityValue').textContent=String(n);atmo?.setDensity(n)});
-    function syncAmbient(){atmo?.setRunning(ambient);$('#ambientToggle').setAttribute('aria-pressed',String(ambient));$('#ambientIcon').textContent=ambient?'✳':'Ⅱ';$('#ambientLabel').textContent=ambient?'AMBIENCE ON':'AMBIENCE OFF'}
-    $('#ambientToggle').addEventListener('click',()=>{ambient=!ambient;syncAmbient();showToast(ambient?'飘落动画已开启':'飘落动画已暂停')});
-    $('#heroExplore').addEventListener('click',()=>$('#seasons').scrollIntoView({behavior:prefersReducedMotion.matches?'auto':'smooth'}));
-    selectSeason(season);syncAmbient();
-    prefersReducedMotion.addEventListener?.('change',e=>{if(e.matches){ambient=false;syncAmbient()}});
+    let weather;try{weather=new Weather($('#seasonCanvas'))}catch(err){console.warn('No canvas effect:',err)}
+    const messages={spring:'花瓣飘下来，日子也轻快了一点。',summer:'风吹过绿荫，夏天慢慢醒来。',autumn:'落叶轻轻落下来，像一封写给秋天的信。',winter:'初雪慢慢落下，回忆依然温暖。'};
+    let selected='autumn';try{selected=localStorage.getItem('noticing-season')||'autumn'}catch(_){}
+    function applySeason(name){if(!messages[name])return;document.documentElement.dataset.season=name;weather?.setSeason(name);$$('[data-season]').forEach(b=>{const active=b.dataset.season===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});$('#seasonDescription').textContent=messages[name];try{localStorage.setItem('noticing-season',name)}catch(_){}}
+    $$('[data-season]').forEach(b=>b.addEventListener('click',()=>applySeason(b.dataset.season)));applySeason(selected);
+    const motion=$('#motionToggle');let playing=!reduced.matches;function updateMotion(){weather?.setEnabled(playing);motion.textContent=playing?'暂停动态 Ⅱ':'开启动态 ✳';motion.setAttribute('aria-pressed',String(playing))}
+    motion.addEventListener('click',()=>{playing=!playing;updateMotion()});updateMotion();
+    reduced.addEventListener?.('change',e=>{if(e.matches){playing=false;updateMotion()}});
   }
 
-  function init(){
-    setupScroll();setupSeasons();setupGallery();setupLightbox();
-    const loader=$('#preload');
-    const hide=()=>loader?.classList.add('is-hidden');
-    addEventListener('load',hide,{once:true});setTimeout(hide,950);
-    if(!photos.length)showToast('画廊照片清单尚未载入，请检查 data/gallery.js');
+  function collagePhoto(i){return photos.find(p=>p.id===collageIDs[i])||photos[i]}
+  function saveCollage(){try{localStorage.setItem('noticing-collage-v2',JSON.stringify({mode:collageMode,positions}))}catch(_){}}
+  function loadCollage(){try{const v=JSON.parse(localStorage.getItem('noticing-collage-v2')||'null');if(v&&v.positions?.length===5&&v.positions.every(p=>[p.x,p.y,p.r].every(Number.isFinite))){positions=v.positions.map(p=>({x:clamp(p.x,10,90),y:clamp(p.y,14,86),r:clamp(p.r,-30,30)}));collageMode=v.mode||'custom'}}catch(_){}}
+  function placeTile(i){const p=positions[i],tile=collageTiles[i];tile.style.left=p.x+'%';tile.style.top=p.y+'%';tile.style.setProperty('--rotate',p.r+'deg')}
+  function updateLayouts(){$$('[data-layout]').forEach(b=>{const active=b.dataset.layout===collageMode;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))})}
+  function layout(name){if(!collageLayouts[name])return;positions=collageLayouts[name].map(p=>({...p}));collageMode=name;collageTiles.forEach((_,i)=>placeTile(i));updateLayouts();saveCollage()}
+  function initCollage(){
+    const board=$('#collageBoard');loadCollage();
+    for(let i=0;i<5;i++){
+      const p=collagePhoto(i),tile=document.createElement('div');tile.className='collage-tile';tile.dataset.index=String(i);tile.tabIndex=0;tile.setAttribute('role','button');tile.setAttribute('aria-label',p.title+'；拖动位置或按方向键微调；按回车查看大图');
+      const img=document.createElement('img');img.src=p.thumb||p.src;img.alt=p.alt||p.title;img.draggable=false;
+      const caption=document.createElement('span');caption.textContent=String(i+1).padStart(2,'0')+' / '+p.title;tile.append(img,caption);
+      tile.addEventListener('click',()=>{if(suppressClick)return;chooseFilter('all');const idx=filtered.findIndex(x=>x.id===p.id);if(idx>=0)openLightbox(idx)});
+      tile.addEventListener('keydown',e=>{
+        const offsets={ArrowLeft:[-2,0],ArrowRight:[2,0],ArrowUp:[0,-2],ArrowDown:[0,2]};
+        if(offsets[e.key]){e.preventDefault();positions[i].x=clamp(positions[i].x+offsets[e.key][0],10,90);positions[i].y=clamp(positions[i].y+offsets[e.key][1],14,86);collageMode='custom';placeTile(i);updateLayouts();saveCollage()}
+        else if(e.key==='Enter'||e.key===' '){e.preventDefault();tile.click()}
+      });
+      board.append(tile);collageTiles.push(tile);placeTile(i);
+    }
+    board.addEventListener('pointerdown',e=>{
+      const tile=e.target.closest('.collage-tile');if(!tile||e.button!==0)return;
+      const i=Number(tile.dataset.index),r=board.getBoundingClientRect();drag={id:e.pointerId,i,x:e.clientX,y:e.clientY,sx:positions[i].x,sy:positions[i].y,w:r.width,h:r.height,moved:false};tile.setPointerCapture(e.pointerId);tile.classList.add('dragging');
+    });
+    board.addEventListener('pointermove',e=>{
+      if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;if(!drag.moved)return;
+      e.preventDefault();positions[drag.i].x=clamp(drag.sx+dx/drag.w*100,10,90);positions[drag.i].y=clamp(drag.sy+dy/drag.h*100,14,86);placeTile(drag.i);
+    });
+    const finish=e=>{if(!drag||e.pointerId!==drag.id)return;const moved=drag.moved;collageTiles[drag.i].classList.remove('dragging');drag=null;if(moved){suppressClick=true;setTimeout(()=>{suppressClick=false},220);collageMode='custom';updateLayouts();saveCollage();$('#studioStatus').textContent='刚刚调整的位置已经保存。'}};
+    board.addEventListener('pointerup',finish);board.addEventListener('pointercancel',finish);
+    $$('[data-layout]').forEach(b=>b.addEventListener('click',()=>layout(b.dataset.layout)));
+    $('#collageShuffle').addEventListener('click',()=>{positions=positions.map(p=>({x:clamp(p.x+(Math.random()-.5)*25,12,88),y:clamp(p.y+(Math.random()-.5)*24,17,83),r:(Math.random()-.5)*27}));collageMode='custom';collageTiles.forEach((_,i)=>placeTile(i));saveCollage();updateLayouts();toast('新的拼贴组合已经出现了 ✳')});
+    $('#collageReset').addEventListener('click',()=>layout('scattered'));
+    $('#collageExport').addEventListener('click',exportCollage);
+    updateLayouts();
   }
+  async function loadImage(src){const img=new Image();img.crossOrigin='anonymous';img.src=src;if(img.decode)await img.decode();else await new Promise((res,rej)=>{img.onload=res;img.onerror=rej});return img}
+  function fillImage(ctx,img,x,y,w,h){const scale=Math.max(w/img.naturalWidth,h/img.naturalHeight),iw=w/scale,ih=h/scale;ctx.drawImage(img,(img.naturalWidth-iw)/2,(img.naturalHeight-ih)/2,iw,ih,x,y,w,h)}
+  async function exportCollage(){
+    const btn=$('#collageExport');btn.disabled=true;btn.textContent='正在生成…';
+    try{
+      const images=await Promise.all(Array.from({length:5},(_,i)=>loadImage(collagePhoto(i).src)));
+      const cvs=document.createElement('canvas');cvs.width=1800;cvs.height=1200;const ctx=cvs.getContext('2d');
+      ctx.fillStyle='#f8f1e6';ctx.fillRect(0,0,1800,1200);ctx.strokeStyle='#dbcabc';ctx.strokeRect(25,25,1750,1150);
+      ctx.fillStyle='#513b34';ctx.font='italic 76px Georgia';ctx.fillText('The Art of Noticing',88,114);ctx.font='20px Georgia';ctx.fillText('A COLLECTION OF LITTLE MOMENTS / SUNNY',92,153);
+      for(let i=0;i<5;i++){
+        const p=positions[i],img=images[i],x=p.x/100*1800,y=180+p.y/100*870,w=325,h=272;
+        ctx.save();ctx.translate(x,y);ctx.rotate(p.r*Math.PI/180);ctx.shadowColor='#2c1d1959';ctx.shadowBlur=29;ctx.shadowOffsetY=15;
+        ctx.fillStyle='#fffdfa';ctx.fillRect(-w/2-13,-h/2-13,w+26,h+66);ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+        fillImage(ctx,img,-w/2,-h/2,w,h);ctx.fillStyle='#6b534a';ctx.font='19px Georgia';ctx.fillText(String(i+1).padStart(2,'0')+' / '+collagePhoto(i).title,-w/2+7,h/2+30);ctx.restore();
+      }
+      ctx.fillStyle='#a18575';ctx.font='italic 21px Georgia';ctx.fillText('Collecting moments, not milestones.',92,1142);
+      const blob=await new Promise((resolve,reject)=>cvs.toBlob(b=>b?resolve(b):reject(Error('No export')),'image/png'));
+      const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='the-art-of-noticing-collage.png';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),7000);toast('已生成你的私人拼贴海报');
+    }catch(err){console.warn('Collage export',err);toast('导出失败，请确认所有图片都已加载完毕')}
+    finally{btn.disabled=false;btn.textContent='导出拼贴 PNG ↗'}
+  }
+
+  // Optional persistent browser-only uploads: no server, credentials, or external provider.
+  function dbOpen(){return new Promise((resolve,reject)=>{if(!('indexedDB' in window)){reject(Error('IndexedDB unavailable'));return}const req=indexedDB.open('noticing-personal-photos',1);req.onupgradeneeded=()=>req.result.createObjectStore('photos',{keyPath:'id'});req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+  async function localRecords(){const db=await dbOpen();return new Promise((resolve,reject)=>{const req=db.transaction('photos','readonly').objectStore('photos').getAll();req.onsuccess=()=>{db.close();resolve(req.result)};req.onerror=()=>{db.close();reject(req.error)}})}
+  async function saveRecord(data){const db=await dbOpen();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').put(data);tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)}})}
+  async function optimizeFile(file){return new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const canvas=document.createElement('canvas');const scale=Math.min(1,1600/Math.max(img.width,img.height));canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);URL.revokeObjectURL(url);canvas.toBlob(b=>b?resolve(b):reject(Error('Encoding failed')),'image/webp',.83)};img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('Invalid image'))};img.src=url})}
+  async function hydratePhotos(){try{const rows=await localRecords();for(const row of rows){const url=URL.createObjectURL(row.blob);localURLs.push(url);imported.push({...row,src:url,thumb:url});}photos=[...originalPhotos,...imported];renderGallery()}catch(err){console.warn('Local photos disabled',err)}}
+  function setupImport(){
+    const picker=$('#photoPicker'),dialog=$('#importDialog'),preview=$('#importPreview');const queue=[];let selected=null,temporaryURL=null;
+    function next(){if(temporaryURL){URL.revokeObjectURL(temporaryURL);temporaryURL=null}selected=queue.shift()||null;if(!selected)return;
+      temporaryURL=URL.createObjectURL(selected);preview.src=temporaryURL;$('#importTitleInput').value=selected.name.replace(/\.[^.]+$/,'').slice(0,45);$('#importNoteInput').value='';$('#importCategory').value='landscapes';dialog.showModal();}
+    $('#addPhotos').addEventListener('click',()=>picker.click());
+    picker.addEventListener('change',()=>{const files=[...picker.files].filter(f=>f.type.startsWith('image/')).slice(0,12);queue.push(...files);picker.value='';if(!dialog.open)next()});
+    dialog.addEventListener('close',async()=>{
+      const result=dialog.returnValue,file=selected;selected=null;
+      if(result==='confirm'&&file){
+        try{const blob=await optimizeFile(file);const id='local-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);const row={id,blob,title:$('#importTitleInput').value.trim()||'一张新照片',en:'A New Little Moment',series:$('#importCategory').value,season:'autumn',location:'我的私人收藏',note:$('#importNoteInput').value.trim(),alt:$('#importTitleInput').value.trim()||'私人照片'};
+          await saveRecord(row);const url=URL.createObjectURL(blob);localURLs.push(url);imported.push({...row,src:url,thumb:url});photos=[...originalPhotos,...imported];chooseFilter('all');toast('已经收进你的浏览器私人画廊 ♡');
+        }catch(err){console.warn('Photo import failed',err);toast('保存失败，可能是浏览器存储空间不足。')}}
+      next();
+    });
+    $('#importSave').addEventListener('click',e=>{if(!$('#importTitleInput').value.trim()){e.preventDefault();$('#importTitleInput').focus()}});
+    addEventListener('pagehide',()=>localURLs.forEach(u=>URL.revokeObjectURL(u)),{once:true});
+  }
+  function init(){handleMissingImages();reveal();setupFilters();setupLightbox();setupSeasons();initCollage();setupImport();hydratePhotos()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

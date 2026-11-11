@@ -1,52 +1,33 @@
-/*
- * Beijing Golden Seasons — data-driven photo collection.
- * Add new photographs under assets/photos/, then add items here.
- * No build command or database required.
- */
-window.GOLDEN_PHOTOS = [
-  {
-    id: 'qinzhengdian', number: '01', date: '2026.11.10', place: 'xiangshan', placeName: '香山 · 勤政殿',
-    title: '走进橙色的秋天', en: 'A place I knew would be beautiful',
-    image: './assets/photos/01-qinzhengdian.jpg', thumb: './assets/photos/01-qinzhengdian-thumb.jpg',
-    alt: '橙红枫叶环绕香山勤政殿蓝底金字匾额和华丽彩绘的近景',
-    note: '走着走着，我就感觉走到这儿应该会好看。',
-    story: '不是照着攻略寻找的机位。只是走着走着，心里突然觉得：从这里看过去，一定会好看。抬起头时，枫叶正好为勤政殿留下了一扇橙色的窗。',
-    layout: 'hero'
-  },
-  {
-    id: 'sunlit-hall', number: '02', date: '2026.11.10', place: 'xiangshan', placeName: '香山 · 红墙',
-    title: '树影穿过红墙', en: 'A quiet afternoon in the trees',
-    image: './assets/photos/02-sunlit-hall.jpg', thumb: './assets/photos/02-sunlit-hall-thumb.jpg',
-    alt: '松枝与树影掩映下的香山红色古建筑，阳光照亮琉璃屋瓦和门窗',
-    note: '阳光没有急着离开，树影也没有。',
-    story: '松枝像一层缓缓打开的幕布，古建筑藏在树后面。光从枝叶间走进来，红色的门窗和金色的树影，就这样静静待在一起。',
-    layout: 'tall'
-  },
-  {
-    id: 'pavilion', number: '03', date: '2026.11.10', place: 'xiangshan', placeName: '香山 · 古亭',
-    title: '被古树收藏的屋檐', en: 'The roof beneath the trees',
-    image: './assets/photos/03-pavilion.jpg', thumb: './assets/photos/03-pavilion-thumb.jpg',
-    alt: '古树包围下的香山古亭，红色立柱和彩绘屋檐与蓝天交相辉映',
-    note: '走近的时候，先看见屋檐，再看见天空。',
-    story: '古树在画面四周舒展开来，屋檐向两侧翘起。北京的秋天也不全是红叶，青瓦、朱柱和树干的纹理，同样值得停下来看看。',
-    layout: 'wide'
-  },
-  {
-    id: 'pine-gold', number: '04', date: '2026.11.10', place: 'xiangshan', placeName: '香山 · 午后阳光',
-    title: '松针上有光', en: 'Little pockets of sunlight',
-    image: './assets/photos/04-pine-gold.jpg', thumb: './assets/photos/04-pine-gold-thumb.jpg',
-    alt: '金色阳光洒在松针和枝头，下面是灰瓦屋顶与蓝天',
-    note: '抬头的时候，秋天就在树梢。',
-    story: '不需要什么著名景点。只是一树松针，被下午的光涂上了金边，屋瓦在下面安静地延伸。那些细小的景色，也构成了这一天。',
-    layout: 'tall'
-  },
-  {
-    id: 'kunming-sunset', number: '05', date: '2026.11.10', place: 'yiheyuan', placeName: '颐和园 · 昆明湖',
-    title: '落日替今天落款', en: 'The sunset I stayed for',
-    image: './assets/photos/05-kunming-sunset.jpg', thumb: './assets/photos/05-kunming-sunset-thumb.jpg',
-    alt: '昆明湖日落，粉橘色天空与远山剪影映在金黄色的湖面上，几只水鸟在湖中',
-    note: '傍晚，昆明湖把整片天空接住了。',
-    story: '比原计划晚出发，却刚好在湖边遇上日落。远山成了剪影，水面一层层亮起来，小鸟在光里游动。好像北京替这一天，写了最后一句话。',
-    layout: 'landscape'
+/* Every photo is yours. Titles are editorial placeholders, not claimed capture dates.
+   Add another record to PHOTOS to publish a photo on GitHub Pages. */
+window.PHOTO_JOURNAL = {
+  title: 'The Art of Noticing',
+  owner: 'Sunny',
+  photos: [
+    { id:'lizard', src:'assets/photos/01-monitor-lizard.webp', thumb:'assets/photos/01-monitor-lizard-thumb.webp', title:'一场意外的相遇', en:'An Unexpected Encounter', series:'encounters', season:'summer', location:'一处树荫下', note:'石头、树影，还有突然闯进镜头的访客。', alt:'一只深色巨蜥伏在树根旁的乱石之间，周围是浓绿植物', shape:'landscape' },
+    { id:'courtyard', src:'assets/photos/02-green-courtyard.webp', thumb:'assets/photos/02-green-courtyard-thumb.webp', title:'城市有绿色的呼吸', en:'Where the City Breathes', series:'landscapes', season:'summer', location:'城市一角', note:'树枝在前面舒展，建筑在后面静静发光。', alt:'高大绿树掩映着浅绿与青绿色拼接立面的建筑', shape:'wide' },
+    { id:'canopy', src:'assets/photos/03-tree-canopy.webp', thumb:'assets/photos/03-tree-canopy-thumb.webp', title:'抬头，是另一片天空', en:'Looking Up', series:'landscapes', season:'spring', location:'绿荫深处', note:'一抬头，就被枝条连成的线条留住了。', alt:'深色树枝从中心向四周延伸，构成开阔的树冠，四周有浓密修剪的树篱', shape:'portrait' },
+    { id:'ceiling', src:'assets/photos/04-painted-ceiling.webp', thumb:'assets/photos/04-painted-ceiling-thumb.webp', title:'穹顶上的秩序', en:'Ornaments Above', series:'architecture', season:'autumn', location:'旅途中的建筑', note:'青绿、赭红和金色，藏在一层层几何纹样之间。', alt:'从下向上仰拍传统建筑华丽的绿色梁柱与金色藻井结构', shape:'square' },
+    { id:'sunset', src:'assets/photos/05-city-sunset.webp', thumb:'assets/photos/05-city-sunset-thumb.webp', title:'日落不需要预约', en:'A Sunset, Unplanned', series:'landscapes', season:'autumn', location:'城市黄昏', note:'停车场也可以拥有耀眼的晚霞。', alt:'道路停车场和深色行道树的背后是一片橙红晚霞', shape:'portrait' },
+    { id:'leaves', src:'assets/photos/06-late-autumn-leaves.webp', thumb:'assets/photos/06-late-autumn-leaves-thumb.webp', title:'季节正在换颜色', en:'The Color Is Changing', series:'landscapes', season:'autumn', location:'路过的秋天', note:'绿色还未退场，金黄已经悄悄来了。', alt:'一棵绿黄相间的树伸展在浅色建筑前，阳光穿过叶片', shape:'wide' },
+    { id:'opera', src:'assets/photos/07-astana-opera.webp', thumb:'assets/photos/07-astana-opera-thumb.webp', title:'光落在歌剧院的柱廊', en:'The Quiet Grandeur', series:'architecture', season:'autumn', location:'Astana Opera · 阿斯塔纳', note:'蓝天、白色石柱，与建筑前那一点小小的人影。', alt:'哈萨克斯坦阿斯塔纳歌剧院的白色古典立面与整齐的柱廊，天空湛蓝', shape:'wide' },
+    { id:'cat', src:'assets/photos/08-gray-cat.webp', thumb:'assets/photos/08-gray-cat-thumb.webp', title:'一只猫的靠近', en:'A Small Hello', series:'encounters', season:'spring', location:'路边的偶遇', note:'金色的眼睛，从牛仔布边缘抬头望过来。', alt:'一只灰色猫咪从镜头前的双膝之间探出头，露出金色眼睛', shape:'square' },
+    { id:'facade', src:'assets/photos/09-ornate-facade.webp', thumb:'assets/photos/09-ornate-facade-thumb.webp', title:'门廊与花纹的语言', en:'A Doorway Elsewhere', series:'architecture', season:'summer', location:'旅途中', note:'蓝白的纹样让一面建筑变成了值得细看的画。', alt:'饰有精细蓝白花纹的米白色建筑外立面，门口有两侧彩绘柱', shape:'square' },
+    { id:'church', src:'assets/photos/10-colorful-church.webp', thumb:'assets/photos/10-colorful-church-thumb.webp', title:'像糖果一样的屋顶', en:'Pastel Spires', series:'architecture', season:'autumn', location:'旅途中', note:'奶油黄、浅绿和粉蓝，把阴天也点亮了一点。', alt:'米黄色教堂正面有绿色屋檐、多彩洋葱形尖顶与白色门窗', shape:'portrait' },
+    { id:'snow', src:'assets/photos/11-first-snow.webp', thumb:'assets/photos/11-first-snow-thumb.webp', title:'雪落在树的肩上', en:'The First Quiet Snow', series:'landscapes', season:'winter', location:'八达岭 · 雪后', note:'枝桠变白的时候，整个世界都轻了一些。', alt:'万里长城八达岭的石墙和积雪覆盖的树木，天气灰白', shape:'portrait' },
+    // The five original Beijing photos already exist in the GitHub repository.
+    {id:'beijing-01',src:'assets/photos/01-qinzhengdian.jpg',thumb:'assets/photos/01-qinzhengdian-thumb.jpg',title:'走进橙色的秋天',en:'An Orange Window',series:'beijing',season:'autumn',location:'香山 · 勤政殿',note:'枫叶刚好为那座殿留下了一扇窗。',alt:'金橙色枫叶围绕香山勤政殿建筑的匾额',shape:'wide'},
+    {id:'beijing-02',src:'assets/photos/02-sunlit-hall.jpg',thumb:'assets/photos/02-sunlit-hall-thumb.jpg',title:'树影穿过红墙',en:'Afternoon Shadows',series:'beijing',season:'autumn',location:'香山',note:'阳光没有急着离开，树影也没有。',alt:'阳光照着树影间的古建筑',shape:'portrait'},
+    {id:'beijing-03',src:'assets/photos/03-pavilion.jpg',thumb:'assets/photos/03-pavilion-thumb.jpg',title:'被古树收藏的屋檐',en:'The Roof Beneath the Trees',series:'beijing',season:'autumn',location:'香山',note:'走近时先看见屋檐，再看见天空。',alt:'古树掩映的古亭屋檐',shape:'wide'},
+    {id:'beijing-04',src:'assets/photos/04-pine-gold.jpg',thumb:'assets/photos/04-pine-gold-thumb.jpg',title:'松针上有光',en:'Little Pockets of Sunlight',series:'beijing',season:'autumn',location:'香山',note:'抬头的时候，秋天就在树梢。',alt:'金色阳光照亮松针与屋瓦',shape:'portrait'},
+    {id:'beijing-05',src:'assets/photos/05-kunming-sunset.jpg',thumb:'assets/photos/05-kunming-sunset-thumb.jpg',title:'落日替今天落款',en:'The Sunset I Stayed For',series:'beijing',season:'autumn',location:'颐和园 · 昆明湖',note:'湖面接住了整片温柔的天空。',alt:'昆明湖金色夕阳和水鸟',shape:'wide'}
+  ]
+};
+
+// Embedded optimized images keep this GitHub Pages version fully self-contained.
+if (window.NOTICING_EMBEDDED) {
+  for (const photo of window.PHOTO_JOURNAL.photos) {
+    photo.src = window.NOTICING_EMBEDDED[photo.src] || photo.src;
+    photo.thumb = window.NOTICING_EMBEDDED[photo.thumb] || photo.thumb;
   }
-];
+}
