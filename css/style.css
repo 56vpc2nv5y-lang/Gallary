@@ -127,3 +127,12 @@ html[data-season='winter']{--season:#719ab0;--glow:#c6dce5;--accent:#678ca2}
 .collage-board[data-paper-theme="editorial"] .board-sticker{border-color:#927c74;color:#94766a}
 @media(max-width:900px){.scrapbook-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.scrapbook-fields{grid-template-columns:1fr 1fr;gap:9px}.scrapbook-fields label{font-size:11px}.scrapbook-fields input,.scrapbook-fields textarea,.scrapbook-fields select{font-size:12px;padding:9px}.scrap-style-label{grid-column:1/-1}.scrapbook-editor{margin-bottom:20px}.board-watermark{font-size:36px}.board-bottom{font-size:10px;bottom:19px}.board-top{font-size:9px;top:21px}}
+
+/* Temporary, explicitly non-published photo additions for the creative desk */
+.picker-head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.collage-picker-head .studio-file-label{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+ border:1px solid #bfa593;border-radius:24px;padding:9px 15px;color:#6e4f41;background:#f8f2e8;
+ font:12px/1.4 var(--serif);white-space:nowrap}
+.collage-picker-head .studio-file-label:hover{background:#eae0d3}
+.studio-import-help{font:11px/1.8 var(--serif);margin:-2px 0 13px;color:#9b8274}
+@media(max-width:560px){.picker-head-actions{width:100%}.collage-picker-head .studio-file-label{flex:1}.collage-picker-head button{flex:1}}
