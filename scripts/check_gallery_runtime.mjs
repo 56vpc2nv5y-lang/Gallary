@@ -89,9 +89,12 @@ assert.ok(get('#footprintMap').children.length>0,'The interactive map must rende
 assert.ok(get('#seasonPreview').children.length>0,'Season photos must render');
 assert.equal(get('#collageBoard').children.length,5,'The scrapbook canvas must contain five tiles');
 assert.ok(get('#collagePhotoPicker').children.length>=catalog.photos.length,'The scrapbook must offer all photos');
-assert.equal(get('#momentPhotoSelect').children.length,catalog.photos.length,'The reassembly effect must offer all photos');
-assert.ok(get('#momentStage'),'The cinematic reassembly area must be present');
+assert.ok(html.includes('class="still-feature-photo"'),'The Kunming Lake feature must be a static photograph');
+assert.ok(!html.includes('id="momentTiles"'),'Animated tiles must be absent');
+assert.ok(!html.includes('id="motionToggle"'),'Animated seasons must be absent');
+assert.ok(!html.includes('id="lightboxPlay"'),'Autoplay must be absent');
+assert.ok(!app.includes('requestAnimationFrame'),'Photo animations must be absent');
 const ids=[...app.matchAll(/\$\('#([a-zA-Z][\w-]+)'\)/g)].map(match=>match[1]);
 const missing=[...new Set(ids)].filter(id=>!html.includes('id="'+id+'"'));
 assert.deepEqual(missing,[],'All statically addressed HTML IDs must exist');
-console.log('Gallery runtime smoke test passed: '+catalog.photos.length+' photographs, map, seasons, scrapbook and tile reveal.');
+console.log('Gallery runtime smoke test passed: '+catalog.photos.length+' static photographs, map, seasons and scrapbook.');
