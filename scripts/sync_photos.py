@@ -69,7 +69,8 @@ def sync() -> int:
             "season": "unknown", "date": date, "country": None, "city": None,
             "place": None, "lat": None, "lng": None, "style": "neutral",
             "geoPrecision": None, "location": "", "note": "",
-            "alt": title, "shape": shape
+            "alt": title, "shape": shape,
+            "motion": "focus", "motionLabel": "轻轻靠近，留住这一刻"
         }
         if rel in staged:
             editorial = staged[rel].copy()
