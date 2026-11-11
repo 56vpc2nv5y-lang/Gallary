@@ -459,3 +459,112 @@ html[data-season="winter"] .hero-season-switch button[data-season="winter"]{
   .feature-card .feature-line span:last-child,
   .photo-card-button .photo-figure{transition:none!important}
 }
+
+/* Editorial V3: quieter page, one playful interaction at a time.
+   The old static-gallery stylesheet had a display:none!important which hid
+   the entire particle canvas despite a running animation loop. */
+html.static-gallery canvas#seasonCanvas{
+  display:block!important;
+  visibility:visible!important;
+  position:fixed!important;
+  inset:0!important;
+  width:100%!important;height:100%!important;
+  pointer-events:none!important;
+  z-index:35!important;
+  opacity:0!important;
+}
+html.static-gallery canvas#seasonCanvas.ambient-on{
+  opacity:.88!important;
+}
+.grain{opacity:.065!important}
+.editorial-hero .hero-layout{
+  grid-template-columns:minmax(0,1.18fr) minmax(300px,.75fr);
+  gap:clamp(34px,5vw,85px);
+}
+.editorial-hero .hero-cover img{aspect-ratio:1.46;object-fit:cover}
+.editorial-hero .hero-photo-peek--cat{width:25%;max-width:145px;left:-3%;bottom:4%}
+.editorial-hero .hero-photo-peek span{font-size:10px}
+.editorial-hero h1{font-size:clamp(64px,7vw,108px);margin:27px 0 24px}
+.editorial-hero .hero-cn{font-size:clamp(19px,1.9vw,25px)}
+.editorial-hero .hero-description{font-size:13px;margin:14px 0 20px;max-width:300px}
+.editorial-hero .hero-text{padding-bottom:25px}
+.editorial-hero .hero-topline{margin-bottom:20px}
+.editorial-hero .hero-bottom{margin-top:38px;padding-top:13px;border-top:1px solid #d8c9bf}
+.issues-section{padding-top:65px;padding-bottom:65px}
+.editorial-features .feature-card h3{margin-top:9px}
+.feature-grid.editorial-features{gap:52px 35px}
+.editorial-features .feature-encounters{padding-top:70px}
+.editorial-features .feature-landscapes{padding-top:35px}
+.section-heading{margin-bottom:35px}
+.section-heading h2{font-size:clamp(39px,4.2vw,65px)}
+.archive-section{padding-top:95px}
+.archive-foot{margin-top:40px}
+.footprints-section{padding-top:85px;padding-bottom:85px}
+.studio-section{padding-top:75px;padding-bottom:85px}
+.season-section .section-wrap{padding-top:70px;padding-bottom:70px}
+.season-section .section-heading>p{font-size:12px}
+.season-preview{grid-template-columns:repeat(3,minmax(0,1fr));max-width:910px}
+.season-shot:nth-child(n+4){display:none}
+.moment-section{padding-top:52px;padding-bottom:80px}
+.moment-section .section-heading{margin-bottom:26px}
+.moment-stage{
+  position:relative;isolation:isolate;
+  width:100%;aspect-ratio:16/9;
+  max-height:680px;min-height:300px;
+  overflow:hidden;
+  background:#dfd7ce;
+}
+.moment-fallback,.moment-canvas{
+  position:absolute;inset:0;display:block;
+  width:100%;height:100%;object-fit:contain;
+}
+.moment-fallback{z-index:1;opacity:1}
+.moment-canvas{z-index:2;opacity:0;pointer-events:none}
+html.static-gallery .moment-stage.is-playing .moment-fallback{opacity:0!important}
+html.static-gallery .moment-stage.is-playing .moment-canvas{opacity:1!important}
+.moment-controls{
+  display:flex;gap:15px 22px;align-items:center;flex-wrap:wrap;
+  padding:17px 0 0;
+}
+.moment-replay{
+  background:#51403b;color:#fff;
+  border:1px solid #51403b;border-radius:2px;
+  font:13px/1.5 var(--serif);padding:12px 19px;
+  min-height:44px;
+}
+.moment-replay:hover{background:#76584c}
+.moment-controls label{font:12px/1.5 var(--serif);color:#8d796e;display:flex;align-items:center;gap:10px}
+.moment-controls select{
+  border:1px solid #d3c3b6;color:#66544b;
+  padding:10px 14px;background:#fcfaf6;
+  min-height:44px;max-width:260px;
+}
+.moment-status{font:12px/1.6 var(--serif);color:#968478;margin-left:auto}
+.moment-replay:disabled{opacity:.65}
+.season-actions{gap:15px}
+.season-mood-label{display:none}
+.photo-wall:not(.grid-mode){gap:60px 28px}
+@media(max-width:780px){
+  .editorial-hero .hero-layout{grid-template-columns:1fr;gap:30px}
+  .editorial-hero .hero-photo-peek--cat{max-width:128px}
+  .editorial-hero .hero-text{padding-bottom:0}
+  .moment-stage{aspect-ratio:4/3;min-height:280px}
+  .moment-status{margin-left:0}
+}
+@media(max-width:560px){
+  .editorial-hero .hero-cover img{aspect-ratio:1.19}
+  .editorial-hero .hero-photo-peek--cat{max-width:100px;bottom:5%}
+  .editorial-hero h1{font-size:clamp(56px,13vw,73px)}
+  .feature-grid.editorial-features{gap:38px}
+  .moment-section{padding-bottom:60px}
+  .moment-stage{aspect-ratio:1/1;min-height:270px}
+  .moment-controls{align-items:stretch;gap:12px}
+  .moment-controls label{width:100%;justify-content:space-between}
+  .moment-controls select{width:min(65vw,260px)}
+  .moment-status{width:100%}
+  .season-preview{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){
+  html.static-gallery canvas#seasonCanvas{opacity:0!important}
+  html.static-gallery canvas#seasonCanvas.ambient-on{opacity:0!important}
+}
