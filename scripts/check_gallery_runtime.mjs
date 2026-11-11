@@ -22,6 +22,8 @@ for(const photo of catalog.photos){
   }
 }
 assert.ok(html.includes('css/editorial-v2.css'),'Editorial stylesheet must load');
+assert.ok(html.includes('data/worldmap.js'),'Bundled world-map data must load');
+assert.ok(!app.includes("class:'atlas-street'"),'City maps must not show invented streets');
 assert.ok(html.includes('class="hero editorial-hero"'),'Photo-led cover must render');
 assert.ok(html.includes('class="studio-disclosure"'),'Scrapbook must stay accessible on demand');
 
