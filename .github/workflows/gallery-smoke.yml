@@ -1,0 +1,33 @@
+name: Gallery runtime smoke check
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "js/**"
+      - "data/photos.js"
+      - "data/photos.json"
+      - "scripts/check_gallery_runtime.mjs"
+      - ".github/workflows/gallery-smoke.yml"
+  pull_request:
+    paths:
+      - "index.html"
+      - "js/**"
+      - "data/photos.js"
+      - "data/photos.json"
+      - "scripts/check_gallery_runtime.mjs"
+      - ".github/workflows/gallery-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Smoke test the complete gallery initialization
+        run: node scripts/check_gallery_runtime.mjs
