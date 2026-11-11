@@ -51,10 +51,21 @@
     $('img[src^="assets/photos/"]').forEach(img=>{
       const path=img.getAttribute('src');if(embedded[path])img.src=embedded[path];
     });
-    const featured={ 'feature-encounters':'cat','feature-architecture':'ceiling','feature-landscapes':'sunset','feature-beijing':'beijing-01' };
-    Object.entries(featured).forEach(([className,id])=>{
-      const photo=photos.find(p=>p.id===id),img=$('.'+className+' .feature-image img');
+    const featured={
+      'feature-encounters':['v5-white-cat','cat'],
+      'feature-architecture':['v5-illuminated-eaves','ceiling'],
+      'feature-landscapes':['v5-rose-clouds','sunset'],
+      'feature-beijing':['v5-golden-ginkgo','beijing-01']
+    };
+    Object.entries(featured).forEach(([className,ids])=>{
+      const photo=ids.map(id=>photos.find(p=>p.id===id)).find(Boolean),card=$('.'+className);
+      const img=$('.feature-image img',card);
       if(photo&&img){img.src=photo.thumb||photo.src;img.alt=photo.alt||photo.title}
+    });
+    $('[data-target-filter]').forEach(card=>{
+      const count=photos.filter(p=>p.series===card.dataset.targetFilter).length;
+      const label=$('.feature-line span:last-child',card);
+      if(label)label.textContent=String(count).padStart(2,'0')+' FRAMES ↗';
     });
   }
   function handleMissingImages(){
