@@ -8,7 +8,7 @@
   let originalPhotos = [], photos = [], filtered = [];
   let filter='all', seasonFilter='all', focusIDs=null, view='editorial';
   let lightboxIndex=0, slideTimer=null, lastFocus=null, toastTimer=null;
-  let collageIDs = ['cat','opera','lizard','sunset','snow'];
+  let collageIDs = ['cat','opera','lizard','sunset','snow'], collageActiveSlot=0;
   const collageLayouts = {
     scattered:[{x:19,y:37,r:-12},{x:48,y:28,r:8},{x:79,y:39,r:-9},{x:34,y:73,r:10},{x:68,y:74,r:-7}],
     orbit:[{x:50,y:20,r:4},{x:22,y:47,r:-14},{x:78,y:47,r:12},{x:34,y:79,r:7},{x:66,y:79,r:-8}],
@@ -21,9 +21,17 @@
 
   function toast(message){const t=$('#toast');if(!t)return;t.textContent=message;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3300)}
   async function loadCatalog(){
-    const response = await fetch('data/photos.json',{cache:'no-store'});
-    if(!response.ok)throw Error('照片目录加载失败: '+response.status);
-    const catalog = await response.json();
+    // The static JS mirror is generated from the canonical photos.json.
+    // It works on GitHub Pages, file:// previews and restrictive browsers
+    // where fetch('data/photos.json') would otherwise leave a blank wall.
+    let catalog=window.PHOTO_JOURNAL;
+    if(!catalog?.photos?.length){
+      try{
+        const response=await fetch('data/photos.json',{cache:'no-store'});
+        if(!response.ok)throw Error('HTTP '+response.status);
+        catalog=await response.json();
+      }catch(err){throw Error('照片目录加载失败。data/photos.js 和 data/photos.json 都不可用：'+err.message)}
+    }
     if(!Array.isArray(catalog.photos))throw Error('照片目录格式无效');
     const embedded=window.NOTICING_EMBEDDED||{};
     originalPhotos=catalog.photos.map(p=>({
@@ -32,7 +40,6 @@
       thumb:embedded[p.thumb]||p.thumb||embedded[p.src]||p.src
     }));
     photos=[...originalPhotos];
-    // The cover and chapter previews also reuse the same image sources.
     $('img[src^="assets/photos/"]').forEach(img=>{
       const path=img.getAttribute('src');if(embedded[path])img.src=embedded[path];
     });
@@ -185,21 +192,101 @@
   function setupFootprints(){
     const located=photos.filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lng)&&p.city&&p.country);
     const cities=new Map();
-    located.forEach(p=>{const key=p.country+'|'+p.city;if(!cities.has(key))cities.set(key,[]);cities.get(key).push(p)});
+    located.forEach(p=>{
+      const key=p.country+'|'+p.city;
+      if(!cities.has(key))cities.set(key,[]);
+      cities.get(key).push(p);
+    });
     const names={Beijing:'北京',Astana:'阿斯塔纳'};
-    const back=$('#mapBack'),scope=$('#mapScopeTitle'),description=$('#mapScopeNote'),list=$('#mapPlaces');
-    let active=null,map=null,layer=null;
-    if(window.L){
-      map=L.map('footprintMap',{scrollWheelZoom:false,worldCopyJump:true}).setView([47,92],3);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-        attribution:'© OpenStreetMap contributors',maxZoom:18
-      }).addTo(map);
-      layer=L.layerGroup().addTo(map);
-    }else{$('#mapFallback').hidden=false;}
-    function addMarker(lat,lng,label,action){
-      if(!layer)return;
-      const marker=L.marker([lat,lng]).addTo(layer).bindTooltip(label);
-      marker.on('click',action);
+    const back=$('#mapBack'),scope=$('#mapScopeTitle'),description=$('#mapScopeNote'),list=$('#mapPlaces'),mapHost=$('#footprintMap');
+    const NS='http://www.w3.org/2000/svg';
+    let active=null;
+    const node=(tag,attrs={})=>{
+      const el=document.createElementNS(NS,tag);
+      Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,String(v)));
+      return el;
+    };
+    function svgText(svg,x,y,text,klass){
+      const el=node('text',{x,y,class:klass});el.textContent=text;svg.append(el);return el;
+    }
+    function marker(svg,x,y,label,action){
+      const g=node('g',{class:'travel-marker',role:'button',tabindex:'0','aria-label':'打开 '+label});
+      const halo=node('circle',{cx:x,cy:y,r:27,class:'travel-marker-halo'});
+      const outer=node('circle',{cx:x,cy:y,r:13,class:'travel-marker-outer'});
+      const inner=node('circle',{cx:x,cy:y,r:5,class:'travel-marker-inner'});
+      const text=node('text',{x:x+22,y:y-17,class:'travel-marker-label'});text.textContent=label;
+      const title=node('title');title.textContent='点击查看 '+label;
+      g.append(halo,outer,inner,text,title);svg.append(g);
+      g.addEventListener('click',action);
+      g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();action()}});
+    }
+    function baseSvg(heading,mode){
+      mapHost.replaceChildren();
+      const svg=node('svg',{viewBox:'0 0 1000 590',preserveAspectRatio:'xMidYMid meet',
+        class:'offline-geo','aria-label':mode==='world'?'世界照片足迹地图':'城市照片地点相对位置图'});
+      const defs=node('defs');
+      const grad=node('linearGradient',{id:'atlas-sea',x1:'0',y1:'0',x2:'1',y2:'1'});
+      const stop1=node('stop',{offset:'0%','stop-color':'#e9eee8'});
+      const stop2=node('stop',{offset:'100%','stop-color':'#dbe5db'});
+      grad.append(stop1,stop2);
+      const noise=node('pattern',{id:'atlas-lines',patternUnits:'userSpaceOnUse',width:'60',height:'60'});
+      noise.append(node('path',{d:'M60 0H0V60',fill:'none',stroke:'#ffffff','stroke-width':'1',opacity:'.56'}));
+      defs.append(grad,noise);svg.append(defs);
+      svg.append(node('rect',{x:0,y:0,width:1000,height:590,fill:'url(#atlas-sea)'}));
+      svg.append(node('rect',{x:0,y:0,width:1000,height:590,fill:'url(#atlas-lines)'}));
+      svgText(svg,42,55,heading,'atlas-title');
+      svgText(svg,43,82,mode==='world'?'A SMALL ATLAS OF MEMORIES':'PLACES SHOWN BY RELATIVE POSITION','atlas-subtitle');
+      svgText(svg,44,557,mode==='world'?'世界 → 城市 → 具体地点 → 照片':'经确认的公开景点 · 不是拍摄 GPS 或导航路线','atlas-footnote');
+      mapHost.append(svg);return svg;
+    }
+    function worldMap(){
+      const svg=baseSvg('TRAVEL NOTES / WORLD','world');
+      const lands=[
+        'M68 173L92 122 144 96 203 115 248 144 267 188 244 213 207 204 187 238 153 245 140 217 108 222 80 199Z',
+        'M255 255L289 271 323 307 345 342 334 388 313 429 287 472 272 441 282 391 268 355 249 314Z',
+        'M450 135L490 106 539 110 565 124 606 102 655 113 707 93 776 113 841 138 905 167 925 208 898 246 855 227 818 252 774 226 733 236 696 215 651 239 603 216 564 239 530 206 494 209 465 184Z',
+        'M491 240L551 237 592 268 620 302 609 352 578 408 549 425 520 374 510 325 480 280Z',
+        'M811 380L844 361 889 376 921 403 907 437 864 451 827 431Z',
+        'M320 73L344 42 389 46 411 71 395 102 358 109Z'
+      ];
+      lands.forEach(d=>svg.append(node('path',{d,class:'atlas-land'})));
+      [
+        [147,151,'NORTH AMERICA'],[290,347,'SOUTH AMERICA'],[540,175,'EUROPE'],
+        [670,174,'ASIA'],[548,327,'AFRICA'],[870,414,'AUSTRALIA']
+      ].forEach(([x,y,name])=>svgText(svg,x,y,name,'atlas-continent'));
+      for(const [key,group] of cities){
+        const {lat,lng,city}=group[0],x=(lng+180)/360*1000,y=(90-lat)/180*590;
+        marker(svg,x,y,names[city]||city,()=>enterCity(key));
+      }
+    }
+    function cityMap(group){
+      const city=group[0].city;
+      const svg=baseSvg((names[city]||city).toUpperCase()+' / PLACES','city');
+      for(let i=0;i<10;i++){
+        const off=i*90-120;
+        svg.append(node('path',{d:'M'+off+' 105 Q'+(off+160)+' 290 '+(off+300)+' 510',
+          class:'atlas-street'}));
+      }
+      for(let i=0;i<6;i++){
+        const off=130+i*72;
+        svg.append(node('path',{d:'M65 '+off+' Q480 '+(off+40)+' 925 '+(off-35),class:'atlas-street'}));
+      }
+      const places=new Map();
+      group.forEach(p=>{
+        const name=p.place||p.location||'未命名地点';
+        if(!places.has(name))places.set(name,[]);
+        places.get(name).push(p);
+      });
+      const uniq=[...places.values()];
+      const minLat=Math.min(...uniq.map(v=>v[0].lat)),maxLat=Math.max(...uniq.map(v=>v[0].lat));
+      const minLng=Math.min(...uniq.map(v=>v[0].lng)),maxLng=Math.max(...uniq.map(v=>v[0].lng));
+      const rangeLat=Math.max(.05,maxLat-minLat),rangeLng=Math.max(.05,maxLng-minLng);
+      const padX=(rangeLng-(maxLng-minLng))/2,padY=(rangeLat-(maxLat-minLat))/2;
+      uniq.forEach(records=>{
+        const p=records[0],x=170+(p.lng-minLng+padX)/rangeLng*660;
+        const y=470-(p.lat-minLat+padY)/rangeLat*320;
+        marker(svg,x,y,p.place||p.location,()=>openMappedPhoto(records.map(q=>q.id)));
+      });
     }
     function item(title,subtitle,thumb,action){
       const button=document.createElement('button');button.className='map-place';button.type='button';
@@ -211,54 +298,84 @@
     }
     function openMappedPhoto(ids){
       filter='all';seasonFilter='all';focusIDs=new Set(ids);
-      $('[data-filter]').forEach(b=>{const v=b.dataset.filter==='all';b.classList.toggle('active',v);b.setAttribute('aria-pressed',String(v))});
-      $('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      $$('[data-filter]').forEach(b=>{const v=b.dataset.filter==='all';b.classList.toggle('active',v);b.setAttribute('aria-pressed',String(v))});
+      $$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
       renderGallery();$('#archive').scrollIntoView({behavior:reduced.matches?'auto':'smooth',block:'start'});
     }
     function world(){
       active=null;back.hidden=true;list.replaceChildren();
-      scope.textContent='世界那么大，先记住这几座城。';
-      description.textContent='点击城市，打开这一站的照片与地点。';
-      layer?.clearLayers();
+      scope.textContent='从世界出发，收藏途经的城市。';
+      description.textContent='点击地图标记或城市卡片，打开这趟旅程。';
+      worldMap();
       for(const [key,group] of cities){
         const city=group[0].city,country=group[0].country;
-        const center=city==='Beijing'?[39.9042,116.4074]:city==='Astana'?[51.1694,71.4491]:[group[0].lat,group[0].lng];
-        const action=()=>enterCity(key);
-        item((names[city]||city)+' / '+country,group.length+' 张照片 · 点击进入',group[0].thumb||group[0].src,action);
-        addMarker(center[0],center[1],names[city]||city,action);
-      }
-      if(map&&cities.size>1){
-        const centers=[...cities.values()].map(g=>g[0].city==='Beijing'?[39.9042,116.4074]:g[0].city==='Astana'?[51.1694,71.4491]:[g[0].lat,g[0].lng]);
-        map.fitBounds(centers,{padding:[55,55],maxZoom:4,animate:false});
+        item((names[city]||city)+' / '+country,group.length+' 张照片 · 点击进入',group[0].thumb||group[0].src,()=>enterCity(key));
       }
     }
     function enterCity(key){
       const group=cities.get(key);if(!group)return;
-      active=key;back.hidden=false;list.replaceChildren();layer?.clearLayers();
+      active=key;back.hidden=false;list.replaceChildren();
       scope.textContent=(names[group[0].city]||group[0].city)+' · '+group[0].country;
-      description.textContent=group.length+' 张影像记录在这座城市的公共景点附近。请选择地点，查看照片。';
+      description.textContent=group.length+' 张照片 · 点击地点查看作品。地图中的位置是公共地标示意。';
       const places=new Map();
-      group.forEach(p=>{const name=p.place||p.location||'未命名地点';if(!places.has(name))places.set(name,[]);places.get(name).push(p)});
+      group.forEach(p=>{
+        const name=p.place||p.location||'未命名地点';
+        if(!places.has(name))places.set(name,[]);
+        places.get(name).push(p);
+      });
       for(const [name,records] of places){
-        const first=records[0],action=()=>openMappedPhoto(records.map(p=>p.id));
-        item(name,records.length+' 张照片 · 看这一站',first.thumb||first.src,action);
-        addMarker(first.lat,first.lng,name,action);
+        const p=records[0];
+        item(name,records.length+' 张照片 · 看这一站',p.thumb||p.src,()=>openMappedPhoto(records.map(q=>q.id)));
       }
-      if(map){
-        const bounds=[...places.values()].map(v=>[v[0].lat,v[0].lng]);
-        if(bounds.length===1)map.setView(bounds[0],12,{animate:true});
-        else map.fitBounds(bounds,{padding:[52,52],maxZoom:12});
-      }
+      cityMap(group);
     }
     back.addEventListener('click',world);world();
   }
 
   function collagePhoto(i){return photos.find(p=>p.id===collageIDs[i])||photos[i]||photos[0]}
-  function saveCollage(){try{localStorage.setItem('noticing-collage-v2',JSON.stringify({mode:collageMode,positions}))}catch(_){}}
-  function loadCollage(){try{const v=JSON.parse(localStorage.getItem('noticing-collage-v2')||'null');if(v&&v.positions?.length===5&&v.positions.every(p=>[p.x,p.y,p.r].every(Number.isFinite))){positions=v.positions.map(p=>({x:clamp(p.x,10,90),y:clamp(p.y,14,86),r:clamp(p.r,-30,30)}));collageMode=v.mode||'custom'}}catch(_){}}
+  function saveCollage(){try{localStorage.setItem('noticing-collage-v2',JSON.stringify({mode:collageMode,positions,collageIDs}))}catch(_){}}
+  function loadCollage(){try{const v=JSON.parse(localStorage.getItem('noticing-collage-v2')||'null');if(v&&v.positions?.length===5&&v.positions.every(p=>[p.x,p.y,p.r].every(Number.isFinite))){positions=v.positions.map(p=>({x:clamp(p.x,10,90),y:clamp(p.y,14,86),r:clamp(p.r,-30,30)}));collageMode=v.mode||'custom';if(Array.isArray(v.collageIDs)&&v.collageIDs.length===5&&v.collageIDs.every(id=>photos.some(p=>p.id===id))){collageIDs=v.collageIDs}}}catch(_){}}
   function placeTile(i){const p=positions[i],tile=collageTiles[i];tile.style.left=p.x+'%';tile.style.top=p.y+'%';tile.style.setProperty('--rotate',p.r+'deg')}
   function updateLayouts(){$$('[data-layout]').forEach(b=>{const active=b.dataset.layout===collageMode;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))})}
   function layout(name){if(!collageLayouts[name])return;positions=collageLayouts[name].map(p=>({...p}));collageMode=name;collageTiles.forEach((_,i)=>placeTile(i));updateLayouts();saveCollage()}
+  function updateCollageTiles(){
+    collageTiles.forEach((tile,i)=>{
+      const p=collagePhoto(i),img=$('img',tile),caption=$('span',tile);
+      img.src=p.thumb||p.src;img.alt=p.alt||p.title;
+      caption.textContent=String(i+1).padStart(2,'0')+' / '+p.title;
+      tile.setAttribute('aria-label',p.title+'；拖动或方向键移动，回车查看大图');
+    });
+    renderCollagePicker();
+    saveCollage();
+  }
+  function renderCollagePicker(){
+    const picker=$('#collagePhotoPicker');
+    if(!picker)return;
+    picker.replaceChildren();
+    const caption=document.createElement('div');caption.className='picker-status';
+    caption.textContent='正在替换第 '+(collageActiveSlot+1)+' 张 · 选图后自动移到下一张';
+    picker.append(caption);
+    photos.forEach(p=>{
+      const b=document.createElement('button');b.type='button';b.className='pick-photo';
+      const selected=collageIDs.indexOf(p.id),active=selected===collageActiveSlot;
+      b.classList.toggle('selected',selected>=0);b.classList.toggle('active-slot',active);
+      b.setAttribute('aria-label','选用 '+p.title+(selected>=0?'（当前第 '+(selected+1)+' 张）':''));
+      b.setAttribute('aria-pressed',String(selected>=0));
+      const img=document.createElement('img');img.src=p.thumb||p.src;img.alt='';img.loading='lazy';
+      const name=document.createElement('span');name.textContent=p.title;
+      b.append(img,name);
+      if(selected>=0){const check=document.createElement('i');check.textContent=String(selected+1);b.append(check)}
+      b.addEventListener('click',()=>{
+        if(selected>=0){
+          collageActiveSlot=selected;renderCollagePicker();return;
+        }
+        collageIDs[collageActiveSlot]=p.id;
+        collageActiveSlot=(collageActiveSlot+1)%5;
+        updateCollageTiles();
+      });
+      picker.append(b);
+    });
+  }
   function initCollage(){
     const board=$('#collageBoard');loadCollage();
     for(let i=0;i<5;i++){
@@ -280,13 +397,12 @@
         :photos.filter(p=>p.series===group);
       const rest=photos.filter(p=>!selected.includes(p));
       collageIDs=[...selected,...rest].slice(0,5).map(p=>p.id);
-      collageTiles.forEach((tile,i)=>{
-        const photo=collagePhoto(i);$('img',tile).src=photo.thumb||photo.src;
-        $('img',tile).alt=photo.alt||photo.title;
-        $('span',tile).textContent=String(i+1).padStart(2,'0')+' / '+photo.title;
-        tile.setAttribute('aria-label',photo.title+'；拖动位置或按方向键微调；按回车查看大图');
-      });
-      toast('拼贴已经换成这一组照片');
+      collageActiveSlot=0;updateCollageTiles();
+      toast('已切换拼贴照片，可继续点缩略图替换');
+    });
+    $('#collageRandomPhotos').addEventListener('click',()=>{
+      collageIDs=[...photos].sort(()=>Math.random()-.5).slice(0,5).map(p=>p.id);
+      collageActiveSlot=0;updateCollageTiles();toast('已选出新的五张照片');
     });
     board.addEventListener('pointerdown',e=>{
       const tile=e.target.closest('.collage-tile');if(!tile||e.button!==0)return;
@@ -302,7 +418,7 @@
     $('#collageShuffle').addEventListener('click',()=>{positions=positions.map(p=>({x:clamp(p.x+(Math.random()-.5)*25,12,88),y:clamp(p.y+(Math.random()-.5)*24,17,83),r:(Math.random()-.5)*27}));collageMode='custom';collageTiles.forEach((_,i)=>placeTile(i));saveCollage();updateLayouts();toast('新的拼贴组合已经出现了 ✳')});
     $('#collageReset').addEventListener('click',()=>layout('scattered'));
     $('#collageExport').addEventListener('click',exportCollage);
-    updateLayouts();
+    updateLayouts();renderCollagePicker();
   }
   async function loadImage(src){const img=new Image();img.crossOrigin='anonymous';img.src=src;if(img.decode)await img.decode();else await new Promise((res,rej)=>{img.onload=res;img.onerror=rej});return img}
   function fillImage(ctx,img,x,y,w,h){const scale=Math.max(w/img.naturalWidth,h/img.naturalHeight),iw=w/scale,ih=h/scale;ctx.drawImage(img,(img.naturalWidth-iw)/2,(img.naturalHeight-ih)/2,iw,ih,x,y,w,h)}
@@ -334,7 +450,7 @@
       setupFilters();setupSeasons();setupFootprints();initCollage();
     }catch(err){
       console.error('Photo journal could not load',err);
-      $('#activeFilterNote').textContent='照片清单未能加载。请通过 GitHub Pages 或本地 HTTP 服务器打开网页，而不是双击 file:// 文件。';
+      $('#activeFilterNote').textContent='照片目录暂时无法读取。请确认 data/photos.js 已发布。';
       $('#mapFallback').hidden=false;
     }
   }
