@@ -556,6 +556,166 @@
     finally{btn.disabled=false;btn.textContent='导出纪念手帐 PNG ↗'}
   }
 
+  // A moving photograph — adapted from the user's "四时画廊" Kunming Lake tile reveal.
+  // Uses the SAME photos catalog as the archive, atlas, seasons and scrapbook.
+  function initMomentTiles(){
+    const stage=$('#momentStage'),canvas=$('#momentTiles'),fallback=$('#momentFallback');
+    const select=$('#momentPhotoSelect'),replayButton=$('#momentReplay');
+    const title=$('#momentPhotoTitle'),place=$('#momentPhotoPlace'),status=$('#momentStatus');
+    if(!stage||!canvas||!fallback||!select||!replayButton||!photos.length)return;
+    const context=canvas.getContext('2d');
+    if(!context){status.textContent='当前浏览器不支持画布，已显示原照片。';return;}
+    const choices=[...photos];
+    select.replaceChildren();
+    choices.forEach(p=>{
+      const option=document.createElement('option');
+      option.value=p.id;option.textContent=p.title+(p.location?' · '+p.location:'');
+      select.append(option);
+    });
+
+    let photo=null,image=null,tiles=[],width=0,height=0,frame=0,loadId=0;
+    let started=false,observer=null,resizeTimer=null;
+    const abort=()=>{
+      if(frame)cancelAnimationFrame(frame);
+      frame=0;
+      stage.classList.remove('is-playing');
+    };
+    const sizeCanvas=()=>{
+      const rect=canvas.getBoundingClientRect();
+      width=Math.max(1,rect.width);height=Math.max(1,rect.height);
+      const scale=Math.min(window.devicePixelRatio||1,2);
+      canvas.width=Math.round(width*scale);
+      canvas.height=Math.round(height*scale);
+      context.setTransform(scale,0,0,scale,0,0);
+      context.clearRect(0,0,width,height);
+      context.imageSmoothingEnabled=true;
+      const columns=width<650?9:14;
+      const cell=width/columns;
+      const rows=Math.ceil(height/cell);
+      const halfDiagonal=Math.hypot(width/2,height/2)||1;
+      tiles=[];
+      for(let y=0;y<rows;y++)for(let x=0;x<columns;x++){
+        const left=x*cell,top=y*cell,w=Math.min(cell,width-left),h=Math.min(cell,height-top);
+        if(w<=0||h<=0)continue;
+        const dist=Math.hypot(left+w/2-width/2,top+h/2-height/2)/halfDiagonal;
+        tiles.push({
+          x:left,y:top,w,h,
+          delay:dist*.54+Math.random()*.22,
+          offsetX:(Math.random()-.5)*Math.min(width*.58,330),
+          offsetY:(Math.random()-.5)*Math.min(height*.9,270)+45,
+          angle:(Math.random()-.5)*1.25
+        });
+      }
+    };
+    const paint=seconds=>{
+      if(!image||!image.naturalWidth)return true;
+      context.clearRect(0,0,width,height);
+      const scale=Math.max(width/image.naturalWidth,height/image.naturalHeight);
+      const cropX=(image.naturalWidth-width/scale)/2;
+      const cropY=(image.naturalHeight-height/scale)/2;
+      let finished=true;
+      for(const tile of tiles){
+        const fraction=Math.max(0,Math.min(1,(seconds-tile.delay)/.88));
+        if(fraction<1)finished=false;
+        if(fraction<=0)continue;
+        const ease=1-Math.pow(1-fraction,3);
+        context.save();
+        context.globalAlpha=ease;
+        context.translate(tile.x+tile.w/2+tile.offsetX*(1-ease),tile.y+tile.h/2+tile.offsetY*(1-ease));
+        context.rotate(tile.angle*(1-ease));
+        context.drawImage(image,
+          cropX+tile.x/scale,cropY+tile.y/scale,tile.w/scale,tile.h/scale,
+          -tile.w/2,-tile.h/2,tile.w+.6,tile.h+.6);
+        context.restore();
+      }
+      return finished;
+    };
+    function play(){
+      abort();
+      if(!image||!image.naturalWidth){status.textContent='照片正在加载…';return;}
+      if(reduced.matches){
+        status.textContent='已遵循减少动态设置，显示完整照片。';
+        return;
+      }
+      sizeCanvas();
+      status.textContent='碎片正在回到它们的位置…';
+      stage.classList.add('is-playing');
+      const startTime=performance.now();
+      const loop=now=>{
+        frame=0;
+        if(paint((now-startTime)/1000)){
+          abort();
+          status.textContent='拼好了。还可以再看一次。';
+        }else{
+          frame=requestAnimationFrame(loop);
+        }
+      };
+      frame=requestAnimationFrame(loop);
+    }
+    function setPhoto(id){
+      const next=choices.find(p=>p.id===id)||choices[0];
+      if(!next)return;
+      abort();
+      photo=next;image=null;
+      select.value=next.id;
+      title.textContent=next.title;
+      place.textContent=next.location||next.place||'一个值得收藏的瞬间';
+      fallback.src=next.src;
+      fallback.alt=next.alt||next.title;
+      canvas.setAttribute('aria-label',next.title+'：碎片重新拼成完整照片');
+      status.textContent='照片正在加载…';
+      const token=++loadId;
+      const nextImage=new Image();
+      nextImage.onload=()=>{
+        if(token!==loadId)return;
+        image=nextImage;
+        play();
+      };
+      nextImage.onerror=()=>{
+        if(token!==loadId)return;
+        status.textContent='这张照片暂时无法加载，可以换另一张。';
+      };
+      nextImage.src=next.src;
+    }
+    replayButton.addEventListener('click',()=>{
+      if(!started){started=true;observer?.disconnect();setPhoto(select.value);return;}
+      if(image)play();
+      else setPhoto(select.value);
+    });
+    select.addEventListener('change',()=>{
+      started=true;observer?.disconnect();setPhoto(select.value);
+    });
+    const start=()=>{
+      if(started)return;
+      started=true;
+      observer?.disconnect();
+      setPhoto(choices.some(p=>p.id==='beijing-05')?'beijing-05':choices[0].id);
+    };
+    if('IntersectionObserver' in window){
+      observer=new IntersectionObserver(entries=>{
+        if(entries.some(entry=>entry.isIntersecting))start();
+      },{threshold:.18});
+      observer.observe(stage);
+    }else{
+      start();
+    }
+    window.addEventListener('resize',()=>{
+      clearTimeout(resizeTimer);
+      resizeTimer=setTimeout(()=>{
+        if(!started)return;
+        abort();
+        context.clearRect(0,0,canvas.width,canvas.height);
+        if(image&&image.naturalWidth)status.textContent='调整完窗口后，点击重新拼合还可以再看一次。';
+      },140);
+    },{passive:true});
+    reduced.addEventListener?.('change',event=>{
+      if(event.matches){
+        abort();
+        status.textContent='已切换为静态照片（减少动态）。';
+      }
+    });
+  }
+
   // Publishing takes place through GitHub commits, not an isolated browser database.
   // Isolate optional features: a failure in one view must never hide the gallery or map.
   function safelyInitialize(label,fn){
@@ -579,6 +739,7 @@
     safelyInitialize('season filters',setupSeasons);
     safelyInitialize('map footprints',setupFootprints);
     safelyInitialize('memory scrapbook',initCollage);
+    safelyInitialize('photo reassembly',initMomentTiles);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
