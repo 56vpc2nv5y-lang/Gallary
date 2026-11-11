@@ -4,12 +4,27 @@
  * Run: node scripts/check_gallery_runtime.mjs
  */
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 
 const app=readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
 const catalog=JSON.parse(readFileSync(new URL('../data/photos.json',import.meta.url),'utf8'));
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+const embeddedCode=readFileSync(new URL('../data/embedded_photos.js',import.meta.url),'utf8');
+const imageContext={window:{}};
+runInNewContext(embeddedCode,imageContext,{filename:'data/embedded_photos.js',timeout:3000});
+const embedded=imageContext.window.NOTICING_EMBEDDED||{};
+for(const photo of catalog.photos){
+  for(const path of [photo.src,photo.thumb].filter(Boolean)){
+    const fileExists=existsSync(new URL('../'+path,import.meta.url));
+    assert.ok(fileExists||typeof embedded[path]==='string'&&embedded[path].startsWith('data:image/'),
+      'Photo image must exist as a real file or an embedded fallback: '+photo.id+' '+path);
+  }
+}
+assert.ok(html.includes('css/editorial-v2.css'),'Editorial stylesheet must load');
+assert.ok(html.includes('class="hero editorial-hero"'),'Photo-led cover must render');
+assert.ok(html.includes('class="studio-disclosure"'),'Scrapbook must stay accessible on demand');
+
 const elements=new Map();
 const diagnostics=[];
 
