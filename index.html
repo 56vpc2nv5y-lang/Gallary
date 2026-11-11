@@ -76,8 +76,19 @@
 
     <section class="studio-section section-wrap" id="studio" aria-labelledby="studioTitle"><div class="section-heading reveal"><div><span class="overline">05 / A LITTLE COLLAGE STUDIO</span><h2 id="studioTitle">A scrapbook <i>of my own.</i></h2></div><p>选喜欢的五张照片，做一页自己的旅行手帖。<br>拼贴只是玩法，照片才是主角。</p></div>
       <div class="studio-controls"><label class="collage-source-label">拼贴素材 <select id="collageCollection"><option value="all">跨越城市 · 精选</option><option value="beijing">北京秋日</option><option value="architecture">建筑手记</option><option value="landscapes">光与四季</option><option value="encounters">小小相遇</option></select></label><div class="studio-presets" role="group" aria-label="拼贴排版"><button data-layout="scattered" class="active" aria-pressed="true">散页</button><button data-layout="orbit" aria-pressed="false">星轨</button><button data-layout="ribbon" aria-pressed="false">时光带</button></div><div class="studio-tools"><button id="collageShuffle">随机重排 ↝</button><button id="collageReset">恢复初始</button><button id="collageExport" class="export">导出拼贴 PNG ↗</button></div></div>
-      <div class="collage-picker-head"><span>从画廊挑选想放进拼贴的五张照片</span><button type="button" id="collageRandomPhotos">帮我随机选五张 ↝</button></div><div id="collagePhotoPicker" class="collage-photo-picker" role="group" aria-label="选择五张拼贴照片"></div><div class="collage-board" id="collageBoard" aria-label="可拖动的摄影拼贴画布"><span class="board-top">SUNNY'S SCRAPBOOK / PAGE 001</span><div class="board-watermark">Pieces of<br><i>ordinary magic.</i></div><div class="board-sticker" aria-hidden="true">✺<br>FOUND<br>BEAUTY</div><span class="board-bottom">COLLECTED, NOT PERFECTED. &nbsp; / &nbsp; A PERSONAL PHOTO JOURNAL</span></div>
-      <div class="studio-hint"><span>点击上面的缩略图选满五张 · 拖动拼贴调整位置 · 方向键微调 · 导出 PNG</span><span id="studioStatus" role="status" aria-live="polite">拼贴布局自动保存在当前浏览器。</span></div>
+      <div class="scrapbook-editor" aria-label="纪念手帐编辑器">
+        <div class="scrapbook-intro"><span>THE MEMORY PAGE / 你的纪念手帐</span><p>挑选照片，写下那一天的标题、地点和心情，组合成可以带走的一页。</p></div>
+        <div class="scrapbook-fields">
+          <label>这页的标题 <input id="scrapTitle" maxlength="38" placeholder="比如：在北京收集秋天" value="在北京收集秋天"></label>
+          <label>地点 <input id="scrapPlace" maxlength="46" placeholder="比如：北京 · 香山" value="北京 · 香山"></label>
+          <label>日期或季节 <input id="scrapDate" maxlength="30" placeholder="例如：2026 年秋" value="2026 年秋"></label>
+          <label class="scrap-style-label">纸张风格 <select id="scrapTheme"><option value="paper">宣纸手帐</option><option value="postcard">旅行明信片</option><option value="editorial">摄影杂志</option></select></label>
+          <label class="scrap-note-label">想留下的一句话 <textarea id="scrapNote" maxlength="130" rows="2" placeholder="写给那天的自己……">阳光从树梢落下来，我想把秋天慢慢收好。</textarea></label>
+        </div>
+        <p class="scrapbook-saving">内容与选图自动保存在当前浏览器；导出 PNG 可以永久保存，也可以分享给朋友。</p>
+      </div>
+      <div class="collage-picker-head"><span>从画廊挑选想放进拼贴的五张照片</span><button type="button" id="collageRandomPhotos">帮我随机选五张 ↝</button></div><div id="collagePhotoPicker" class="collage-photo-picker" role="group" aria-label="选择五张拼贴照片"></div><div class="collage-board" id="collageBoard" aria-label="可拖动的摄影拼贴画布"><span class="board-top" id="scrapPreviewTop">2026 年秋 · 北京 · 香山</span><div class="board-watermark"><span id="scrapPreviewTitle">在北京收集秋天</span></div><div class="board-sticker" aria-hidden="true">✺<span>MEMORY<br>PAGE</span></div><span class="board-bottom" id="scrapPreviewNote">阳光从树梢落下来，我想把秋天慢慢收好。</span></div>
+      <div class="studio-hint"><span>点击上面的缩略图选满五张 · 拖动拼贴调整位置 · 方向键微调 · 导出 PNG</span><span id="studioStatus" role="status" aria-live="polite">你的手帐草稿会自动保存在当前浏览器。</span></div>
     </section>
 
     <section class="letter-section" id="letter"><div class="letter-paper reveal"><span class="overline">06 / AN OPEN-ENDED LETTER</span><span class="letter-decoration">✺</span><h2>Dear future me,</h2><p>希望很多年之后，你再翻开这里，依然记得那天的风，路边的猫，陌生城市的屋顶，还有每一场意料之外的日落。</p><p>希望你一直愿意停下来，看一眼那些并不轰轰烈烈，却让生活悄悄发光的小事。</p><p class="letter-final">Keep noticing. Keep collecting.</p><span class="letter-sign">Love, Sunny ♡</span></div></section>
