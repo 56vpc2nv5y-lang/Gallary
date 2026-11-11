@@ -21,9 +21,12 @@
   let season = palette[root.dataset.season] ? root.dataset.season : 'autumn';
   let w=0,h=0,dpr=1,items=[],raf=0,last=0,playing=false;
   let force=0,wind=0,pointerX=-9999,pointerY=-9999;
-  try { force=localStorage.getItem('noticing-ambient-on')==='off' ? -1 : 0; } catch(_){}
-  // Prefer no animation for people who asked their device to reduce motion.
-  const shouldStart = force!==-1 && !media.matches;
+  // Use a new setting key after repairing the previously hidden canvas;
+  // an old broken-version 'off' flag must not make the restored effect disappear.
+  let savedOff=false;
+  try { savedOff=localStorage.getItem('noticing-ambient-v3')==='off'; } catch(_){}
+  // Reduced motion stays off initially; the visitor can still explicitly opt in.
+  const shouldStart = !savedOff && !media.matches;
   const randint=(a,b)=>a+Math.random()*(b-a);
   const len=()=>Math.min(58,Math.max(18,Math.floor(w/29)));
   function newParticle(randomStart=true){
@@ -133,7 +136,7 @@
       if(textNode)textNode.textContent=playing?'暂停粒子':'开启粒子';
       else button.textContent=label;
     });
-    if(store){try{localStorage.setItem('noticing-ambient-on',playing?'on':'off')}catch(_){}}
+    if(store){try{localStorage.setItem('noticing-ambient-v3',playing?'on':'off')}catch(_){}}
   }
   function setSeason(value){
     if(!palette[value]||value===season)return;
