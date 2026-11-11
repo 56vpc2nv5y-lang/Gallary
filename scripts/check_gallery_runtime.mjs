@@ -11,7 +11,7 @@ const app=readFileSync(new URL('../js/app.js',import.meta.url),'utf8');
 const catalog=JSON.parse(readFileSync(new URL('../data/photos.json',import.meta.url),'utf8'));
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const embeddedCode=readFileSync(new URL('../data/embedded_photos.js',import.meta.url),'utf8');
-const imageContext={window:{}};
+const imageContext={window:{},document:{addEventListener(){}}};
 runInNewContext(embeddedCode,imageContext,{filename:'data/embedded_photos.js',timeout:3000});
 const embedded=imageContext.window.NOTICING_EMBEDDED||{};
 for(const photo of catalog.photos){
