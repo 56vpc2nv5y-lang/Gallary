@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - "assets/photos/**"
+      - "data/photos.json"
   workflow_dispatch:
 
 permissions:
@@ -28,10 +29,10 @@ jobs:
       - name: Commit updated photo catalog, if changed
         shell: bash
         run: |
-          if ! git diff --quiet -- data/photos.json; then
+          if ! git diff --quiet -- data/photos.json data/photos.js; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/photos.json
+            git add data/photos.json data/photos.js
             git commit -m "chore: publish new photo records"
             git push
           fi
