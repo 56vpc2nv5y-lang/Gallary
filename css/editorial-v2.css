@@ -564,7 +564,5 @@ html.static-gallery .moment-stage.is-playing .moment-canvas{opacity:1!important}
   .moment-status{width:100%}
   .season-preview{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
-@media(prefers-reduced-motion:reduce){
-  html.static-gallery canvas#seasonCanvas{opacity:0!important}
-  html.static-gallery canvas#seasonCanvas.ambient-on{opacity:0!important}
-}
+/* Reduced-motion users start with particles disabled in JS. An explicit
+   button opt-in should still make the canvas visible; do not CSS-hide it. */
