@@ -1,0 +1,37 @@
+name: Publish newly uploaded photos
+on:
+  push:
+    branches: [main]
+    paths:
+      - "assets/photos/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  index-photos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this photo journal
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Prepare Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install image metadata reader
+        run: python -m pip install Pillow==11.3.0
+      - name: Index new photos without camera GPS
+        run: python scripts/sync_photos.py
+      - name: Commit updated photo catalog, if changed
+        shell: bash
+        run: |
+          if ! git diff --quiet -- data/photos.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/photos.json
+            git commit -m "chore: publish new photo records"
+            git push
+          fi
