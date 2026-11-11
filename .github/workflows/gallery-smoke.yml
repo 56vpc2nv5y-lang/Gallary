@@ -10,6 +10,7 @@ on:
       - "data/photos.json"
       - "scripts/check_gallery_runtime.mjs"
       - "scripts/check_ambience_runtime.mjs"
+      - "scripts/browser_probe.js"
       - ".github/workflows/gallery-smoke.yml"
   pull_request:
     paths:
@@ -48,11 +49,21 @@ jobs:
           if [ -z "$BROWSER" ]; then
             echo "No Chrome/Chromium binary on runner"; exit 1
           fi
-          "$BROWSER" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --no-first-run --virtual-time-budget=4000 --dump-dom http://127.0.0.1:8055/ > /tmp/gallery-dom.html 2>/tmp/gallery-chrome.log || {
+          # Serve a temporary test page. The public index remains unchanged.
+          node - <<'NODE'
+          const fs=require('node:fs');
+          const html=fs.readFileSync('index.html','utf8');
+          fs.writeFileSync('__gallery_probe.html',html.replace('</body>',
+            '<script src="scripts/browser_probe.js"></script></body>'));
+          NODE
+          "$BROWSER" --headless --no-sandbox --disable-gpu --disable-dev-shm-usage --no-first-run --virtual-time-budget=6000 --dump-dom http://127.0.0.1:8055/__gallery_probe.html > /tmp/gallery-dom.html 2>/tmp/gallery-chrome.log || {
             tail -40 /tmp/gallery-chrome.log; exit 1;
           }
           grep -q 'class="photo-card' /tmp/gallery-dom.html || { echo "Photos did not render"; exit 1; }
-          grep -q 'class="season-canvas ambient-on"' /tmp/gallery-dom.html || { echo "Seasonal particles did not activate"; exit 1; }
           grep -q 'class="studio-disclosure" open' /tmp/gallery-dom.html || { echo "Scrapbook is not visible"; exit 1; }
-          echo "Browser render passed: photos, particle canvas and visible scrapbook."
+          grep -q 'gallery-probe:visible=true' /tmp/gallery-dom.html || { echo "Particle canvas is still hidden by CSS"; exit 1; }
+          grep -Eq 'pixels=[1-9][0-9]*' /tmp/gallery-dom.html || { echo "Particle canvas is visible but nothing was painted"; exit 1; }
+          grep -q 'moment=true' /tmp/gallery-dom.html || { echo "Photo reassembly was not initialized"; exit 1; }
+          grep -q 'played=true' /tmp/gallery-dom.html || { echo "The reassembly click did not start animation"; exit 1; }
+          echo "Browser render passed: gallery, visible painted particles, and click-to-play photo tiles."
 
