@@ -1,10 +1,10 @@
 # The Art of Noticing · 看见的艺术
 
-这是 Sunny 的个人摄影杂志，在原有 `Gallary` 上升级。**所有页面读取同一份 `data/photos.json`**，不再存在“浏览器里加了照片，但其他人看不到”的假发布入口。
+这是 Sunny 的私人摄影杂志。**所有视图读取同一份 `data/photos.json`**，确保首页、展厅、四季、地图和拼贴工作台展示一致的真实照片。
 
 - 当前共有 **16 张照片**，保留了杂志封面、四个章节、原本的拼贴拖拽与 PNG 导出。
-- **展厅**：地点已确认的中国照片配宣纸感装裱，阿斯塔纳歌剧院配细金框，未确认地点使用中性相框。
-- **四季**：点击春夏秋冬会同时筛选照片和切换飘落动态；可随时查看全部季节。季节标签属于作品分类，**不等于精确拍摄日期**。
+- **展厅**：按照每张照片的横竖比例与实际构图编排；所有照片使用自然比例显示，不再强制裁剪成统一形状。完整尺寸用于杂志视图，缩略图用于网格视图。
+- **四季**：点击春夏秋冬可以筛选照片。照片保持静止，不使用落叶动画、GIF 或自动幻灯片。季节标签属于编辑分类，**不等于精确拍摄日期**。
 - **足迹**：世界 → 北京 / 阿斯塔纳 → 香山公园 / 颐和园昆明湖 / 八达岭长城 / Astana Opera → 对应照片。**所有坐标指向公共景点，而非相机拍摄位置**。
 - **纪念手帐工作台**：可自由从照片库选择 5 张，也支持本地临时选图；填写标题、地点、日期、心情短句，选择宣纸手帐／旅行明信片／摄影杂志，实时预览并导出 1800×1350 PNG。草稿仅存当前浏览器，不会假装自动公开。
 - 原本的 16 张中，11 张新照片使用 `data/embedded_photos.js` 的网页压缩内嵌图（因为 GitHub 版本没有对应的 `assets/photos/*.webp` 实体文件），另 5 张北京照片为仓库实体文件。此文件只是图片字节缓存，**不是另一份照片清单**。
@@ -107,12 +107,19 @@ scripts/sync_photos.py             新照片自动入库（不会发布 EXIF GPS
 
 
 
-## Interactive photo reassembly · 一张照片，慢慢拼好
+## Editorial V2 · 更安静的摄影杂志（2026-11-11）
 
-The page now includes a dedicated **special feature** based on the user's earlier `四时画廊` HTML. It starts with the existing `beijing-05` photograph (昆明湖落日) and renders a 14-column canvas tile animation: pieces scatter, rotate, and ease back into the original image. Choose another photo from the dropdown to recreate the moment, or click **重新拼合** to watch it again.
+改版重点是摄影作品，而非网页动画。
 
-- The feature gets its image choices and labels directly from the same `data/photos.json` catalog used by the gallery, seasons, map and scrapbook. No separate photo index, CDN, or dependency is required.
-- Image loading is lazy until the interactive section comes into view. The full image stays available as an accessible fallback and after the animation finishes.
-- On smaller screens it uses fewer tiles, caps display pixel ratio for performance, and respects `prefers-reduced-motion` by showing a stable image.
-- The existing gallery, map and scrapbook render independently if an optional animation fails. Regression checks live in `scripts/check_gallery_runtime.mjs`.
+- 首页保留一张清晰的北京秋日主图，取消三张旋转拼贴和大面积装饰符号。
+- 选集按照北京、偶遇、建筑、光影展开，四个章节直达同一套正式照片清单。
+- 展厅使用人工编排的图片跨度、适度留白和原比例图片；过滤和灯箱仍然可用。
+- 昆明湖照片保持静止，四季不再有装饰性动画，灯箱不自动播放。
+- 地图保留无需第三方 API 的离线地点示意图；它不是具有真实街道数据的导航地图。
+- 纪念手帐成为按需展开的工作区，原来的拖拽、选图、填写文字与导出 PNG 继续可用。
+- `css/editorial-v2.css` 是摄影排版层，尽量不修改既有地图与手帐的交互逻辑。
+- `scripts/check_gallery_runtime.mjs` 会检查每张已发布照片拥有真实文件或内嵌备份，避免出现空白照片墙。
 
+**照片发布状态：** 正式清单目前是 **16 张**；`data/curated-v5.json` 中的另 **21 张** 仍然只是准备好的编辑信息。对应的 42 个 WebP 文件尚未上传到本仓库，因此不能提前算作已发布照片。将此前制作的 ZIP 包放入 `imports/` 后，现有发布工作流会负责索引。请勿直接把 21 条数据加入展示清单却不上传文件。
+
+改版前状态备份在 `backup/editorial-v2-start-20261111` 分支。
