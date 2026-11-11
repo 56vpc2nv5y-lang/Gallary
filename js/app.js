@@ -55,7 +55,7 @@
       'feature-encounters':['v5-white-cat','cat'],
       'feature-architecture':['v5-illuminated-eaves','ceiling'],
       'feature-landscapes':['v5-rose-clouds','sunset'],
-      'feature-beijing':['v5-golden-ginkgo','beijing-01']
+      'feature-beijing':['v5-golden-ginkgo','beijing-03']
     };
     Object.entries(featured).forEach(([className,ids])=>{
       const photo=ids.map(id=>photos.find(p=>p.id===id)).find(Boolean),card=$('.'+className);
@@ -87,17 +87,46 @@
     const progress=()=>{const max=document.documentElement.scrollHeight-innerHeight;bar.style.width=(max>0?scrollY/max*100:0)+'%'};
     addEventListener('scroll',progress,{passive:true});addEventListener('resize',progress,{passive:true});progress();
   }
+  // Ordered as photographic spreads, not a filename list. Unlisted future uploads
+  // retain their import order and get a shape-based fallback layout.
+  const editorialSequence=[
+    'beijing-01','beijing-02','beijing-05','beijing-03',
+    'opera','church','cat','lizard','sunset','leaves',
+    'canopy','courtyard','ceiling','facade','snow','beijing-04'
+  ];
+  const editorialRank=new Map(editorialSequence.map((id,i)=>[id,i]));
+  // Span and gentle vertical offset are curated per image. We never force a
+  // landscape into a portrait crop; native dimensions determine image height.
+  const editorialPlacement={
+    'beijing-01':[7,0], 'beijing-02':[5,55],
+    'beijing-05':[7,0], 'beijing-03':[5,75],
+    'opera':[7,0], 'church':[5,65],
+    'cat':[5,0], 'lizard':[7,50],
+    'sunset':[5,0], 'leaves':[7,90],
+    'canopy':[5,0], 'courtyard':[7,70],
+    'ceiling':[6,0], 'facade':[6,65],
+    'snow':[5,0], 'beijing-04':[7,70]
+  };
   function renderGallery(){
     const root=$('#photoWall');if(!root)return;
     filtered=photos.filter(p=>(filter==='all'||p.series===filter)
       &&(seasonFilter==='all'||p.season===seasonFilter)
       &&(!focusIDs||focusIDs.has(p.id)));
+    filtered.sort((a,b)=>(editorialRank.get(a.id)??100000)-(editorialRank.get(b.id)??100000));
     root.classList.toggle('grid-mode',view==='grid');root.replaceChildren();
     filtered.forEach((photo,i)=>{
-      const card=document.createElement('article');card.className='photo-card frame-'+(['chinese','western'].includes(photo.style)?photo.style:'neutral');
+      const shape=['wide','landscape','portrait','square'].includes(photo.shape)?photo.shape:'landscape';
+      const [span,offset]=editorialPlacement[photo.id]||[shape==='portrait'?5:shape==='wide'?7:6,0];
+      const card=document.createElement('article');
+      card.className='photo-card frame-'+(['chinese','western'].includes(photo.style)?photo.style:'neutral');
+      card.dataset.shape=shape;
+      card.dataset.hero=String(span>=7);
+      card.style.setProperty('--span',String(span));
+      card.style.setProperty('--offset',offset+'px');
       const b=document.createElement('button');b.type='button';b.className='photo-card-button';b.setAttribute('aria-label','查看照片：'+photo.title);
-      b.innerHTML='<div class="photo-figure"><img loading="lazy" decoding="async" alt="'+escapeHTML(photo.alt)+'"><span class="photo-counter">'+String(i+1).padStart(2,'0')+'</span><span class="photo-open-icon" aria-hidden="true">↗</span></div><div class="photo-details"><small>'+escapeHTML(photo.location||'A LITTLE MOMENT')+'</small><h3>'+escapeHTML(photo.title)+'</h3><p>'+escapeHTML(photo.en||'')+'</p></div>';
-      $('img',b).src=photo.thumb||photo.src;
+      b.innerHTML='<div class="photo-figure"><img loading="lazy" decoding="async" alt="'+escapeHTML(photo.alt||photo.title)+'"><span class="photo-counter">'+String(i+1).padStart(2,'0')+'</span><span class="photo-open-icon" aria-hidden="true">↗</span></div><div class="photo-details"><small>'+escapeHTML(photo.location||'A LITTLE MOMENT')+'</small><h3>'+escapeHTML(photo.title)+'</h3><p>'+escapeHTML(photo.en||'')+'</p></div>';
+      // Magazine pages display the full-resolution photograph, not a 440px thumbnail.
+      $('img',b).src=view==='grid'?(photo.thumb||photo.src):photo.src;
       b.addEventListener('click',()=>openLightbox(i));card.append(b);root.append(card);
     });
     $('#photoCount').textContent=String(photos.length).padStart(2,'0');
