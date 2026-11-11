@@ -62,7 +62,7 @@
       const img=card?$('.feature-image img',card):null;
       if(photo&&img){img.src=photo.thumb||photo.src;img.alt=photo.alt||photo.title}
     });
-    $$('[data-target-filter]').forEach(card=>{
+    $$$('[data-target-filter]').forEach(card=>{
       const count=photos.filter(p=>p.series===card.dataset.targetFilter).length;
       const label=$('.feature-line span:last-child',card);
       if(label)label.textContent=String(count).padStart(2,'0')+' FRAMES ↗';
@@ -147,18 +147,18 @@
     }));
     // Chapter links are direct entrypoints: clear any unrelated season filter
     // so a spring cat story never opens into an empty autumn-only archive.
-    $('[data-target-filter]').forEach(link=>link.addEventListener('click',()=>{
+    $$('[data-target-filter]').forEach(link=>link.addEventListener('click',()=>{
       seasonFilter='all';focusIDs=null;
-      $('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      $$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
       chooseFilter(link.dataset.targetFilter);renderSeasonPreview();
     }));
     // A small, user-triggered surprise makes the journal feel explorable.
     // Never starts a slideshow or animates a photographic subject.
     let lastSurpriseId=null;
-    $('[data-random-photo]').forEach(button=>button.addEventListener('click',()=>{
+    $$('[data-random-photo]').forEach(button=>button.addEventListener('click',()=>{
       if(!photos.length)return;
       seasonFilter='all';focusIDs=null;chooseFilter('all');
-      $('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      $$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
       renderSeasonPreview();
       const options=filtered.filter(p=>p.id!==lastSurpriseId);
       const selected=options[Math.floor(Math.random()*options.length)]||filtered[0];
@@ -168,7 +168,7 @@
       if(index>=0)openLightbox(index);
     }));
     // Keep the scrapbook visible when opened via a navigation shortcut.
-    $('a[href="#studio"]').forEach(link=>link.addEventListener('click',()=>{
+    $$('a[href="#studio"]').forEach(link=>link.addEventListener('click',()=>{
       const editor=$('.studio-disclosure');
       if(editor)editor.open=true;
     }));
@@ -222,7 +222,7 @@
       if(!messages[name])return;
       document.documentElement.dataset.season=name;
       if(filterPhotos){seasonFilter=name;focusIDs=null;chooseFilter('all')}
-      $$('[data-season]').forEach(b=>{
+      $$$('[data-season]').forEach(b=>{
         const active=b.dataset.season===seasonFilter;
         b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));
       });
@@ -230,10 +230,10 @@
       renderSeasonPreview();
       try{localStorage.setItem('noticing-season',name)}catch(_){}
     }
-    $$('[data-season]').forEach(b=>b.addEventListener('click',()=>applySeason(b.dataset.season,true)));
+    $$$('[data-season]').forEach(b=>b.addEventListener('click',()=>applySeason(b.dataset.season,true)));
     $('#resetSeason').addEventListener('click',()=>{
       seasonFilter='all';focusIDs=null;chooseFilter('all');
-      $$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      $$$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
       $('#seasonDescription').textContent='四季的照片重新汇在一起。';renderSeasonPreview();
     });
     applySeason(visual,false);
@@ -349,7 +349,7 @@
     function openMappedPhoto(ids){
       filter='all';seasonFilter='all';focusIDs=new Set(ids);
       $$('[data-filter]').forEach(b=>{const v=b.dataset.filter==='all';b.classList.toggle('active',v);b.setAttribute('aria-pressed',String(v))});
-      $$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      $$$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
       renderGallery();$('#archive').scrollIntoView({behavior:reduced.matches?'auto':'smooth',block:'start'});
     }
     function world(){
