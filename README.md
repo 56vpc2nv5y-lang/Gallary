@@ -1,4 +1,4 @@
-# The Art of Noticing · 看见的艺术
+> **GitHub 同步状态（2026-11-11）：** 这份 V2 杂志源码已直接提交到本仓库的 `main`，不需要再上传 ZIP。11 张新增照片采用 `data/embedded_photos.js` 内嵌的网页优化版本；原来的 5 张北京照片文件仍位于 `assets/photos/`。若 GitHub Pages 尚未启用，请在 Settings → Pages 选择 `main` 和 `/(root)`。旧版已备份于 `archive/gallery-before-magazine-v2` 分支。\n\n# The Art of Noticing · 看见的艺术
 
 一本可以慢慢长大的私人摄影杂志。**不是只属于北京秋日的单次展览**：它可以收纳旅行、动物、建筑、光线、绿叶和雪景。
 
@@ -20,17 +20,17 @@ python -m http.server 8000
 
 然后打开 `http://localhost:8000`。无需 npm、Node、API 密钥或数据库。
 
-## 导入现有 GitHub 仓库
+## 本地 ZIP 与 GitHub 版本的区别
 
-现有项目：`https://github.com/56vpc2nv5y-lang/Gallary`
+项目：`https://github.com/56vpc2nv5y-lang/Gallary`
 
-1. 将本 ZIP 解压。
+以下步骤只用于你希望**用下载版的更高清图片替换 GitHub 的内嵌网页图片**时；普通预览无需执行。\n\n1. 将本 ZIP 解压。
 2. 进入仓库，选择 **Add file → Upload files**。
 3. 将 ZIP 解压后最外层的文件、文件夹一次性拖入上传区域，提交到 `main`。原仓库中的旧五张照片会被同路径覆盖为相同内容；新增照片进入 `assets/photos/`。
 4. GitHub Pages 选择 **Settings → Pages → Deploy from a branch → main / (root)**。
 5. 打开 `https://56vpc2nv5y-lang.github.io/Gallary/`。
 
-重要：**这个 ZIP 是本次完整重做的离线版本，它不会因为下载而自动同步到 GitHub。** 若仓库的旧站点仍在，请完成第 2–3 步。
+当前 GitHub 版本已经同步。若使用独立下载的 ZIP，仍可按以上步骤手动用本地照片覆盖网页优化版本。
 
 ## 交互
 
