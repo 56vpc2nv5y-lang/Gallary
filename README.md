@@ -93,7 +93,7 @@ scripts/sync_photos.py             新照片自动入库（不会发布 EXIF GPS
 
 本次从用户提供的 38 张新照片中精选 **21 张**，优化为 WebP 原尺寸版（最长边不超过 1600px）及缩略图（最长边不超过 440px），并移除所有导出图的 EXIF 元数据。**目前这 21 张的编辑信息已经加入 `data/curated-v5.json`，但图片二进制文件还未上传到 GitHub 仓库，页面仍展示旧有 16 张。**这一点很重要，不应将准备好的照片错误地当成已发布。
 
-为了让新增图片真正公开，只需将相应照片包解压后的 `assets/photos/` 中全部 42 个 WebP 文件上传到本仓库的 `assets/photos/` 目录。已有的 GitHub Action 会识别新增文件，并从 `data/curated-v5.json` 读取精选标题、季节、风格和笔记，写入 `data/photos.json` 与 `data/photos.js`，使网站自动收录。无需手工编辑 21 条记录。如果自动提交失败，检查 Actions 是否具有写入权限。
+为了让新增图片真正公开，现在只需要**把精选 ZIP 文件原样上传到 [`imports/`](https://github.com/56vpc2nv5y-lang/Gallary/tree/main/imports)**，无需解压或逐张上传。GitHub Action 会安全地解包里面的 42 个 WebP 图片文件，从 `data/curated-v5.json` 读取标题、季节、风格和笔记，自动更新 `data/photos.json` 与 `data/photos.js`，并删除已处理 ZIP。无需手动维护照片数据。若自动提交失败，检查 GitHub Actions 的写入权限。
 
 日期不明的照片继续保留空日期；无法确认地点的图片不会猜测 GPS。唯一新加入的明确公共地标是图片中可辨识的 **Cavenagh Bridge · Singapore**，用公开桥梁坐标而非私人拍摄坐标打点。
 
