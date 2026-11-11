@@ -9,6 +9,7 @@
   <title>The Art of Noticing — Sunny's Photo Journal</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css?v=20261111-10">
+  <link rel="stylesheet" href="css/editorial-v2.css?v=20261111-1">
   <script defer src="data/embedded_photos.js"></script>
   <script defer src="data/photos.js?v=20261111-4"></script>
   <script defer src="js/app.js?v=20261111-10"></script>
@@ -18,40 +19,61 @@
   <div class="scroll-indicator" id="scrollIndicator"></div>
   <header class="header" id="top">
     <a class="wordmark" href="#top" aria-label="返回首页"><span class="mark">S<span class="mark-dot">✺</span></span><span class="brand-copy">THE ART OF NOTICING<small>A PERSONAL PHOTO JOURNAL</small></span></a>
-    <nav class="desktop-nav" aria-label="主导航"><a href="#issues">ISSUES</a><a href="#archive">THE ARCHIVE</a><a href="#footprints">FOOTPRINTS</a><a href="#studio">COLLAGE STUDIO</a><a href="#letter">A LITTLE NOTE</a></nav>
+    <nav class="desktop-nav" aria-label="主导航"><a href="#issues">JOURNAL</a><a href="#archive">PHOTOGRAPHS</a><a href="#footprints">PLACES</a><a href="#studio">SCRAPBOOK</a></nav>
     <a href="#archive" class="header-link">EXPLORE <span aria-hidden="true">↗</span></a>
   </header>
   <main>
-    <section class="hero" aria-labelledby="heroTitle">
-      <div class="hero-topline"><span>VOL. 001 — AN ONGOING JOURNAL</span><span>COLLECTED BY SUNNY</span></div>
-      <div class="hero-text"><p class="eyebrow"><span class="star">✺</span> BEIJING, ASTANA, AND ALL THE SMALL ENCOUNTERS</p><h1 id="heroTitle">The Art <i>of</i><br>Noticing<span class="title-period">.</span></h1><p class="hero-cn">把那些微小的、美好的、<br>不经意的瞬间，留在这里。</p><p class="hero-description">香山的叶、阿斯塔纳的柱廊，还有路边走近镜头的猫。<br>这是属于我的、还在继续的一本摄影杂志。</p><a class="text-link hero-cta" href="#issues">OPEN THE JOURNAL <span>↗</span></a></div>
-      <div class="hero-composition" aria-label="摄影杂志封面拼贴">
-        <div class="hero-ring"></div><figure class="cover-main"><img src="assets/photos/01-qinzhengdian.jpg" alt="香山勤政殿前金橙色的秋叶"><figcaption>01 / BEIJING, IN GOLD</figcaption></figure>
-        <figure class="cover-floating cover-cat"><img src="assets/photos/08-gray-cat.webp" alt="探头靠近镜头的灰色猫咪"><figcaption>a small hello ♡</figcaption></figure>
-        <figure class="cover-floating cover-snow"><img src="assets/photos/11-first-snow.webp" alt="雪后的树枝"><figcaption>and then, snow.</figcaption></figure>
-        <span class="hero-handwriting" aria-hidden="true">from Beijing<br>to Astana.</span><span class="cover-seal" aria-hidden="true">a life<br>in frames<br>✳</span>
-      </div>
-      <div class="hero-bottom"><span>01 — TURN THE PAGE</span><span>SCROLL TO WANDER <b>↓</b></span></div>
-    </section>
+    <section class="hero editorial-hero" aria-labelledby="heroTitle">
+  <div class="hero-topline"><span>VOL. 001 / A PRIVATE PHOTO JOURNAL</span><span>PHOTOGRAPHS & LITTLE STORIES · 2026</span></div>
+  <div class="hero-layout">
+    <figure class="hero-cover">
+      <img src="assets/photos/01-qinzhengdian.jpg" alt="北京秋天的古建筑与金色枝叶，作为摄影杂志封面" fetchpriority="high">
+      <figcaption><span>COVER STORY / BEIJING IN GOLD</span><span>01 — THE BEGINNING</span></figcaption>
+    </figure>
+    <div class="hero-text">
+      <p class="eyebrow">THE ART OF PAYING ATTENTION <span aria-hidden="true">✳</span></p>
+      <h1 id="heroTitle">The Art<br><i>of</i> Noticing<span class="title-period">.</span></h1>
+      <p class="hero-cn">把日子里不经意的美，<br>慢慢收藏起来。</p>
+      <p class="hero-description">秋日的光、陌生城市的屋檐、还有偶然遇见的小生命。这里不是旅行攻略，是一本仍在生长的私人摄影杂志。</p>
+      <a class="text-link hero-cta" href="#issues">FLIP THROUGH THE STORIES <span aria-hidden="true">↗</span></a>
+    </div>
+  </div>
+  <div class="hero-bottom"><span>AN ONGOING COLLECTION OF REAL MOMENTS</span><span>SCROLL TO EXPLORE <b aria-hidden="true">↓</b></span></div>
+</section>
 
-    <section class="intro-paper reveal" id="issues" aria-labelledby="issuesTitle">
-      <div class="chapter-number"><span>EDITOR'S LETTER</span><span>NO. 00</span></div>
-      <p class="italic-line">Collecting moments, not milestones.</p>
-      <h2 id="issuesTitle">生活不是每一天都特别。<br><em>但总有值得记住的瞬间。</em></h2>
-      <p>某只主动靠近的猫，一道偶然遇见的晚霞，一座陌生城市里的建筑。它们没有必要属于同一座城市、同一个季节，甚至不需要一个宏大的故事。</p>
-      <p>这是一本慢慢长大的摄影杂志。今天多了一页，明天也许又有新的故事。</p>
-      <div class="intro-signature">Love, Sunny <span>✺</span></div>
-    </section>
+    <section class="intro-paper editorial-letter" id="issues" aria-labelledby="issuesTitle">
+  <div class="chapter-number"><span>EDITOR'S NOTE</span><span>NO. 001</span></div>
+  <p class="italic-line">Collecting moments, not milestones.</p>
+  <h2 id="issuesTitle">生活不必每一天都特别，<br><em>但总有一些瞬间，值得留住。</em></h2>
+  <p>这里的照片来自不同城市、季节和偶遇。我想让它们保持原来的样子——安静、真实，也带着一点当时的心情。</p>
+  <div class="intro-signature">Love, Sunny <span aria-hidden="true">✳</span></div>
+</section>
 
     <section class="issues-section section-wrap" aria-labelledby="featureTitle">
-      <div class="section-heading reveal"><div><span class="overline">01 / CURATED STORIES</span><h2 id="featureTitle">A few <i>little stories.</i></h2></div><p>每一章都来自真实的照片。<br>它们也会出现在季节与足迹里。</p></div>
-      <div class="feature-grid">
-        <a href="#archive" data-target-filter="encounters" class="feature-card feature-encounters reveal"><div class="feature-image"><img src="assets/photos/08-gray-cat.webp" alt="灰色小猫靠近镜头" loading="lazy"></div><div class="feature-line"><span>CHAPTER 01 / THE LITTLE ONES</span><span>02 FRAMES ↗</span></div><h3>偶然的小小相遇 <em>Little Encounters</em></h3></a>
-        <a href="#archive" data-target-filter="architecture" class="feature-card feature-architecture reveal"><div class="feature-image"><img src="assets/photos/04-painted-ceiling.webp" alt="传统建筑精致的彩绘藻井" loading="lazy"></div><div class="feature-line"><span>CHAPTER 02 / ELSEWHERE</span><span>04 FRAMES ↗</span></div><h3>关于建筑的好奇 <em>Beautiful Geometry</em></h3></a>
-        <a href="#archive" data-target-filter="landscapes" class="feature-card feature-landscapes reveal"><div class="feature-image"><img src="assets/photos/05-city-sunset.webp" alt="橘红色晚霞" loading="lazy"></div><div class="feature-line"><span>CHAPTER 03 / LIGHT & WEATHER</span><span>05 FRAMES ↗</span></div><h3>光线经过的地方 <em>The Light We Kept</em></h3></a>
-        <a href="#archive" data-target-filter="beijing" class="feature-card feature-beijing reveal"><div class="feature-image"><img src="assets/photos/01-qinzhengdian.jpg" alt="香山秋季的金橙枫叶和古建筑" loading="lazy"></div><div class="feature-line"><span>CHAPTER 04 / BEIJING</span><span>05 FRAMES ↗</span></div><h3>北京的最后金色日子 <em>Golden Days</em></h3></a>
-      </div>
-    </section>
+      <div class="section-heading reveal"><div><span class="overline">01 / SELECTED STORIES</span><h2 id="featureTitle">Little stories, <i>kept close.</i></h2></div><p>每一章都来自真实的照片。<br>它们也会出现在季节与足迹里。</p></div>
+      <div class="feature-grid editorial-features">
+  <a href="#archive" data-target-filter="beijing" class="feature-card feature-beijing">
+    <div class="feature-image"><img src="assets/photos/03-pavilion.jpg" alt="北京秋天被古树与金色阳光环绕的屋檐" loading="lazy"></div>
+    <div class="feature-line"><span>CHAPTER 01 / BEIJING</span><span>05 FRAMES ↗</span></div>
+    <h3>北京的金色日子 <em>Golden Days in Beijing</em></h3>
+  </a>
+  <a href="#archive" data-target-filter="encounters" class="feature-card feature-encounters">
+    <div class="feature-image"><img src="assets/photos/08-gray-cat.webp" alt="靠近镜头的灰色猫咪" loading="lazy"></div>
+    <div class="feature-line"><span>CHAPTER 02 / LITTLE ENCOUNTERS</span><span>02 FRAMES ↗</span></div>
+    <h3>偶然的小小相遇 <em>Little Encounters</em></h3>
+  </a>
+  <a href="#archive" data-target-filter="architecture" class="feature-card feature-architecture">
+    <div class="feature-image"><img src="assets/photos/04-painted-ceiling.webp" alt="建筑内部的传统彩绘穹顶" loading="lazy"></div>
+    <div class="feature-line"><span>CHAPTER 03 / ARCHITECTURE</span><span>04 FRAMES ↗</span></div>
+    <h3>关于建筑的好奇 <em>Beautiful Geometry</em></h3>
+  </a>
+  <a href="#archive" data-target-filter="landscapes" class="feature-card feature-landscapes">
+    <div class="feature-image"><img src="assets/photos/05-city-sunset.webp" alt="晚霞将天空染成橘红色" loading="lazy"></div>
+    <div class="feature-line"><span>CHAPTER 04 / LIGHT & WEATHER</span><span>05 FRAMES ↗</span></div>
+    <h3>光线经过的地方 <em>The Light We Kept</em></h3>
+  </a>
+</div>
+</section>
 
     <section class="still-feature section-wrap" id="moment" aria-labelledby="stillTitle">
       <div class="section-heading"><div><span class="overline">A STILL MOMENT / 颐和园 · 昆明湖</span><h2 id="stillTitle">那一天的 <i>湖光。</i></h2></div><p>把风景安静地留在原处。<br>静静看一张照片，也很好。</p></div>
@@ -61,7 +83,7 @@
     <section class="interlude" aria-label="摄影短句"><span>“</span><blockquote>有些风景值得绕路，<br>有些相遇只需要<em>刚好经过。</em></blockquote><p>THE BEAUTY OF PAYING ATTENTION</p></section>
 
     <section class="archive-section section-wrap" id="archive" aria-labelledby="archiveTitle">
-      <div class="section-heading reveal"><div><span class="overline">02 / THE PHOTO ARCHIVE</span><h2 id="archiveTitle">The <i>collected frames.</i></h2></div><p>按章节或季节收藏瞬间。<br>地点不同，装裱也有自己的性格。</p></div>
+      <div class="section-heading reveal"><div><span class="overline">02 / THE COMPLETE EXHIBITION</span><h2 id="archiveTitle">Every <i>little frame.</i></h2></div><p>让照片自己说话。<br>按章节翻阅，或一次看完。</p></div>
       <div class="archive-toolbar"><div class="filter-tabs" role="group" aria-label="影像分类"><button class="active" data-filter="all" aria-pressed="true">全部 <b id="photoCount">16</b></button><button data-filter="encounters" aria-pressed="false">小小相遇</button><button data-filter="architecture" aria-pressed="false">建筑手记</button><button data-filter="landscapes" aria-pressed="false">光与四季</button><button data-filter="beijing" aria-pressed="false">北京秋日</button></div><div class="view-modes" role="group" aria-label="布局模式"><button data-mode="editorial" aria-label="杂志布局" aria-pressed="true" class="active">▦</button><button data-mode="grid" aria-label="整齐网格" aria-pressed="false">▤</button></div></div>
       <p class="filter-note" id="activeFilterNote" aria-live="polite">展示全部照片 · 地点不明确的作品仍会留在展厅中。</p>
       <div id="photoWall" class="photo-wall" aria-live="polite"></div>
@@ -72,7 +94,7 @@
     <section class="season-section" aria-labelledby="seasonTitle"><div class="section-wrap"><div class="section-heading reveal"><div><span class="overline">03 / THE FOUR SEASONS</span><h2 id="seasonTitle">Seasons of <i>noticing.</i></h2></div><p>点一个季节，下面的照片会真的改变。<br>这些是影像的季节标签，不一定是精确拍摄日期。</p></div><div class="seasons" role="group" aria-label="切换四季氛围"><button data-season="spring" aria-pressed="false"><span class="season-mark">✿</span><b>春 · 花开</b><small>SOFT PETALS</small></button><button data-season="summer" aria-pressed="false"><span class="season-mark">❧</span><b>夏 · 绿意</b><small>GREEN WHISPERS</small></button><button data-season="autumn" aria-pressed="true" class="active"><span class="season-mark">✳</span><b>秋 · 金色</b><small>FALLING LEAVES</small></button><button data-season="winter" aria-pressed="false"><span class="season-mark">❄</span><b>冬 · 初雪</b><small>FIRST SNOW</small></button></div><div class="season-controls"><span id="seasonDescription">静静收藏金色的秋天。</span><div class="season-actions"><button id="resetSeason" class="underlined">查看全部季节</button></div></div><div class="season-preview-head"><span id="seasonPreviewCount">每一种季节，都有自己的记忆。</span><a href="#archive">去完整展厅看 ↗</a></div><div id="seasonPreview" class="season-preview" aria-live="polite"></div></div></section>
 
     <section class="footprints-section section-wrap" id="footprints" aria-labelledby="footprintsTitle">
-      <div class="section-heading reveal"><div><span class="overline">04 / PLACES I REMEMBER</span><h2 id="footprintsTitle">A map of <i>little journeys.</i></h2></div><p>从世界看两座城市，再进入某一个真实的地点。<br>地图只显示已确认的公共景点，不暴露照片 GPS。</p></div>
+      <div class="section-heading reveal"><div><span class="overline">04 / PLACES I REMEMBER</span><h2 id="footprintsTitle">A map of <i>little journeys.</i></h2></div><p>从城市进入照片，记下旅途的方向。<br>地点是公开地标示意，而非拍摄 GPS。</p></div>
       <div class="footprint-layout">
         <div class="map-panel"><div id="footprintMap" role="group" aria-label="可交互的世界与城市照片足迹示意图"></div><div id="mapFallback" class="map-fallback" hidden>地图暂时不可用，请使用右侧的城市列表。</div><span class="map-caption">LANDMARKS, NOT CAMERA GPS · 地点示意</span></div>
         <aside class="map-side"><button id="mapBack" class="underlined" hidden>← 返回世界</button><span class="map-index">THE PLACES BEHIND THE FRAMES</span><h3 id="mapScopeTitle">世界那么大，先记住这两座城。</h3><p id="mapScopeNote">北京的秋色与初雪，阿斯塔纳的歌剧院。点击城市，打开更具体的旅途。</p><div id="mapPlaces" class="map-places" aria-live="polite"></div><p class="map-disclaimer">尚未确认地点的照片不会被随意打点，但依然完整留在展厅里。</p></aside>
@@ -80,7 +102,10 @@
     </section>
 
     <section class="studio-section section-wrap" id="studio" aria-labelledby="studioTitle"><div class="section-heading reveal"><div><span class="overline">05 / A LITTLE COLLAGE STUDIO</span><h2 id="studioTitle">A scrapbook <i>of my own.</i></h2></div><p>选喜欢的五张照片，做一页自己的旅行手帖。<br>拼贴只是玩法，照片才是主角。</p></div>
-      <div class="studio-controls"><label class="collage-source-label">拼贴素材 <select id="collageCollection"><option value="all">跨越城市 · 精选</option><option value="beijing">北京秋日</option><option value="architecture">建筑手记</option><option value="landscapes">光与四季</option><option value="encounters">小小相遇</option></select></label><div class="studio-presets" role="group" aria-label="拼贴排版"><button data-layout="scattered" class="active" aria-pressed="true">散页</button><button data-layout="orbit" aria-pressed="false">星轨</button><button data-layout="ribbon" aria-pressed="false">时光带</button></div><div class="studio-tools"><button id="collageShuffle">随机重排 ↝</button><button id="collageReset">恢复初始</button><button id="collageExport" class="export">导出纪念手帐 PNG ↗</button></div></div>
+      <details class="studio-disclosure">
+  <summary><span>进入我的拼贴工作台</span><small>选照片 · 写下当天的心情 · 导出纪念页</small><span class="entry-arrow" aria-hidden="true">＋</span></summary>
+  <div class="studio-workspace">
+<div class="studio-controls"><label class="collage-source-label">拼贴素材 <select id="collageCollection"><option value="all">跨越城市 · 精选</option><option value="beijing">北京秋日</option><option value="architecture">建筑手记</option><option value="landscapes">光与四季</option><option value="encounters">小小相遇</option></select></label><div class="studio-presets" role="group" aria-label="拼贴排版"><button data-layout="scattered" class="active" aria-pressed="true">散页</button><button data-layout="orbit" aria-pressed="false">星轨</button><button data-layout="ribbon" aria-pressed="false">时光带</button></div><div class="studio-tools"><button id="collageShuffle">随机重排 ↝</button><button id="collageReset">恢复初始</button><button id="collageExport" class="export">导出纪念手帐 PNG ↗</button></div></div>
       <div class="scrapbook-editor" aria-label="纪念手帐编辑器">
         <div class="scrapbook-intro"><span>THE MEMORY PAGE / 你的纪念手帐</span><p>挑选照片，写下那一天的标题、地点和心情，组合成可以带走的一页。</p></div>
         <div class="scrapbook-fields">
@@ -94,7 +119,10 @@
       </div>
       <div class="collage-picker-head"><span>从画廊挑选五张照片，也可以临时加入自己的图片</span><div class="picker-head-actions"><label for="collageLocalFiles" class="studio-file-label">＋ 选本地图片<input id="collageLocalFiles" type="file" accept="image/*" multiple hidden></label><button type="button" id="collageRandomPhotos">帮我随机选五张 ↝</button></div></div><p class="studio-import-help">本地选图只用于这次编辑，不会自动上传到公开网站；需要长期展示的照片仍请发布到 GitHub。</p><div id="collagePhotoPicker" class="collage-photo-picker" role="group" aria-label="选择五张拼贴照片"></div><div class="collage-board" id="collageBoard" aria-label="可拖动的摄影拼贴画布"><span class="board-top" id="scrapPreviewTop">2026 年秋 · 北京 · 香山</span><div class="board-watermark"><span id="scrapPreviewTitle">在北京收集秋天</span></div><div class="board-sticker" aria-hidden="true">✺<span>MEMORY<br>PAGE</span></div><span class="board-bottom" id="scrapPreviewNote">阳光从树梢落下来，我想把秋天慢慢收好。</span></div>
       <div class="studio-hint"><span>点击上面的缩略图选满五张 · 拖动拼贴调整位置 · 方向键微调 · 导出 PNG</span><span id="studioStatus" role="status" aria-live="polite">你的手帐草稿会自动保存在当前浏览器。</span></div>
-    </section>
+    
+  </div>
+</details>
+</section>
 
     <section class="letter-section" id="letter"><div class="letter-paper reveal"><span class="overline">06 / AN OPEN-ENDED LETTER</span><span class="letter-decoration">✺</span><h2>Dear future me,</h2><p>希望很多年之后，你再翻开这里，依然记得那天的风，路边的猫，陌生城市的屋顶，还有每一场意料之外的日落。</p><p>希望你一直愿意停下来，看一眼那些并不轰轰烈烈，却让生活悄悄发光的小事。</p><p class="letter-final">Keep noticing. Keep collecting.</p><span class="letter-sign">Love, Sunny ♡</span></div></section>
   </main>
