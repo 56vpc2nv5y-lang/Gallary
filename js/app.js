@@ -128,7 +128,10 @@
     golden:'午后的一道金色光',closeup:'镜头温柔地靠近',twinkle:'一点点夜色微光',
     snow:'雪花慢慢落下',ripples:'湖面亮起细碎的波光'
   };
+  const livingOverrides=new Map(); // Optional temporary preview; the published photo metadata stays unchanged.
   function getPhotoMotion(p){
+    const override=livingOverrides.get(p.id);
+    if(override&&livingMotionNames[override])return override;
     if(p.motion&&livingMotionNames[p.motion])return p.motion;
     if(p.season==='winter')return 'snow';
     if(p.series==='encounters')return 'closeup';
@@ -185,7 +188,9 @@
     const type=getPhotoMotion(photo);
     stage.dataset.motion=type;
     const label=$('#livingEffectLabel');
-    if(label)label.textContent=photo.motionLabel||livingMotionNames[type];
+    if(label)label.textContent=livingOverrides.has(photo.id)?livingMotionNames[type]:(photo.motionLabel||livingMotionNames[type]);
+    const picker=$('#livingEffectSelect');
+    if(picker)picker.value=livingOverrides.get(photo.id)||'auto';
     const special=$('#livingToTiles');
     if(special)special.hidden=photo.id!=='beijing-05';
     makeLivingParticles(photo,type);
@@ -222,6 +227,18 @@
       syncLivingMotion();
     });
     $('#livingReplay').addEventListener('click',replayLivingMotion);
+    const effectPicker=$('#livingEffectSelect');
+    if(effectPicker){
+      for(const [key,label] of Object.entries(livingMotionNames)){
+        const option=document.createElement('option');option.value=key;option.textContent=label;effectPicker.append(option);
+      }
+      effectPicker.addEventListener('change',()=>{
+        const photo=filtered[lightboxIndex];if(!photo)return;
+        if(effectPicker.value==='auto')livingOverrides.delete(photo.id);
+        else if(livingMotionNames[effectPicker.value])livingOverrides.set(photo.id,effectPicker.value);
+        renderLivingPhoto(photo);
+      });
+    }
     $('#livingToTiles').addEventListener('click',closeLightbox);
     document.addEventListener('visibilitychange',syncLivingMotion);
     reduced.addEventListener?.('change',syncLivingMotion);
