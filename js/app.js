@@ -9,6 +9,12 @@
   let filter='all', seasonFilter='all', focusIDs=null, view='editorial';
   let lightboxIndex=0, slideTimer=null, lastFocus=null, toastTimer=null;
   let collageIDs = ['cat','opera','lizard','sunset','snow'], collageActiveSlot=0;
+  let scrap = {title:'在北京收集秋天',place:'北京 · 香山',date:'2026 年秋',note:'阳光从树梢落下来，我想把秋天慢慢收好。',theme:'paper'};
+  const scrapPalettes={
+    paper:{paper:'#f8f2e7',ink:'#49392f',accent:'#a67b5d',line:'#d9c8b5',frame:'#fffdf8'},
+    postcard:{paper:'#ebf0ed',ink:'#3f574e',accent:'#67897c',line:'#c4d3c8',frame:'#fffefd'},
+    editorial:{paper:'#efeeeb',ink:'#333033',accent:'#8d6a64',line:'#bab4af',frame:'#ffffff'}
+  };
   const collageLayouts = {
     scattered:[{x:19,y:37,r:-12},{x:48,y:28,r:8},{x:79,y:39,r:-9},{x:34,y:73,r:10},{x:68,y:74,r:-7}],
     orbit:[{x:50,y:20,r:4},{x:22,y:47,r:-14},{x:78,y:47,r:12},{x:34,y:79,r:7},{x:66,y:79,r:-8}],
@@ -333,6 +339,46 @@
   }
 
   function collagePhoto(i){return photos.find(p=>p.id===collageIDs[i])||photos[i]||photos[0]}
+  function setupScrapbook(){
+    const ids={scrapTitle:'title',scrapPlace:'place',scrapDate:'date',scrapNote:'note',scrapTheme:'theme'};
+    try{
+      const saved=JSON.parse(localStorage.getItem('noticing-scrapbook-v5')||'null');
+      if(saved&&typeof saved==='object'){
+        for(const key of Object.keys(scrap)){
+          if(typeof saved[key]==='string'&&(key!=='theme'||scrapPalettes[saved[key]])){
+            scrap[key]=saved[key].slice(0,key==='note'?130:60);
+          }
+        }
+      }
+    }catch(_){}
+    function refresh(){
+      const board=$('#collageBoard');board.dataset.paperTheme=scrap.theme;
+      $('#scrapPreviewTop').textContent=[scrap.date,scrap.place].filter(Boolean).join(' · ')||'MY MEMORY PAGE';
+      $('#scrapPreviewTitle').textContent=scrap.title||'这一页，留给回忆';
+      $('#scrapPreviewNote').textContent=scrap.note||'把喜欢的瞬间留在这里。';
+      try{localStorage.setItem('noticing-scrapbook-v5',JSON.stringify(scrap))}catch(_){}
+    }
+    Object.entries(ids).forEach(([id,key])=>{
+      const el=$('#'+id);el.value=scrap[key];
+      el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{
+        scrap[key]=el.value;
+        refresh();
+      });
+    });
+    refresh();
+  }
+  function canvasWrapText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
+    const chars=Array.from(text||'');let line='',lines=0;
+    for(const char of chars){
+      if(char==='\n'||(line&&ctx.measureText(line+char).width>maxWidth)){
+        ctx.fillText(line,x,y+lines*lineHeight);lines++;line='';
+        if(lines>=maxLines)return;
+        if(char==='\n')continue;
+      }
+      line+=char;
+    }
+    if(line&&lines<maxLines)ctx.fillText(line,x,y+lines*lineHeight);
+  }
   function saveCollage(){try{localStorage.setItem('noticing-collage-v2',JSON.stringify({mode:collageMode,positions,collageIDs}))}catch(_){}}
   function loadCollage(){try{const v=JSON.parse(localStorage.getItem('noticing-collage-v2')||'null');if(v&&v.positions?.length===5&&v.positions.every(p=>[p.x,p.y,p.r].every(Number.isFinite))){positions=v.positions.map(p=>({x:clamp(p.x,10,90),y:clamp(p.y,14,86),r:clamp(p.r,-30,30)}));collageMode=v.mode||'custom';if(Array.isArray(v.collageIDs)&&v.collageIDs.length===5&&v.collageIDs.every(id=>photos.some(p=>p.id===id))){collageIDs=v.collageIDs}}}catch(_){}}
   function placeTile(i){const p=positions[i],tile=collageTiles[i];tile.style.left=p.x+'%';tile.style.top=p.y+'%';tile.style.setProperty('--rotate',p.r+'deg')}
@@ -377,7 +423,7 @@
     });
   }
   function initCollage(){
-    const board=$('#collageBoard');loadCollage();
+    const board=$('#collageBoard');loadCollage();setupScrapbook();
     for(let i=0;i<5;i++){
       const p=collagePhoto(i),tile=document.createElement('div');tile.className='collage-tile';tile.dataset.index=String(i);tile.tabIndex=0;tile.setAttribute('role','button');tile.setAttribute('aria-label',p.title+'；拖动位置或按方向键微调；按回车查看大图');
       const img=document.createElement('img');img.src=p.thumb||p.src;img.alt=p.alt||p.title;img.draggable=false;
@@ -426,20 +472,46 @@
     const btn=$('#collageExport');btn.disabled=true;btn.textContent='正在生成…';
     try{
       const images=await Promise.all(Array.from({length:5},(_,i)=>loadImage(collagePhoto(i).src)));
-      const cvs=document.createElement('canvas');cvs.width=1800;cvs.height=1200;const ctx=cvs.getContext('2d');
-      ctx.fillStyle='#f8f1e6';ctx.fillRect(0,0,1800,1200);ctx.strokeStyle='#dbcabc';ctx.strokeRect(25,25,1750,1150);
-      ctx.fillStyle='#513b34';ctx.font='italic 76px Georgia';ctx.fillText('The Art of Noticing',88,114);ctx.font='20px Georgia';ctx.fillText('A COLLECTION OF LITTLE MOMENTS / SUNNY',92,153);
+      const cvs=document.createElement('canvas');cvs.width=1800;cvs.height=1350;
+      const ctx=cvs.getContext('2d'),palette=scrapPalettes[scrap.theme]||scrapPalettes.paper;
+      ctx.fillStyle=palette.paper;ctx.fillRect(0,0,cvs.width,cvs.height);
+      ctx.strokeStyle=palette.line;ctx.lineWidth=2;ctx.strokeRect(30,30,1740,1290);
+      ctx.fillStyle=palette.accent;ctx.font='23px Georgia,serif';
+      ctx.fillText('SUNNY / MEMORY JOURNAL',90,98);
+      ctx.textAlign='right';ctx.fillText(scrap.date||'AN UNDated DAY',1706,98);ctx.textAlign='left';
+      ctx.fillStyle=palette.ink;ctx.font='bold 72px "Noto Serif SC","Microsoft YaHei",Georgia,serif';
+      canvasWrapText(ctx,scrap.title||'这一页，留给回忆',90,186,1590,80,1);
+      ctx.fillStyle=palette.accent;ctx.font='30px "Noto Serif SC","Microsoft YaHei",serif';
+      ctx.fillText(scrap.place||'某个值得记住的地方',93,240);
+      ctx.beginPath();ctx.moveTo(92,264);ctx.lineTo(1708,264);ctx.strokeStyle=palette.line;ctx.stroke();
+      const noteTop=1153,usableTop=296,usableHeight=755;
       for(let i=0;i<5;i++){
-        const p=positions[i],img=images[i],x=p.x/100*1800,y=180+p.y/100*870,w=325,h=272;
-        ctx.save();ctx.translate(x,y);ctx.rotate(p.r*Math.PI/180);ctx.shadowColor='#2c1d1959';ctx.shadowBlur=29;ctx.shadowOffsetY=15;
-        ctx.fillStyle='#fffdfa';ctx.fillRect(-w/2-13,-h/2-13,w+26,h+66);ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-        fillImage(ctx,img,-w/2,-h/2,w,h);ctx.fillStyle='#6b534a';ctx.font='19px Georgia';ctx.fillText(String(i+1).padStart(2,'0')+' / '+collagePhoto(i).title,-w/2+7,h/2+30);ctx.restore();
+        const p=positions[i],img=images[i],x=p.x/100*1800,y=usableTop+p.y/100*usableHeight,w=325,h=272;
+        ctx.save();ctx.translate(x,y);ctx.rotate(p.r*Math.PI/180);
+        ctx.shadowColor='#2c1d1944';ctx.shadowBlur=23;ctx.shadowOffsetY=12;
+        ctx.fillStyle=palette.frame;ctx.fillRect(-w/2-13,-h/2-13,w+26,h+64);
+        ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+        fillImage(ctx,img,-w/2,-h/2,w,h);
+        ctx.fillStyle=palette.ink;ctx.font='19px "Noto Serif SC","Microsoft YaHei",serif';
+        const caption=String(i+1).padStart(2,'0')+' / '+collagePhoto(i).title;
+        let shortCaption=caption;
+        while(ctx.measureText(shortCaption).width>w-10&&shortCaption.length>3)shortCaption=shortCaption.slice(0,-2)+'…';
+        ctx.fillText(shortCaption,-w/2+7,h/2+32);
+        ctx.restore();
       }
-      ctx.fillStyle='#a18575';ctx.font='italic 21px Georgia';ctx.fillText('Collecting moments, not milestones.',92,1142);
+      ctx.beginPath();ctx.moveTo(92,1118);ctx.lineTo(1708,1118);ctx.strokeStyle=palette.line;ctx.stroke();
+      ctx.fillStyle=palette.ink;ctx.font='30px "Noto Serif SC","Microsoft YaHei",serif';
+      canvasWrapText(ctx,scrap.note||'愿这些时刻一直都在。',94,noteTop,1560,44,2);
+      ctx.fillStyle=palette.accent;ctx.font='italic 26px Georgia,serif';
+      ctx.fillText('The Art of Noticing · by Sunny',94,1282);
       const blob=await new Promise((resolve,reject)=>cvs.toBlob(b=>b?resolve(b):reject(Error('No export')),'image/png'));
-      const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='the-art-of-noticing-collage.png';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),7000);toast('已生成你的私人拼贴海报');
-    }catch(err){console.warn('Collage export',err);toast('导出失败，请确认所有图片都已加载完毕')}
-    finally{btn.disabled=false;btn.textContent='导出拼贴 PNG ↗'}
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download='Sunny-Memory-Journal-'+new Date().toISOString().slice(0,10)+'.png';
+      document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),7000);
+      $('#studioStatus').textContent='纪念手帐已生成，请在下载文件夹查看。';
+      toast('纪念手帐 PNG 已导出 ✳');
+    }catch(err){console.warn('Scrapbook export',err);toast('导出失败，请确认所有图片已经加载完成')}
+    finally{btn.disabled=false;btn.textContent='导出纪念手帐 PNG ↗'}
   }
 
   // Publishing takes place through GitHub commits, not an isolated browser database.
