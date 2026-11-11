@@ -105,3 +105,14 @@ scripts/sync_photos.py             新照片自动入库（不会发布 EXIF GPS
 - `data/curated-v5.json`：21 张图片经人工筛选的待发布记录
 - `scripts/sync_photos.py`：新增图片上传后自动使用人工撰写标题与地点等字段
 
+
+
+## Interactive photo reassembly · 一张照片，慢慢拼好
+
+The page now includes a dedicated **special feature** based on the user's earlier `四时画廊` HTML. It starts with the existing `beijing-05` photograph (昆明湖落日) and renders a 14-column canvas tile animation: pieces scatter, rotate, and ease back into the original image. Choose another photo from the dropdown to recreate the moment, or click **重新拼合** to watch it again.
+
+- The feature gets its image choices and labels directly from the same `data/photos.json` catalog used by the gallery, seasons, map and scrapbook. No separate photo index, CDN, or dependency is required.
+- Image loading is lazy until the interactive section comes into view. The full image stays available as an accessible fallback and after the animation finishes.
+- On smaller screens it uses fewer tiles, caps display pixel ratio for performance, and respects `prefers-reduced-motion` by showing a stable image.
+- The existing gallery, map and scrapbook render independently if an optional animation fails. Regression checks live in `scripts/check_gallery_runtime.mjs`.
+
