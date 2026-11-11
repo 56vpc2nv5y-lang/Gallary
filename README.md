@@ -13,9 +13,9 @@
 
 网站地址：<https://56vpc2nv5y-lang.github.io/Gallary/>
 
-GitHub Pages 设置：Settings → Pages → Deploy from a branch → `main` / `/(root)`。GitHub Pages 可能需要数分钟更新。Leaflet/OpenStreetMap 地图需要联网加载。
+GitHub Pages 设置：Settings → Pages → Deploy from a branch → `main` / `/(root)`。GitHub Pages 可能需要一点时间更新。地图现为无需第三方资源的内建可点击地理示意图，页面不会因为地图 CDN 不可用而空白。
 
-本地预览不要直接双击 `index.html`，需在仓库根目录启动 HTTP 服务：
+V4 已支持双击 `index.html` 打开静态展厅与足迹示意图（依赖同文件夹下的 `data/photos.js`、图片缓存）。建议使用 HTTP 服务进行完整预览：
 
 ```sh
 python -m http.server 8000
@@ -27,7 +27,7 @@ python -m http.server 8000
 
 1. **先清理隐私**：仓库是公开的，上传前请去掉原图 EXIF GPS、私人地址、敏感人物与不希望公开的信息。仅靠网页隐藏 GPS 并不能擦掉已经公开上传的原片及 Git 历史。
 2. 打开 [GitHub 上传照片](https://github.com/56vpc2nv5y-lang/Gallary/upload/main/assets/photos)，上传一张或多张已经清理元数据的 `.webp` / `.jpg` / `.png` 图片，提交到 `main`。
-3. `.github/workflows/publish-photos.yml` 在图片提交后运行 `scripts/sync_photos.py`，**自动把新图片写入 `data/photos.json`**。接下来 GitHub Pages 更新后，各设备和访客都能看到。如仓库禁止 Actions 写入，请在仓库设置开放 Actions 的 Contents write permission，或在本地运行同步脚本后自行提交 JSON。
+3. `.github/workflows/publish-photos.yml` 在图片或清单更改后运行 `scripts/sync_photos.py`，**自动把新图片写入 `data/photos.json` 并生成兼容静态打开方式的 `data/photos.js`**。接下来 GitHub Pages 更新后，各设备和访客都能看到。如仓库禁止 Actions 写入，请在仓库设置开放 Actions 的 Contents write permission，或在本地运行同步脚本后自行提交 JSON。
 4. 新照片初始标题来自文件名，章节默认为“光与四季”，季节为 `unknown`，地点留空。进入 `data/photos.json` 编辑 `title`、`note`、`season`、`series`、`style`，需要地图标记再填入**经确认的公共景点**名称与坐标。
 
 本地手动同步清单可运行：
@@ -70,7 +70,8 @@ python scripts/sync_photos.py
 index.html                         杂志主页面
 css/style.css                      装裱、季节、地图与移动适配
 js/app.js                          JSON 数据加载、展厅、足迹、季节、拼贴
-data/photos.json                   唯一照片内容清单
+data/photos.json                   唯一人工维护的照片内容清单
+data/photos.js                     根据 photos.json 自动生成的静态读取版本
 data/embedded_photos.js            旧 11 张优化图像字节（兼容）
 assets/photos/                     既有 5 张北京照片；今后新增照片
 scripts/sync_photos.py             新照片自动入库（不会发布 EXIF GPS）
@@ -78,3 +79,10 @@ scripts/sync_photos.py             新照片自动入库（不会发布 EXIF GPS
 ```
 
 旧版已备份于 `archive/gallery-before-magazine-v2` 分支，原先手动维护的 `data/gallery.js` 不再由网站读取。
+
+## V4 稳定性与拼贴调整
+
+- 修复原版本依赖 `fetch('data/photos.json')` 的问题：现在默认加载 `data/photos.js`，即使网页是直接打开的 HTML 文件，也能读取同一份照片清单；`photos.json` 仍是唯一需要人工编辑的数据源。
+- 地图改为内建可点击的世界/城市地理示意图，城市和地点从真实经纬度计算位置，无需 Leaflet CDN、远程瓦片或第三方 API。它**不是街道导航底图**，不显示个人精确 GPS。
+- 拼贴台增加全库缩略图选择，可以逐张替换五张素材或随机选五张；保留原来的拖动、键盘移动和 PNG 导出。新的照片也会自动进入选图列表。
+- 图片上传前请自行去掉照片文件的 EXIF GPS：程序不把 GPS 写入 JSON，并不等于公开仓库中的原始上传文件会自动去除 GPS。
