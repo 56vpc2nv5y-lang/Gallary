@@ -8,10 +8,10 @@
   <meta property="og:title" content="The Art of Noticing · Sunny's Photo Journal">
   <title>The Art of Noticing — Sunny's Photo Journal</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/style.css?v=20261111-5">
+  <link rel="stylesheet" href="css/style.css?v=20261111-6">
   <script defer src="data/embedded_photos.js"></script>
   <script defer src="data/photos.js?v=20261111-4"></script>
-  <script defer src="js/app.js?v=20261111-5"></script>
+  <script defer src="js/app.js?v=20261111-6"></script>
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div><canvas id="seasonCanvas" class="season-canvas" aria-hidden="true"></canvas>
@@ -87,7 +87,7 @@
         </div>
         <p class="scrapbook-saving">内容与选图自动保存在当前浏览器；导出 PNG 可以永久保存，也可以分享给朋友。</p>
       </div>
-      <div class="collage-picker-head"><span>从画廊挑选想放进拼贴的五张照片</span><button type="button" id="collageRandomPhotos">帮我随机选五张 ↝</button></div><div id="collagePhotoPicker" class="collage-photo-picker" role="group" aria-label="选择五张拼贴照片"></div><div class="collage-board" id="collageBoard" aria-label="可拖动的摄影拼贴画布"><span class="board-top" id="scrapPreviewTop">2026 年秋 · 北京 · 香山</span><div class="board-watermark"><span id="scrapPreviewTitle">在北京收集秋天</span></div><div class="board-sticker" aria-hidden="true">✺<span>MEMORY<br>PAGE</span></div><span class="board-bottom" id="scrapPreviewNote">阳光从树梢落下来，我想把秋天慢慢收好。</span></div>
+      <div class="collage-picker-head"><span>从画廊挑选五张照片，也可以临时加入自己的图片</span><div class="picker-head-actions"><label for="collageLocalFiles" class="studio-file-label">＋ 选本地图片<input id="collageLocalFiles" type="file" accept="image/*" multiple hidden></label><button type="button" id="collageRandomPhotos">帮我随机选五张 ↝</button></div></div><p class="studio-import-help">本地选图只用于这次编辑，不会自动上传到公开网站；需要长期展示的照片仍请发布到 GitHub。</p><div id="collagePhotoPicker" class="collage-photo-picker" role="group" aria-label="选择五张拼贴照片"></div><div class="collage-board" id="collageBoard" aria-label="可拖动的摄影拼贴画布"><span class="board-top" id="scrapPreviewTop">2026 年秋 · 北京 · 香山</span><div class="board-watermark"><span id="scrapPreviewTitle">在北京收集秋天</span></div><div class="board-sticker" aria-hidden="true">✺<span>MEMORY<br>PAGE</span></div><span class="board-bottom" id="scrapPreviewNote">阳光从树梢落下来，我想把秋天慢慢收好。</span></div>
       <div class="studio-hint"><span>点击上面的缩略图选满五张 · 拖动拼贴调整位置 · 方向键微调 · 导出 PNG</span><span id="studioStatus" role="status" aria-live="polite">你的手帐草稿会自动保存在当前浏览器。</span></div>
     </section>
 
