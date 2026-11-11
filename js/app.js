@@ -145,7 +145,33 @@
     $$('[data-mode]').forEach(b=>b.addEventListener('click',()=>{
       view=b.dataset.mode;$$('[data-mode]').forEach(btn=>{const active=btn.dataset.mode===view;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});renderGallery();
     }));
-    $$('[data-target-filter]').forEach(link=>link.addEventListener('click',()=>chooseFilter(link.dataset.targetFilter)));
+    // Chapter links are direct entrypoints: clear any unrelated season filter
+    // so a spring cat story never opens into an empty autumn-only archive.
+    $('[data-target-filter]').forEach(link=>link.addEventListener('click',()=>{
+      seasonFilter='all';focusIDs=null;
+      $('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      chooseFilter(link.dataset.targetFilter);renderSeasonPreview();
+    }));
+    // A small, user-triggered surprise makes the journal feel explorable.
+    // Never starts a slideshow or animates a photographic subject.
+    let lastSurpriseId=null;
+    $('[data-random-photo]').forEach(button=>button.addEventListener('click',()=>{
+      if(!photos.length)return;
+      seasonFilter='all';focusIDs=null;chooseFilter('all');
+      $('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      renderSeasonPreview();
+      const options=filtered.filter(p=>p.id!==lastSurpriseId);
+      const selected=options[Math.floor(Math.random()*options.length)]||filtered[0];
+      if(!selected)return;
+      lastSurpriseId=selected.id;
+      const index=filtered.findIndex(p=>p.id===selected.id);
+      if(index>=0)openLightbox(index);
+    }));
+    // Keep the scrapbook visible when opened via a navigation shortcut.
+    $('a[href="#studio"]').forEach(link=>link.addEventListener('click',()=>{
+      const editor=$('.studio-disclosure');
+      if(editor)editor.open=true;
+    }));
     renderGallery();
   }
   function renderLightbox(){
