@@ -13,7 +13,7 @@ assert.match(html,/id="seasonCanvas"/,'Canvas needs to be present in HTML');
 assert.match(html,/js\/ambience\.js/,'Ambient JS must be loaded');
 assert.match(html,/data-ambience-toggle/,'Pause control must exist');
 assert.match(html,/class="hero-photo-peek/,'Photo magazine collage needs preview pages');
-assert.match(html,/data-random-photo/,'Random photo entry point must exist');
+assert.match(html,/id="momentReplay"/,'Click-to-play photo feature must exist');
 assert.match(html,/class="studio-disclosure" open/,'Scrapbook must be open by default');
 assert.ok(!js.includes('querySelectorAll(\'img\'') && !js.includes('img.src'),'Particle renderer may not alter photos');
 
