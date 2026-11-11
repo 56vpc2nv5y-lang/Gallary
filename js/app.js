@@ -9,6 +9,8 @@
   let filter='all', seasonFilter='all', focusIDs=null, view='editorial';
   let lightboxIndex=0, slideTimer=null, lastFocus=null, toastTimer=null;
   let collageIDs = ['cat','opera','lizard','sunset','snow'], collageActiveSlot=0;
+  const studioDrafts=[],studioDraftURLs=[];
+  const studioPhotos=()=>[...photos,...studioDrafts];
   let scrap = {title:'在北京收集秋天',place:'北京 · 香山',date:'2026 年秋',note:'阳光从树梢落下来，我想把秋天慢慢收好。',theme:'paper'};
   const scrapPalettes={
     paper:{paper:'#f8f2e7',ink:'#49392f',accent:'#a67b5d',line:'#d9c8b5',frame:'#fffdf8'},
@@ -338,7 +340,16 @@
     back.addEventListener('click',world);world();
   }
 
-  function collagePhoto(i){return photos.find(p=>p.id===collageIDs[i])||photos[i]||photos[0]}
+  function collagePhoto(i){return studioPhotos().find(p=>p.id===collageIDs[i])||photos[i]||photos[0]}
+  function openStudioPhoto(i){
+    const p=collagePhoto(i);
+    if(studioDrafts.some(x=>x.id===p.id)){
+      const prev=filtered;filtered=[p];openLightbox(0);
+      $('#lightbox').addEventListener('close',()=>{filtered=prev},{once:true});
+    }else{
+      chooseFilter('all');const idx=filtered.findIndex(x=>x.id===p.id);if(idx>=0)openLightbox(idx);
+    }
+  }
   function setupScrapbook(){
     const ids={scrapTitle:'title',scrapPlace:'place',scrapDate:'date',scrapNote:'note',scrapTheme:'theme'};
     try{
@@ -401,7 +412,7 @@
     const caption=document.createElement('div');caption.className='picker-status';
     caption.textContent='正在替换第 '+(collageActiveSlot+1)+' 张 · 选图后自动移到下一张';
     picker.append(caption);
-    photos.forEach(p=>{
+    studioPhotos().forEach(p=>{
       const b=document.createElement('button');b.type='button';b.className='pick-photo';
       const selected=collageIDs.indexOf(p.id),active=selected===collageActiveSlot;
       b.classList.toggle('selected',selected>=0);b.classList.toggle('active-slot',active);
@@ -428,7 +439,7 @@
       const p=collagePhoto(i),tile=document.createElement('div');tile.className='collage-tile';tile.dataset.index=String(i);tile.tabIndex=0;tile.setAttribute('role','button');tile.setAttribute('aria-label',p.title+'；拖动位置或按方向键微调；按回车查看大图');
       const img=document.createElement('img');img.src=p.thumb||p.src;img.alt=p.alt||p.title;img.draggable=false;
       const caption=document.createElement('span');caption.textContent=String(i+1).padStart(2,'0')+' / '+p.title;tile.append(img,caption);
-      tile.addEventListener('click',()=>{if(suppressClick)return;chooseFilter('all');const current=collagePhoto(i);const idx=filtered.findIndex(x=>x.id===current.id);if(idx>=0)openLightbox(idx)});
+      tile.addEventListener('click',()=>{if(suppressClick)return;openStudioPhoto(i)});
       tile.addEventListener('keydown',e=>{
         const offsets={ArrowLeft:[-2,0],ArrowRight:[2,0],ArrowUp:[0,-2],ArrowDown:[0,2]};
         if(offsets[e.key]){e.preventDefault();positions[i].x=clamp(positions[i].x+offsets[e.key][0],10,90);positions[i].y=clamp(positions[i].y+offsets[e.key][1],14,86);collageMode='custom';placeTile(i);updateLayouts();saveCollage()}
@@ -447,9 +458,29 @@
       toast('已切换拼贴照片，可继续点缩略图替换');
     });
     $('#collageRandomPhotos').addEventListener('click',()=>{
-      collageIDs=[...photos].sort(()=>Math.random()-.5).slice(0,5).map(p=>p.id);
+      collageIDs=[...studioPhotos()].sort(()=>Math.random()-.5).slice(0,5).map(p=>p.id);
       collageActiveSlot=0;updateCollageTiles();toast('已选出新的五张照片');
     });
+    $('#collageLocalFiles').addEventListener('change',e=>{
+      const selected=[...e.target.files].filter(file=>file.type.startsWith('image/')).slice(0,12);
+      e.target.value='';
+      if(!selected.length)return;
+      selected.forEach((file,i)=>{
+        const src=URL.createObjectURL(file);
+        studioDraftURLs.push(src);
+        const title=file.name.replace(/\.[^.]+$/,'').replace(/[_-]/g,' ').slice(0,50)||'我的一张照片';
+        const p={id:'draft-'+Date.now()+'-'+i+'-'+Math.random().toString(36).slice(2,6),
+          src,thumb:src,title,en:'',series:'landscapes',season:'unknown',style:'neutral',location:'本地临时照片',
+          note:'',alt:title,shape:'landscape'};
+        studioDrafts.push(p);
+      });
+      // First new image goes straight onto the current free page slot.
+      collageIDs[collageActiveSlot]=studioDrafts[studioDrafts.length-selected.length].id;
+      collageActiveSlot=(collageActiveSlot+1)%5;
+      updateCollageTiles();
+      toast('已加入 '+selected.length+' 张本地素材；它们只用于当前手帐，不会公开上传');
+    });
+    addEventListener('pagehide',()=>studioDraftURLs.forEach(url=>URL.revokeObjectURL(url)),{once:true});
     board.addEventListener('pointerdown',e=>{
       const tile=e.target.closest('.collage-tile');if(!tile||e.button!==0)return;
       const i=Number(tile.dataset.index),r=board.getBoundingClientRect();drag={id:e.pointerId,i,x:e.clientX,y:e.clientY,sx:positions[i].x,sy:positions[i].y,w:r.width,h:r.height,moved:false};tile.setPointerCapture(e.pointerId);tile.classList.add('dragging');
