@@ -4,12 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#211918">
-  <meta name="description" content="The Last Golden Days — 一座会落叶、下雪、开花的私人北京摄影画廊。香山的红叶与颐和园的日落。">
-  <title>The Last Golden Days · 北京四季影像馆</title>
+  <meta name="description" content="The Art of Noticing — 一本会随着四季变换的互动摄影杂志。收藏北京秋日的五个瞬间，随心拼贴，留下自己的光影记忆。">
+  <title>The Art of Noticing · 看见的艺术 | 四季摄影手记</title>
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./css/style.css">
   <script defer src="./data/gallery.js"></script>
   <script defer src="./js/app.js"></script>
+  <script defer src="./js/magazine.js"></script>
 </head>
 <body>
   <div class="preload" id="preload" aria-hidden="true"><span class="preload-mark">✳</span><span class="preload-text">A PERSONAL PHOTO ATELIER</span></div>
@@ -21,12 +22,13 @@
   <header class="site-header" id="top">
     <a class="brand" href="#top" aria-label="返回画廊首页">
       <span class="brand-mark">B<span>·</span></span>
-      <span class="brand-lines"><strong>BEIJING IN FRAMES</strong><small>PRIVATE PHOTO ATELIER · 2026</small></span>
+      <span class="brand-lines"><strong>BEIJING IN FRAMES</strong><small>A PERSONAL PHOTO JOURNAL · 2026</small></span>
     </a>
     <nav class="desktop-nav" aria-label="画廊导航">
-      <a href="#exhibition">THE EXHIBITION <span>01</span></a>
-      <a href="#chapters">THE JOURNEY <span>02</span></a>
-      <a href="#letter">THE LETTER <span>03</span></a>
+      <a href="#studio">THE COLLAGE <span>01</span></a>
+      <a href="#exhibition">THE EXHIBITION <span>02</span></a>
+      <a href="#seasons-journal">FOUR SEASONS <span>03</span></a>
+      <a href="#letter">THE LETTER <span>04</span></a>
     </nav>
     <div class="header-actions">
       <button class="ambient-toggle" id="ambientToggle" type="button" aria-pressed="true" title="暂停/恢复飘落动画"><span class="ambient-icon" id="ambientIcon">✳</span> <span id="ambientLabel">AMBIENCE ON</span></button>
@@ -40,10 +42,10 @@
       <div class="hero-glow hero-glow-two" aria-hidden="true"></div>
       <div class="hero-side-text" aria-hidden="true">AN ARCHIVE OF MOMENTS THAT STAY</div>
       <div class="hero-copy">
-        <div class="eyebrow animate-in"><span class="eyebrow-line"></span> NO. 001 · BEIJING / NOV 10, 2026</div>
-        <p class="hero-kicker animate-in">THE LAST GOLDEN DAYS</p>
-        <h1 id="heroTitle" class="hero-title animate-in">把北京的<br><em>秋天</em><span class="tiny-star">✳</span><br>留在这里<span class="hero-period">.</span></h1>
-        <p class="hero-desc animate-in">一座只属于自己的光影画廊。<br>让香山的叶子缓缓落下，让昆明湖的日落永远停在这一页。</p>
+        <div class="eyebrow animate-in"><span class="eyebrow-line"></span> ISSUE NO. 001 · BEIJING / AUTUMN 2026</div>
+        <p class="hero-kicker animate-in">THE ART OF NOTICING</p>
+        <h1 id="heroTitle" class="hero-title animate-in">把每一刻<br><em>心动</em><span class="tiny-star">✳</span><br>留在这里<span class="hero-period">.</span></h1>
+        <p class="hero-desc animate-in">一本可以亲手翻动的摄影杂志。<br>从北京的深秋出发，把四季的光、影与微小的惊喜收进纸页。</p>
         <div class="hero-buttons animate-in"><a class="pill primary" href="#exhibition">走进影像展 <span>↗︎</span></a><button class="pill ghost" id="heroExplore" type="button">先选一个季节 <span>✧</span></button></div>
         <div class="hero-trail animate-in"><span class="trail-dot"></span> 拍摄于北京 · 2026.11.10 <span class="trail-sep">/</span> 05 FRAMES</div>
       </div>
@@ -61,6 +63,46 @@
       <div class="hero-bottom"><div>SCROLL TO WANDER <span class="down-arrow">↓</span></div><div>39°N · A DAY TO REMEMBER</div></div>
     </section>
 
+
+    <section class="magazine-section" id="studio" aria-labelledby="studioTitle">
+      <div class="magazine-intro reveal">
+        <div><span class="mini-overline">01 / THE COLLAGE STUDIO</span><h2 id="studioTitle">一张纸，<br><em>装下五次心动。</em></h2><p>摄影不只有排列整齐的一种答案。试着拖动这些照片，把你喜欢的风景重新组合成一页自己的杂志。</p></div>
+        <div class="magazine-margin-note">THE ART OF<br>NOTICING<br><span>ISSUE 001 · AUTUMN</span></div>
+      </div>
+      <div class="studio-toolbar" aria-label="拼贴编辑工具">
+        <div class="studio-presets" role="group" aria-label="切换拼贴排版">
+          <button type="button" data-collage-layout="editorial" class="is-active" aria-pressed="true">杂志散页</button>
+          <button type="button" data-collage-layout="constellation" aria-pressed="false">星点排列</button>
+          <button type="button" data-collage-layout="ribbon" aria-pressed="false">时光长卷</button>
+        </div>
+        <div class="studio-actions">
+          <button type="button" id="collageShuffle">随机洗牌 ↝</button>
+          <button type="button" id="collageReset">重置排版</button>
+          <button type="button" id="collageExport" class="studio-export">下载这页海报 ↗</button>
+        </div>
+      </div>
+      <div class="collage-paper" id="collageBoard" aria-label="可拖动的五张北京摄影拼贴">
+        <div class="paper-label paper-label-top" aria-hidden="true">A LITTLE COLLECTION OF ORDINARY MAGIC</div>
+        <div class="paper-title" aria-hidden="true">Between<br><i>the moments.</i></div>
+        <div class="paper-stamp" aria-hidden="true">BEIJING<br>2026<br>✳</div>
+        <div class="paper-label paper-label-bottom" aria-hidden="true">01 — BEIJING IN FRAMES &nbsp;&nbsp;&nbsp;&nbsp; A JOURNAL BY SUNNY</div>
+        <div class="paper-scribble" aria-hidden="true">✺</div>
+      </div>
+      <div class="studio-footer"><span>↗ 拖动照片重新排列 · 键盘方向键微调 · 点击照片查看大图</span><span id="studioStatus" role="status" aria-live="polite">排版只保存在这个浏览器，不会自动同步到 GitHub。</span></div>
+    </section>
+
+    <section class="seasons-journal section-pad" id="seasons-journal" aria-labelledby="journalTitle">
+      <div class="section-top reveal"><span class="section-index">02 / A JOURNAL IN FOUR SEASONS</span><div class="section-rule"></div><span>MORE PAGES TO COME</span></div>
+      <div class="seasons-journal-heading reveal"><span class="subtitle-script">Every season has its own light</span><h2 id="journalTitle">四季流转，<br><em>总有值得留下的瞬间。</em></h2><p>秋天已经写下第一页。其余的季节，还留着空白，等以后慢慢填满。</p></div>
+      <div class="journal-seasons">
+        <button type="button" class="journal-season journal-spring reveal" data-journal-season="spring"><span class="journal-no">01 / SPRING</span><span class="journal-decor">✿</span><strong>春 · 花信</strong><small>让花瓣先替我们说话。</small><span class="journal-count" data-season-count="spring">WAITING FOR STORIES</span></button>
+        <button type="button" class="journal-season journal-summer reveal" data-journal-season="summer"><span class="journal-no">02 / SUMMER</span><span class="journal-decor">❧</span><strong>夏 · 绿荫</strong><small>记住每一个晴朗的午后。</small><span class="journal-count" data-season-count="summer">WAITING FOR STORIES</span></button>
+        <button type="button" class="journal-season journal-autumn reveal" data-journal-season="autumn"><span class="journal-no">03 / AUTUMN</span><span class="journal-decor">✳</span><strong>秋 · 金色</strong><small>香山的橙红，昆明湖的落日。</small><span class="journal-count" data-season-count="autumn">05 FRAMES</span></button>
+        <button type="button" class="journal-season journal-winter reveal" data-journal-season="winter"><span class="journal-no">04 / WINTER</span><span class="journal-decor">❄</span><strong>冬 · 初雪</strong><small>希望下一次，真的遇见雪。</small><span class="journal-count" data-season-count="winter">WAITING FOR STORIES</span></button>
+      </div>
+      <p class="journal-footnote">点开任意季节，可以改变整座画廊的氛围。空白章节不会用其他人的照片填充。</p>
+    </section>
+
     <section class="season-desk" id="seasons" aria-labelledby="seasonTitle">
       <div class="season-desk-heading"><div><span class="mini-overline">THE WEATHER INSIDE THIS PAGE</span><h2 id="seasonTitle">让画廊，<i>换一个季节。</i></h2></div><p>落叶、雪花、花瓣与绿荫。<br>照片仍属于北京的秋天，氛围由你决定。</p></div>
       <div class="season-tabs" role="group" aria-label="切换画廊季节">
@@ -73,7 +115,7 @@
     </section>
 
     <section class="exhibition section-pad" id="exhibition" aria-labelledby="exhibitTitle">
-      <div class="section-top reveal"><span class="section-index">01 / SELECTED FRAMES</span><div class="section-rule"></div><span>CURATED WITH LOVE</span></div>
+      <div class="section-top reveal"><span class="section-index">03 / SELECTED FRAMES</span><div class="section-rule"></div><span>CURATED WITH LOVE</span></div>
       <div class="exhibition-header reveal"><div><div class="subtitle-script">The little things I noticed</div><h2 id="exhibitTitle">五张照片，<br><em>一场很好的相遇。</em></h2></div><div class="exhibition-intro"><p>有些地方是提前计划的，<br>有些风景是走着走着发现的。</p><span>XIANGSHAN × SUMMER PALACE</span></div></div>
       <div class="gallery-toolbar reveal"><div class="filters" role="group" aria-label="按拍摄地点筛选"><button class="filter active" type="button" data-filter="all" aria-pressed="true">全部影像 <span id="totalCount">05</span></button><button class="filter" type="button" data-filter="xiangshan" aria-pressed="false">香山 <span>04</span></button><button class="filter" type="button" data-filter="yiheyuan" aria-pressed="false">颐和园 <span>01</span></button></div><div class="gallery-view-switch" role="group" aria-label="画廊布局模式"><button class="view-button selected" data-view="editorial" title="杂志拼贴" aria-label="杂志拼贴布局" aria-pressed="true">▦</button><button class="view-button" data-view="grid" title="整齐网格" aria-label="整齐网格布局" aria-pressed="false">▤</button></div></div>
       <div class="photo-grid" id="photoGrid" aria-live="polite"></div>
@@ -89,16 +131,16 @@
     </section>
 
     <section class="chapters section-pad" id="chapters" aria-labelledby="chapterTitle">
-      <div class="section-top reveal"><span class="section-index">02 / THE JOURNEY</span><div class="section-rule"></div><span>A DAY IN TWO CHAPTERS</span></div>
+      <div class="section-top reveal"><span class="section-index">04 / THE JOURNEY</span><div class="section-rule"></div><span>A DAY IN TWO CHAPTERS</span></div>
       <div class="chapter-heading reveal"><span class="subtitle-script">Where the light took me</span><h2 id="chapterTitle">从山里的红，<br>走到湖上的金。</h2></div>
       <div class="chapter chapter-one reveal"><div class="chapter-photo"><img src="./assets/photos/02-sunlit-hall.jpg" alt="香山红色古建筑和树影" loading="lazy"><span class="photo-annotation">01 — XIANGSHAN</span></div><div class="chapter-copy"><span class="chapter-index">CHAPTER ONE / 01</span><div class="chapter-ornament">✳</div><h3>香山，<br><i>秋色正浓。</i></h3><p class="chapter-en">The colors I came for.</p><p>先走进山里，再走进阳光。树叶不约而同地变成橙色，勤政殿被枝条轻轻围住。最喜欢的那张照片，并不是刻意找来的。</p><button class="chapter-link" type="button" data-open-photo="qinzhengdian">重看那张勤政殿 <span>↗︎</span></button></div></div>
       <div class="chapter chapter-two reveal"><div class="chapter-copy"><span class="chapter-index">CHAPTER TWO / 02</span><div class="chapter-ornament">☼</div><h3>颐和园，<br><i>日落之前。</i></h3><p class="chapter-en">The sunset I stayed for.</p><p>原本可能错过的黄昏，最终在昆明湖边等到了。远山的剪影铺在天际，水面亮成一片温柔的橘金色。今天不用赶路了。</p><button class="chapter-link" type="button" data-open-photo="kunming-sunset">再看一次昆明湖日落 <span>↗︎</span></button></div><div class="chapter-photo landscape"><img src="./assets/photos/05-kunming-sunset.jpg" alt="昆明湖金色日落" loading="lazy"><span class="photo-annotation">02 — SUMMER PALACE</span></div></div>
     </section>
 
-    <section class="letter section-pad" id="letter" aria-labelledby="letterTitle"><div class="letter-inner reveal"><div class="letter-butterfly">✿</div><span class="mini-overline">03 / LETTER TO THE CITY</span><h2 id="letterTitle">致北京，<br><em>谢谢你把秋天留给我。</em></h2><p>来时匆匆，走时想多看几眼。把那些不经意的相遇收好，把喜欢的光线留住。以后翻开这里，山里的枫叶还会落下来，湖上的夕阳也还在。</p><p class="letter-english">The colors I came for. The sunset I stayed for.</p><div class="letter-signature"><span>Beijing, November 2026</span><span>♡ ALWAYS IN FRAMES</span></div></div></section>
+    <section class="letter section-pad" id="letter" aria-labelledby="letterTitle"><div class="letter-inner reveal"><div class="letter-butterfly">✿</div><span class="mini-overline">05 / LETTER TO THE CITY</span><h2 id="letterTitle">致北京，<br><em>谢谢你把秋天留给我。</em></h2><p>来时匆匆，走时想多看几眼。把那些不经意的相遇收好，把喜欢的光线留住。以后翻开这里，山里的枫叶还会落下来，湖上的夕阳也还在。</p><p class="letter-english">The colors I came for. The sunset I stayed for.</p><div class="letter-signature"><span>Beijing, November 2026</span><span>♡ ALWAYS IN FRAMES</span></div></div></section>
   </main>
 
-  <footer class="footer"><div class="footer-brand">THE LAST<br>GOLDEN DAYS<span>✳</span></div><div class="footer-note">A private archive of ordinary magic.<br>Made to remember a day I liked.</div><div class="footer-links"><a href="#top">BACK TO TOP ↑</a><span>© 2026 · PERSONAL PHOTO ATELIER</span></div></footer>
+  <footer class="footer"><div class="footer-brand">THE ART OF<br>NOTICING<span>✳</span></div><div class="footer-note">A private archive of ordinary magic.<br>Made to remember a day I liked.</div><div class="footer-links"><a href="#top">BACK TO TOP ↑</a><span>© 2026 · PERSONAL PHOTO ATELIER</span></div></footer>
 
   <dialog class="lightbox" id="lightbox" aria-label="照片全屏浏览"><button class="lightbox-close" type="button" id="lightboxClose" aria-label="关闭照片">×</button><div class="lightbox-counter" id="lightboxCounter">01 / 05</div><button class="lightbox-arrow lightbox-prev" type="button" id="lightboxPrev" aria-label="上一张照片">‹</button><figure class="lightbox-stage"><img src="" id="lightboxImage" alt=""><figcaption class="lightbox-caption"><span id="lightboxPlace"></span><h3 id="lightboxTitle"></h3><p id="lightboxStory"></p></figcaption></figure><button class="lightbox-arrow lightbox-next" type="button" id="lightboxNext" aria-label="下一张照片">›</button><div class="lightbox-tools"><button type="button" id="lightboxZoom">放大 ＋</button><span>← → 切图 / ESC 关闭</span><button type="button" id="lightboxPlay">自动播放 ▷</button></div></dialog>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
