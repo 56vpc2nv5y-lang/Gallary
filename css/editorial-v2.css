@@ -1,0 +1,278 @@
+/*
+ * The Art of Noticing / Editorial V2
+ * A quieter, photo-first layer. The legacy component styles remain in style.css
+ * so maps, the seasons and the scrapbook keep their existing behaviour.
+ * Photographs remain completely still: no automatic motion or hover zoom.
+ */
+:root{
+  --bg:#f5f1ea;
+  --paper:#fdfbf7;
+  --ink:#322c29;
+  --soft-ink:#7b716b;
+  --line:#ded7ce;
+  --accent:#855f51;
+  --accent-dark:#57433d;
+}
+body{background:var(--bg);color:var(--ink)}
+html{scroll-padding-top:90px}
+.header{
+  height:82px;
+  background:rgba(250,248,244,.97);
+  border-bottom:1px solid rgba(111,88,73,.12);
+  padding-inline:clamp(24px,5vw,88px);
+}
+.desktop-nav{gap:clamp(16px,2.6vw,37px)}
+.desktop-nav a{font-size:10px;letter-spacing:.15em}
+.header-link{border-color:#bbab9d}
+.section-wrap{max-width:1390px;padding:100px clamp(24px,6vw,110px)}
+.section-heading h2{font-size:clamp(43px,5vw,74px);letter-spacing:-.055em}
+.section-heading>p{color:#81756c;max-width:260px}
+.overline{color:#927565;font-size:10px;letter-spacing:.2em}
+.reveal,.reveal.visible{opacity:1;transform:none;transition:none}
+.feature-image img,.photo-figure img,.season-shot img,.cover-main img,
+.cover-floating img{transition:none!important;transform:none!important;filter:none}
+.feature-card:hover img,.photo-card-button:hover img{transform:none!important;filter:none!important}
+.photo-figure:after{display:none}
+.photo-counter{top:12px;left:14px;font-size:12px;color:#fff;opacity:.85}
+.photo-open-icon{opacity:1;transform:none;font-size:17px;right:12px;bottom:12px}
+.photo-card-button:hover .photo-open-icon{transform:none}
+/* COVER: genuine editorial hierarchy, with one uninterrupted photographic focal point. */
+.hero.editorial-hero{
+  display:block;
+  height:auto;min-height:0;max-height:none;
+  max-width:100%;
+  padding:42px clamp(24px,6vw,110px) 70px;
+  background:#f5f1ea;
+  overflow:visible;
+}
+.editorial-hero .hero-topline{
+  position:static;display:flex;justify-content:space-between;
+  font:10px/1.4 var(--sans);letter-spacing:.22em;
+  color:#8e7f75;margin-bottom:28px;
+}
+.editorial-hero .hero-layout{
+  display:grid;grid-template-columns:minmax(0,1.25fr) minmax(315px,.73fr);
+  gap:clamp(35px,5vw,92px);align-items:end;
+}
+.editorial-hero .hero-cover{
+  margin:0;position:relative;min-width:0;overflow:visible;
+}
+.editorial-hero .hero-cover img{
+  width:100%;height:auto;display:block;
+  aspect-ratio:1.38;object-fit:cover;object-position:center 52%;
+  box-shadow:0 22px 60px rgba(52,36,26,.09);
+}
+.editorial-hero .hero-cover figcaption{
+  display:flex;justify-content:space-between;gap:15px;
+  margin-top:14px;color:#796d64;font:10px/1.6 var(--sans);
+  letter-spacing:.15em;
+}
+.editorial-hero .hero-text{
+  padding:0 0 55px;width:auto;align-self:auto;max-width:none;
+}
+.editorial-hero .eyebrow{font-size:10px;letter-spacing:.18em;color:#967567}
+.editorial-hero h1{
+  font:400 clamp(66px,7.5vw,122px)/.96 Georgia,serif;
+  letter-spacing:-.095em;white-space:normal;margin:29px 0 36px;
+  color:#342a27;
+}
+.editorial-hero h1 i{font-size:.56em;font-weight:400;color:#906b5a}
+.editorial-hero .hero-cn{
+  font:400 clamp(19px,2vw,29px)/1.7 var(--serif);letter-spacing:.035em;
+}
+.editorial-hero .hero-description{
+  font:14px/2.1 var(--serif);font-style:normal;color:#7d7069;
+  margin:26px 0 32px;max-width:320px;
+}
+.editorial-hero .hero-bottom{
+  position:static;display:flex;justify-content:space-between;align-items:center;
+  margin-top:45px;padding-top:16px;border-top:1px solid #ddd4c9;
+  font-size:10px;color:#95877c;letter-spacing:.18em;
+}
+.editorial-hero .hero-bottom b{font-size:16px;margin-left:10px}
+.editorial-hero .hero-cta{font-size:11px}
+/* Editor's note is a breathing space rather than a second cover. */
+.intro-paper.editorial-letter{
+  max-width:1080px;margin:35px auto 55px;padding:58px clamp(34px,9vw,120px);
+  box-shadow:none;background:transparent;text-align:center;
+}
+.intro-paper.editorial-letter:before{display:none}
+.editorial-letter .chapter-number{font-size:9px}
+.editorial-letter .italic-line{font-size:18px;margin:17px auto 14px}
+.editorial-letter h2{
+  font:400 clamp(28px,3.1vw,40px)/1.65 var(--serif);
+}
+.editorial-letter>p:not(.italic-line){
+  max-width:650px;margin:22px auto 0;font:14px/2.15 var(--serif)
+}
+.editorial-letter .intro-signature{font-size:20px;margin-top:15px}
+/* Curated stories: deliberately asymmetric but never tilted. */
+.issues-section{padding-top:65px;padding-bottom:100px}
+.feature-grid.editorial-features{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:80px 42px}
+.editorial-features .feature-card{grid-column:span 6;margin-top:0;display:block}
+.editorial-features .feature-beijing{grid-column:span 7}
+.editorial-features .feature-encounters{grid-column:span 5;padding-top:115px}
+.editorial-features .feature-architecture{grid-column:span 5}
+.editorial-features .feature-landscapes{grid-column:span 7;padding-top:62px}
+.editorial-features .feature-card .feature-image{
+  height:auto;min-height:0;overflow:hidden;background:#e7e0d7;
+}
+.editorial-features .feature-beijing .feature-image{aspect-ratio:1.42}
+.editorial-features .feature-encounters .feature-image{aspect-ratio:.93}
+.editorial-features .feature-architecture .feature-image{aspect-ratio:.98}
+.editorial-features .feature-landscapes .feature-image{aspect-ratio:1.55}
+.editorial-features .feature-card .feature-image img{height:100%;width:100%;object-fit:cover}
+.editorial-features .feature-line{font-size:10px;color:#927d70;margin-top:17px}
+.editorial-features .feature-card h3{font-size:clamp(21px,2.3vw,30px);line-height:1.45}
+.editorial-features .feature-card h3 em{font-size:17px;margin-top:4px;color:#906b5a}
+.still-feature{padding-top:55px;padding-bottom:110px}
+.still-feature-photo{max-width:1050px;margin:0 auto}
+.still-feature-photo img{width:100%;height:auto;max-height:none;object-fit:contain}
+.still-feature-photo figcaption{letter-spacing:.08em}
+.interlude{padding:85px 30px;background:#393332}
+.interlude blockquote{font-size:clamp(28px,3.8vw,45px)}
+/* The full archive is now an exhibition, not a grid of identically cropped thumbnails. */
+.archive-section{padding-top:120px}
+.archive-toolbar{margin-bottom:32px;padding-bottom:19px}
+.photo-wall,.photo-wall:not(.grid-mode){
+  display:grid;grid-template-columns:repeat(12,minmax(0,1fr));
+  align-items:start;gap:75px 34px;
+}
+.photo-wall .photo-card{
+  grid-column:span var(--span,6)!important;
+  padding-top:var(--offset,0px)!important;
+  min-width:0;
+}
+.photo-wall .photo-figure,.photo-wall .photo-card:nth-child(n) .photo-figure{
+  height:auto!important;aspect-ratio:auto!important;
+  background:transparent!important;border:0!important;
+  box-shadow:none!important;padding:0!important;
+}
+.photo-wall .photo-figure img,.photo-wall .photo-card:nth-child(n) .photo-figure img{
+  display:block;width:100%;height:auto!important;max-height:none;
+  aspect-ratio:auto!important;object-fit:contain;
+  border:0!important;filter:none!important;
+}
+.photo-wall .photo-figure .photo-counter{
+  background:rgba(33,26,22,.4);padding:6px 9px;color:#fff;
+  text-shadow:none;font:10px/1 var(--sans);letter-spacing:.16em;
+}
+.photo-wall .photo-details{margin-top:17px;max-width:510px}
+.photo-wall .photo-details small{font-size:10px;letter-spacing:.14em}
+.photo-wall .photo-details h3{font-size:clamp(20px,2vw,27px);line-height:1.45;margin-top:7px}
+.photo-wall .photo-details p{font-size:13px;margin-top:7px}
+.photo-wall.grid-mode{grid-template-columns:repeat(3,minmax(0,1fr));gap:45px 25px}
+.photo-wall.grid-mode .photo-card{
+  grid-column:span 1!important;padding-top:0!important;
+}
+.photo-wall.grid-mode .photo-details h3{font-size:18px}
+.photo-wall.grid-mode .photo-details p{font-size:12px}
+.empty-gallery{padding:80px 25px}
+.archive-foot{margin-top:70px}
+.filter-note{border-left:0;padding-left:0;color:#94847a}
+/* The four seasons are a compact browsing tool, not a second giant archive. */
+.season-section{background:#eae5dc}
+.season-section .section-wrap{padding-top:85px;padding-bottom:85px}
+.seasons{border-color:#d4c9bc}
+.seasons button{min-height:130px;padding:18px 22px}
+.seasons b{font-size:21px}
+.season-mark{font-size:28px;height:37px}
+.season-preview{margin-top:20px}
+.season-shot img{object-fit:cover}
+.season-shot:hover img{transform:none!important}
+/* Map: affordances and fallbacks without pretending to be a navigational map. */
+.footprints-section{padding-top:105px;padding-bottom:105px}
+.map-panel{background:#e6eae4}
+.map-caption{letter-spacing:.13em}
+.map-side{background:#faf8f3}
+/* Scrapbook is preserved but behind an intentional entry point. */
+.studio-section{padding-top:95px;padding-bottom:110px}
+.studio-disclosure{border-top:1px solid #cfc3b8;border-bottom:1px solid #cfc3b8}
+.studio-disclosure>summary{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  cursor:pointer;list-style:none;padding:24px 8px;
+  font:500 19px/1.6 var(--serif);color:#57423a;
+}
+.studio-disclosure>summary::-webkit-details-marker{display:none}
+.studio-disclosure>summary small{
+  font:10px/1.4 var(--sans);letter-spacing:.15em;color:#9a8171;
+}
+.studio-disclosure>summary .entry-arrow{font:25px Georgia,serif;transition:transform .2s}
+.studio-disclosure[open]>summary .entry-arrow{transform:rotate(45deg)}
+.studio-disclosure .studio-workspace{padding-top:28px}
+/* Clean lightbox: photograph occupies the space, notes stay readable. */
+.lightbox{background:rgba(23,22,20,.98)}
+.lightbox figure{gap:clamp(30px,4vw,60px)}
+.lightbox figure img{max-height:87vh}
+.lightbox figcaption{max-width:340px}
+/* A quiet, predictable mobile reading sequence. */
+@media(max-width:1100px){
+  .editorial-hero .hero-layout{grid-template-columns:minmax(0,1.05fr) minmax(265px,.88fr);gap:38px}
+  .editorial-hero h1{font-size:clamp(62px,7.6vw,90px)}
+  .editorial-features .feature-encounters{padding-top:60px}
+}
+@media(max-width:780px){
+  .header{height:70px;padding-inline:22px}
+  .hero.editorial-hero{padding:28px 22px 45px}
+  .editorial-hero .hero-topline{font-size:8px;margin-bottom:21px}
+  .editorial-hero .hero-layout{grid-template-columns:1fr;gap:35px}
+  .editorial-hero .hero-cover{order:1}
+  .editorial-hero .hero-cover img{aspect-ratio:1.42}
+  .editorial-hero .hero-text{order:2;padding:0}
+  .editorial-hero h1{font-size:clamp(61px,11.5vw,92px);margin:22px 0}
+  .editorial-hero .hero-cn{font-size:22px}
+  .editorial-hero .hero-description{font-size:14px;margin:15px 0 23px}
+  .editorial-hero .hero-bottom{margin-top:30px;font-size:9px}
+  .intro-paper.editorial-letter{margin:10px auto 20px;padding:55px 28px}
+  .section-wrap{padding:75px 25px}
+  .feature-grid.editorial-features{gap:55px 20px}
+  .editorial-features .feature-beijing,.editorial-features .feature-landscapes{grid-column:span 7}
+  .editorial-features .feature-encounters,.editorial-features .feature-architecture{grid-column:span 5}
+  .editorial-features .feature-encounters,.editorial-features .feature-landscapes{padding-top:25px}
+  .photo-wall,.photo-wall:not(.grid-mode){gap:52px 20px}
+  .photo-wall .photo-card{grid-column:span 6!important;padding-top:0!important}
+  .photo-wall .photo-card[data-shape="wide"],.photo-wall .photo-card[data-hero="true"]{grid-column:span 12!important}
+  .photo-wall.grid-mode{grid-template-columns:repeat(2,minmax(0,1fr));gap:35px 18px}
+  .photo-wall.grid-mode .photo-card{grid-column:span 1!important}
+  .seasons button{min-height:125px}
+}
+@media(max-width:560px){
+  .header{padding-inline:16px}
+  .hero.editorial-hero{padding:22px 18px 42px}
+  .editorial-hero .hero-topline{font-size:8px}
+  .editorial-hero .hero-cover img{aspect-ratio:1.18}
+  .editorial-hero .hero-cover figcaption{font-size:8px}
+  .editorial-hero h1{font-size:clamp(56px,13vw,75px);letter-spacing:-.09em}
+  .editorial-hero .hero-cn{font-size:20px}
+  .editorial-hero .hero-bottom span:last-child{display:none}
+  .intro-paper.editorial-letter{padding:42px 23px 45px}
+  .editorial-letter h2{font-size:26px}
+  .section-wrap{padding:65px 19px}
+  .section-heading{margin-bottom:32px}
+  .feature-grid.editorial-features{grid-template-columns:1fr;gap:45px}
+  .editorial-features .feature-card{grid-column:1/-1!important;padding-top:0!important}
+  .editorial-features .feature-card .feature-image{aspect-ratio:1.35}
+  .editorial-features .feature-encounters .feature-image{aspect-ratio:1.05}
+  .editorial-features .feature-card h3{font-size:23px}
+  .photo-wall,.photo-wall:not(.grid-mode){grid-template-columns:1fr;gap:47px}
+  .photo-wall .photo-card,.photo-wall .photo-card[data-shape="wide"],.photo-wall .photo-card[data-hero="true"]{
+    grid-column:1/-1!important;padding-top:0!important;
+  }
+  .photo-wall .photo-details h3{font-size:22px}
+  .photo-wall .photo-details p{font-size:13px}
+  .photo-wall.grid-mode{grid-template-columns:1fr 1fr;gap:24px 12px}
+  .photo-wall.grid-mode .photo-card{grid-column:span 1!important}
+  .photo-wall.grid-mode .photo-details h3{font-size:16px}
+  .photo-wall.grid-mode .photo-details small{font-size:8px}
+  .photo-wall.grid-mode .photo-details p{display:none}
+  .seasons{grid-template-columns:repeat(2,1fr)}
+  .seasons button{min-height:122px}
+  .seasons button:nth-child(2){border-right:0}
+  .seasons button:nth-child(-n+2){border-bottom:1px solid #d4c9bc}
+  .studio-disclosure>summary{font-size:16px}
+  .studio-disclosure>summary small{display:none}
+  .lightbox figure{padding:72px 38px 63px}
+}
+@media(prefers-reduced-motion:reduce){
+  .studio-disclosure>summary .entry-arrow{transition:none}
+}
