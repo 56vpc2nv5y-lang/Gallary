@@ -265,7 +265,7 @@
     }
     function worldMap(){
       const svg=baseSvg('TRAVEL NOTES / WORLD','world');
-      const lands=[
+      const lands=Array.isArray(window.NOTICING_WORLD_PATHS)&&window.NOTICING_WORLD_PATHS.length?window.NOTICING_WORLD_PATHS:[
         'M68 173L92 122 144 96 203 115 248 144 267 188 244 213 207 204 187 238 153 245 140 217 108 222 80 199Z',
         'M255 255L289 271 323 307 345 342 334 388 313 429 287 472 272 441 282 391 268 355 249 314Z',
         'M450 135L490 106 539 110 565 124 606 102 655 113 707 93 776 113 841 138 905 167 925 208 898 246 855 227 818 252 774 226 733 236 696 215 651 239 603 216 564 239 530 206 494 209 465 184Z',
@@ -274,6 +274,8 @@
         'M320 73L344 42 389 46 411 71 395 102 358 109Z'
       ];
       lands.forEach(d=>svg.append(node('path',{d,class:'atlas-land'})));
+      // The atlas title stays above the accurate geographic silhouettes.
+      svgText(svg,42,55,'TRAVEL NOTES / WORLD','atlas-title');
       [
         [147,151,'NORTH AMERICA'],[290,347,'SOUTH AMERICA'],[540,175,'EUROPE'],
         [670,174,'ASIA'],[548,327,'AFRICA'],[870,414,'AUSTRALIA']
@@ -286,14 +288,12 @@
     function cityMap(group){
       const city=group[0].city;
       const svg=baseSvg((names[city]||city).toUpperCase()+' / PLACES','city');
-      for(let i=0;i<10;i++){
-        const off=i*90-120;
-        svg.append(node('path',{d:'M'+off+' 105 Q'+(off+160)+' 290 '+(off+300)+' 510',
-          class:'atlas-street'}));
+      // Geographic relative-position grid, not invented city streets.
+      for(const x of [170,335,500,665,830]){
+        svg.append(node('line',{x1:x,y1:140,x2:x,y2:480,class:'atlas-coordinate-grid'}));
       }
-      for(let i=0;i<6;i++){
-        const off=130+i*72;
-        svg.append(node('path',{d:'M65 '+off+' Q480 '+(off+40)+' 925 '+(off-35),class:'atlas-street'}));
+      for(const y of [140,225,310,395,480]){
+        svg.append(node('line',{x1:170,y1:y,x2:830,y2:y,class:'atlas-coordinate-grid'}));
       }
       const places=new Map();
       group.forEach(p=>{
