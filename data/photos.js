@@ -25,9 +25,7 @@ window.PHOTO_JOURNAL = {
       "lat": null,
       "lng": null,
       "style": "neutral",
-      "geoPrecision": null,
-      "motion": "focus",
-      "motionLabel": "树荫里的悄悄靠近"
+      "geoPrecision": null
     },
     {
       "id": "courtyard",
@@ -50,9 +48,7 @@ window.PHOTO_JOURNAL = {
       "lat": null,
       "lng": null,
       "style": "neutral",
-      "geoPrecision": null,
-      "motion": "breeze",
-      "motionLabel": "绿色在缓缓呼吸"
+      "geoPrecision": null
     },
     {
       "id": "canopy",
@@ -75,9 +71,7 @@ window.PHOTO_JOURNAL = {
       "lat": null,
       "lng": null,
       "style": "neutral",
-      "geoPrecision": null,
-      "motion": "sunbeam",
-      "motionLabel": "光从树叶缝隙落下"
+      "geoPrecision": null
     },
     {
       "id": "ceiling",
@@ -100,9 +94,7 @@ window.PHOTO_JOURNAL = {
       "lat": null,
       "lng": null,
       "style": "neutral",
-      "geoPrecision": null,
-      "motion": "geometry",
-      "motionLabel": "穹顶的金色光线"
+      "geoPrecision": null
     },
     {
       "id": "sunset",
@@ -125,9 +117,7 @@ window.PHOTO_JOURNAL = {
       "lat": null,
       "lng": null,
       "style": "neutral",
-      "geoPrecision": null,
-      "motion": "sunset",
-      "motionLabel": "晚霞慢慢染亮天空"
+      "geoPrecision": null
     },
     {
       "id": "leaves",
@@ -150,9 +140,7 @@ window.PHOTO_JOURNAL = {
       "lat": null,
       "lng": null,
       "style": "neutral",
-      "geoPrecision": null,
-      "motion": "leaves",
-      "motionLabel": "落叶路过镜头"
+      "geoPrecision": null
     },
     {
       "id": "opera",
@@ -175,9 +163,7 @@ window.PHOTO_JOURNAL = {
       "lat": 51.13495,
       "lng": 71.41052,
       "style": "western",
-      "geoPrecision": "landmark",
-      "motion": "golden",
-      "motionLabel": "柱廊间的午后光影"
+      "geoPrecision": "landmark"
     },
     {
       "id": "cat",
@@ -200,9 +186,7 @@ window.PHOTO_JOURNAL = {
       "lat": null,
       "lng": null,
       "style": "neutral",
-      "geoPrecision": null,
-      "motion": "closeup",
-      "motionLabel": "像镜头正慢慢靠近它"
+      "geoPrecision": null
     },
     {
       "id": "facade",
@@ -225,9 +209,7 @@ window.PHOTO_JOURNAL = {
       "lat": null,
       "lng": null,
       "style": "neutral",
-      "geoPrecision": null,
-      "motion": "geometry",
-      "motionLabel": "花纹沿着光线展开"
+      "geoPrecision": null
     },
     {
       "id": "church",
@@ -250,9 +232,7 @@ window.PHOTO_JOURNAL = {
       "lat": null,
       "lng": null,
       "style": "neutral",
-      "geoPrecision": null,
-      "motion": "twinkle",
-      "motionLabel": "灯光微微闪烁"
+      "geoPrecision": null
     },
     {
       "id": "snow",
@@ -275,9 +255,7 @@ window.PHOTO_JOURNAL = {
       "lat": 40.35417,
       "lng": 116.00694,
       "style": "chinese",
-      "geoPrecision": "landmark",
-      "motion": "snow",
-      "motionLabel": "雪花轻轻落下"
+      "geoPrecision": "landmark"
     },
     {
       "id": "beijing-01",
@@ -300,9 +278,7 @@ window.PHOTO_JOURNAL = {
       "lat": 39.9909972,
       "lng": 116.1796917,
       "style": "chinese",
-      "geoPrecision": "park",
-      "motion": "leaves",
-      "motionLabel": "把金色秋叶留下"
+      "geoPrecision": "park"
     },
     {
       "id": "beijing-02",
@@ -325,9 +301,7 @@ window.PHOTO_JOURNAL = {
       "lat": 39.9909972,
       "lng": 116.1796917,
       "style": "chinese",
-      "geoPrecision": "park",
-      "motion": "sunbeam",
-      "motionLabel": "树影慢慢划过红墙"
+      "geoPrecision": "park"
     },
     {
       "id": "beijing-03",
@@ -350,9 +324,7 @@ window.PHOTO_JOURNAL = {
       "lat": 39.9909972,
       "lng": 116.1796917,
       "style": "chinese",
-      "geoPrecision": "park",
-      "motion": "breeze",
-      "motionLabel": "古树与檐角的微风"
+      "geoPrecision": "park"
     },
     {
       "id": "beijing-04",
@@ -375,9 +347,7 @@ window.PHOTO_JOURNAL = {
       "lat": 39.9909972,
       "lng": 116.1796917,
       "style": "chinese",
-      "geoPrecision": "park",
-      "motion": "golden",
-      "motionLabel": "松针上的暖光"
+      "geoPrecision": "park"
     },
     {
       "id": "beijing-05",
@@ -400,9 +370,7 @@ window.PHOTO_JOURNAL = {
       "lat": 39.99167,
       "lng": 116.27222,
       "style": "chinese",
-      "geoPrecision": "landmark",
-      "motion": "ripples",
-      "motionLabel": "昆明湖的粼粼波光"
+      "geoPrecision": "landmark"
     }
   ]
 };
