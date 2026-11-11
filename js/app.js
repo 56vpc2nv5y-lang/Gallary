@@ -48,7 +48,7 @@
       thumb:embedded[p.thumb]||p.thumb||embedded[p.src]||p.src
     }));
     photos=[...originalPhotos];
-    $('img[src^="assets/photos/"]').forEach(img=>{
+    $$('img[src^="assets/photos/"]').forEach(img=>{
       const path=img.getAttribute('src');if(embedded[path])img.src=embedded[path];
     });
     const featured={
@@ -59,10 +59,10 @@
     };
     Object.entries(featured).forEach(([className,ids])=>{
       const photo=ids.map(id=>photos.find(p=>p.id===id)).find(Boolean),card=$('.'+className);
-      const img=$('.feature-image img',card);
+      const img=card?$('.feature-image img',card):null;
       if(photo&&img){img.src=photo.thumb||photo.src;img.alt=photo.alt||photo.title}
     });
-    $('[data-target-filter]').forEach(card=>{
+    $$('[data-target-filter]').forEach(card=>{
       const count=photos.filter(p=>p.series===card.dataset.targetFilter).length;
       const label=$('.feature-line span:last-child',card);
       if(label)label.textContent=String(count).padStart(2,'0')+' FRAMES ↗';
@@ -116,7 +116,7 @@
     $$('[data-mode]').forEach(b=>b.addEventListener('click',()=>{
       view=b.dataset.mode;$$('[data-mode]').forEach(btn=>{const active=btn.dataset.mode===view;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active))});renderGallery();
     }));
-    $$('[data-target-filter]').forEach(link=>link.addEventListener('click',()=>chooseFilter(link.dataset.targetFilter)));
+    $$$('[data-target-filter]').forEach(link=>link.addEventListener('click',()=>chooseFilter(link.dataset.targetFilter)));
     renderGallery();
   }
   function renderLightbox(){
@@ -194,13 +194,13 @@
       if(!messages[name])return;
       document.documentElement.dataset.season=name;weather?.setSeason(name);
       if(filterPhotos){seasonFilter=name;focusIDs=null;chooseFilter('all');}
-      $('[data-season]').forEach(b=>{const active=b.dataset.season===seasonFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+      $$('[data-season]').forEach(b=>{const active=b.dataset.season===seasonFilter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
       $('#seasonDescription').textContent=filterPhotos?messages[name]:'点击季节，查看对应照片；秋叶只是眼前的氛围。';
       renderSeasonPreview();
       try{localStorage.setItem('noticing-season',name)}catch(_){}
     }
-    $('[data-season]').forEach(b=>b.addEventListener('click',()=>applySeason(b.dataset.season,true)));
-    $('#resetSeason').addEventListener('click',()=>{seasonFilter='all';focusIDs=null;chooseFilter('all');$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});$('#seasonDescription').textContent='四季的照片重新汇在一起。';renderSeasonPreview()});
+    $$('[data-season]').forEach(b=>b.addEventListener('click',()=>applySeason(b.dataset.season,true)));
+    $('#resetSeason').addEventListener('click',()=>{seasonFilter='all';focusIDs=null;chooseFilter('all');$$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});$('#seasonDescription').textContent='四季的照片重新汇在一起。';renderSeasonPreview()});
     applySeason(visual,false);
     const motion=$('#motionToggle');let playing=!reduced.matches;function updateMotion(){weather?.setEnabled(playing);motion.textContent=playing?'暂停动态 Ⅱ':'开启动态 ✳';motion.setAttribute('aria-pressed',String(playing))}
     motion.addEventListener('click',()=>{playing=!playing;updateMotion()});updateMotion();
@@ -318,7 +318,7 @@
     function openMappedPhoto(ids){
       filter='all';seasonFilter='all';focusIDs=new Set(ids);
       $$('[data-filter]').forEach(b=>{const v=b.dataset.filter==='all';b.classList.toggle('active',v);b.setAttribute('aria-pressed',String(v))});
-      $$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+      $$$('[data-season]').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
       renderGallery();$('#archive').scrollIntoView({behavior:reduced.matches?'auto':'smooth',block:'start'});
     }
     function world(){
@@ -557,16 +557,28 @@
   }
 
   // Publishing takes place through GitHub commits, not an isolated browser database.
+  // Isolate optional features: a failure in one view must never hide the gallery or map.
+  function safelyInitialize(label,fn){
+    try{fn();return true}
+    catch(err){console.error('[Gallery] '+label+' failed:',err);return false}
+  }
   async function init(){
-    handleMissingImages();reveal();setupLightbox();
-    try{
-      await loadCatalog();
-      setupFilters();setupSeasons();setupFootprints();initCollage();
-    }catch(err){
-      console.error('Photo journal could not load',err);
-      $('#activeFilterNote').textContent='照片目录暂时无法读取。请确认 data/photos.js 已发布。';
-      $('#mapFallback').hidden=false;
+    safelyInitialize('image fallback',handleMissingImages);
+    safelyInitialize('scroll reveal',reveal);
+    safelyInitialize('photo lightbox',setupLightbox);
+    try{await loadCatalog()}
+    catch(err){
+      console.error('[Gallery] photo data failed:',err);
+      const message=$('#activeFilterNote');
+      if(message)message.textContent='照片清单无法载入，请刷新网页；若仍然空白，可检查 data/photos.js 是否存在。';
+      const fallback=$('#mapFallback');if(fallback)fallback.hidden=false;
+      return;
     }
+    // Gallery is the primary experience. Render immediately even if optional controls fail.
+    if(!safelyInitialize('gallery filters',setupFilters))safelyInitialize('gallery render',renderGallery);
+    safelyInitialize('season filters',setupSeasons);
+    safelyInitialize('map footprints',setupFootprints);
+    safelyInitialize('memory scrapbook',initCollage);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
