@@ -37,6 +37,11 @@ def properties(path: Path):
 def sync() -> int:
     doc = json.loads(MANIFEST.read_text(encoding="utf-8"))
     photos = doc["photos"]
+    staged_file = ROOT / "data" / "curated-v5.json"
+    staged = {}
+    if staged_file.exists():
+        staged_doc = json.loads(staged_file.read_text(encoding="utf-8"))
+        staged = {p["src"]: p for p in staged_doc.get("photos", [])}
     known = {p.get("file") or p.get("src") for p in photos}
     ids = {p["id"] for p in photos}
     added = 0
@@ -58,14 +63,22 @@ def sync() -> int:
         possible_thumbs = [path.with_name(path.stem + THUMB_SUFFIX + suffix) for suffix in (".webp", ".jpg", ".jpeg", ".png")]
         thumb = next((p.relative_to(ROOT).as_posix() for p in possible_thumbs if p.exists()), rel)
         title = re.sub(r"^\d+[-_]", "", path.stem).replace("_", " ").replace("-", " ").strip() or path.stem
-        photos.append({
+        record = {
             "id": candidate, "src": rel, "thumb": thumb, "file": rel,
             "title": title, "en": "", "series": "landscapes", "chapter": "landscapes",
             "season": "unknown", "date": date, "country": None, "city": None,
             "place": None, "lat": None, "lng": None, "style": "neutral",
             "geoPrecision": None, "location": "", "note": "",
             "alt": title, "shape": shape
-        })
+        }
+        if rel in staged:
+            editorial = staged[rel].copy()
+            # The file scanner owns the actual filename and dimensions.
+            # Only verified public landmarks, never camera EXIF GPS, are used.
+            editorial.update({"src": rel, "file": rel, "thumb": thumb, "shape": shape})
+            record.update(editorial)
+            record["id"] = candidate
+        photos.append(record)
         known.add(rel)
         added += 1
         print(f"Indexed: {rel} (date={date or 'unconfirmed'}, no GPS published)")
