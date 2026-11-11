@@ -183,6 +183,8 @@ html{scroll-padding-top:90px}
 /* Map: affordances and fallbacks without pretending to be a navigational map. */
 .footprints-section{padding-top:105px;padding-bottom:105px}
 .map-panel{background:#e6eae4}
+.offline-geo .atlas-land{fill:#d1dbcf;stroke:#eef2ea;stroke-width:1.1;stroke-linejoin:round;opacity:.96}
+.offline-geo .atlas-coordinate-grid{stroke:#fbfcf7;stroke-width:1.6;stroke-dasharray:4 11;opacity:.82}
 .map-caption{letter-spacing:.13em}
 .map-side{background:#faf8f3}
 /* Scrapbook is preserved but behind an intentional entry point. */
