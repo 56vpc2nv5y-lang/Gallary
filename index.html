@@ -8,10 +8,10 @@
   <meta property="og:title" content="The Art of Noticing · Sunny's Photo Journal">
   <title>The Art of Noticing — Sunny's Photo Journal</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/style.css?v=20261111-6">
+  <link rel="stylesheet" href="css/style.css?v=20261111-8">
   <script defer src="data/embedded_photos.js"></script>
   <script defer src="data/photos.js?v=20261111-4"></script>
-  <script defer src="js/app.js?v=20261111-7"></script>
+  <script defer src="js/app.js?v=20261111-8"></script>
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div><canvas id="seasonCanvas" class="season-canvas" aria-hidden="true"></canvas>
@@ -50,6 +50,27 @@
         <a href="#archive" data-target-filter="architecture" class="feature-card feature-architecture reveal"><div class="feature-image"><img src="assets/photos/04-painted-ceiling.webp" alt="传统建筑精致的彩绘藻井" loading="lazy"></div><div class="feature-line"><span>CHAPTER 02 / ELSEWHERE</span><span>04 FRAMES ↗</span></div><h3>关于建筑的好奇 <em>Beautiful Geometry</em></h3></a>
         <a href="#archive" data-target-filter="landscapes" class="feature-card feature-landscapes reveal"><div class="feature-image"><img src="assets/photos/05-city-sunset.webp" alt="橘红色晚霞" loading="lazy"></div><div class="feature-line"><span>CHAPTER 03 / LIGHT & WEATHER</span><span>05 FRAMES ↗</span></div><h3>光线经过的地方 <em>The Light We Kept</em></h3></a>
         <a href="#archive" data-target-filter="beijing" class="feature-card feature-beijing reveal"><div class="feature-image"><img src="assets/photos/01-qinzhengdian.jpg" alt="香山秋季的金橙枫叶和古建筑" loading="lazy"></div><div class="feature-line"><span>CHAPTER 04 / BEIJING</span><span>05 FRAMES ↗</span></div><h3>北京的最后金色日子 <em>Golden Days</em></h3></a>
+      </div>
+    </section>
+
+    <section class="moment-section section-wrap" id="moment" aria-labelledby="momentTitle">
+      <div class="section-heading reveal">
+        <div><span class="overline">SPECIAL FEATURE / A MOMENT, REASSEMBLED</span><h2 id="momentTitle">把那一刻，<i>慢慢拼好。</i></h2></div>
+        <p>从昆明湖的落日开始，照片碎成许多片，<br>再慢慢回到原来的位置。每张照片都可以试试。</p>
+      </div>
+      <div class="moment-stage" id="momentStage">
+        <img id="momentFallback" class="moment-fallback" src="assets/photos/05-kunming-sunset.jpg" alt="颐和园昆明湖的落日">
+        <canvas id="momentTiles" class="moment-canvas" role="img" aria-label="昆明湖落日照片碎片重新拼合的动画"></canvas>
+        <div class="moment-stage-shade" aria-hidden="true"></div>
+        <div class="moment-overlay">
+          <span class="moment-edition">THE ART OF NOTICING · A MOVING MEMORY</span>
+          <div><h3 id="momentPhotoTitle">落日替今天落款</h3><p id="momentPhotoPlace">颐和园 · 昆明湖</p></div>
+        </div>
+      </div>
+      <div class="moment-controls">
+        <label for="momentPhotoSelect">换一张照片来拼合 <select id="momentPhotoSelect" aria-label="选择要重新拼合的照片"><option value="beijing-05">落日替今天落款 · 昆明湖</option></select></label>
+        <button type="button" class="moment-replay" id="momentReplay" aria-label="重新播放当前照片的碎片拼合动画"><span aria-hidden="true">✳</span> 重新拼合</button>
+        <span class="moment-status" id="momentStatus" role="status" aria-live="polite">等照片慢慢归位。</span>
       </div>
     </section>
 
