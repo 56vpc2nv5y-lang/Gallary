@@ -38,3 +38,99 @@ html[data-season=spring] .season-tab.active{background:#704555}
 html[data-season=summer] .season-tab.active{background:#304f43}
 /* Narrow header safety: keep an accessible gallery shortcut without clipping. */
 @media(max-width:700px){.header-actions{gap:2px}.header-enter{font-size:0;padding:8px 12px;min-width:40px;text-align:center}.header-enter span{font-size:18px;margin:0}}
+
+
+/* ===== THE ART OF NOTICING / MAGAZINE STUDIO ===== */
+.magazine-section{position:relative;background:#e9ded0;padding:110px max(36px,calc((100vw - 1500px)/2 + 65px)) 100px;overflow:hidden}
+.magazine-intro{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:46px}
+.magazine-intro h2{font:500 clamp(40px,5vw,78px)/1.34 var(--serif);letter-spacing:-.065em;margin:16px 0 22px}
+.magazine-intro h2 em,.seasons-journal-heading h2 em{font-style:normal;color:#995b50}
+.magazine-intro p{max-width:580px;font:14px/2.2 var(--serif);color:#806f61}
+.magazine-margin-note{font:italic clamp(25px,3.2vw,49px)/1.15 Georgia,serif;color:#b89278;text-align:right;letter-spacing:-.045em;flex-shrink:0}
+.magazine-margin-note span{font:10px/2 var(--sans);letter-spacing:.24em;color:#967f72}
+.studio-toolbar{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:22px}
+.studio-presets,.studio-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.studio-presets button,.studio-actions button{border:1px solid #cbb9a8;background:rgba(255,255,255,.33);color:#655248;font:12px var(--sans);padding:11px 16px;border-radius:40px;transition:background .25s,color .25s,transform .25s}
+.studio-presets button:hover,.studio-actions button:hover{transform:translateY(-2px);background:#faf5ed}
+.studio-presets button.is-active{background:#493438;border-color:#493438;color:#f7ede4}
+.studio-actions .studio-export{background:#a66b58;color:#fffaf3;border-color:#a66b58}
+.studio-actions .studio-export:hover{background:#874c40;color:white}
+.studio-actions .studio-export:disabled{opacity:.6}
+.collage-paper{height:720px;position:relative;isolation:isolate;overflow:hidden;background:#f6f0e5;box-shadow:0 27px 65px rgba(78,51,41,.16),inset 0 0 0 1px #eadfce;background-image:linear-gradient(90deg,transparent 0,transparent 49.87%,rgba(137,108,79,.055) 50%,transparent 50.13%),radial-gradient(ellipse at 8% 98%,rgba(222,188,143,.24),transparent 45%);user-select:none;touch-action:pan-y}
+.collage-paper:before{content:"";position:absolute;inset:16px;border:1px solid #d9c9b6;pointer-events:none}
+.collage-paper:after{content:"";position:absolute;inset:0;opacity:.13;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E")}
+.paper-label{position:absolute;left:37px;right:37px;color:#967c6b;font-size:9px;letter-spacing:.26em;pointer-events:none;z-index:1}
+.paper-label-top{top:31px}.paper-label-bottom{bottom:30px}
+.paper-title{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);font:italic clamp(45px,6vw,99px)/1.1 Georgia,serif;color:rgba(151,101,83,.14);text-align:center;white-space:nowrap;pointer-events:none}
+.paper-title i{font-weight:400}
+.paper-stamp{position:absolute;right:45px;top:35px;border:1px solid #bd9b82;border-radius:50%;width:105px;height:105px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.3;font:11px var(--serif);letter-spacing:.14em;color:#a77d63;transform:rotate(13deg);pointer-events:none}
+.paper-scribble{position:absolute;bottom:10%;right:7%;font-size:72px;color:#cfaa80;opacity:.34;pointer-events:none}
+.collage-tile{--rotation:0deg;position:absolute;width:clamp(130px,19%,235px);padding:9px 9px 12px;transform:translate(-50%,-50%) rotate(var(--rotation));background:#fffefa;box-shadow:0 14px 32px rgba(41,33,27,.22);cursor:grab;touch-action:none;transition:box-shadow .2s,filter .2s;outline-offset:8px;will-change:left,top,transform;z-index:2}
+.collage-tile img{display:block;width:100%;height:clamp(120px,16vw,199px);object-fit:cover;pointer-events:none}
+.collage-tile-caption{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:11px var(--serif);color:#64544b;padding:10px 2px 1px;pointer-events:none}
+.collage-tile:nth-of-type(2n){background:#fff9f0}
+.collage-tile:hover{box-shadow:0 22px 43px rgba(41,33,27,.31);filter:saturate(1.07);z-index:40!important}
+.collage-tile.is-dragging{cursor:grabbing;box-shadow:0 30px 58px rgba(41,33,27,.37);z-index:50!important;transform:translate(-50%,-50%) rotate(0deg) scale(1.055)}
+.collage-tile:focus-visible{outline:3px solid #bb7657}
+.studio-footer{margin-top:18px;display:flex;justify-content:space-between;align-items:center;gap:16px;font:11px/1.7 var(--sans);color:#877265}
+.studio-footer span:last-child{text-align:right}
+.seasons-journal{background:#f8f4ed}
+.seasons-journal-heading{margin:55px 0 45px}
+.seasons-journal-heading h2{font:500 clamp(38px,4.5vw,70px)/1.4 var(--serif);letter-spacing:-.065em;margin:12px 0 18px}
+.seasons-journal-heading p{font:14px/2 var(--serif);color:#89786b}
+.journal-seasons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.journal-season{min-height:380px;position:relative;padding:26px 22px 24px;border:1px solid rgba(104,76,61,.16);text-align:left;display:flex;flex-direction:column;align-items:flex-start;overflow:hidden;cursor:pointer;transition:transform .4s,box-shadow .4s;background:#f5e5e5;color:#523d3f}
+.journal-season:hover{transform:translateY(-7px);box-shadow:0 18px 35px rgba(58,38,29,.15)}
+.journal-no{font-size:10px;letter-spacing:.2em;z-index:1}
+.journal-decor{font:130px/1 Georgia,serif;margin:auto;align-self:center;opacity:.32;transition:transform .9s;pointer-events:none}
+.journal-season:hover .journal-decor{transform:rotate(25deg) scale(1.16)}
+.journal-season strong{font:500 28px var(--serif);z-index:1}
+.journal-season small{font:12px/1.7 var(--serif);opacity:.85;margin-top:8px;z-index:1}
+.journal-count{font:9px var(--sans);letter-spacing:.14em;border-top:1px solid currentColor;opacity:.75;padding-top:13px;margin-top:32px;z-index:1}
+.journal-spring{background:linear-gradient(150deg,#fae9ea,#e7cbd1);color:#8c536a}
+.journal-summer{background:linear-gradient(150deg,#e6edde,#b9ceb4);color:#4c7755}
+.journal-autumn{background:linear-gradient(150deg,#b47c55,#603a39);color:#ffead2}
+.journal-winter{background:linear-gradient(150deg,#e4eef3,#bad0d9);color:#53778d}
+.journal-footnote{margin-top:25px;font-size:11px;color:#968779;text-align:right}
+@media (max-width:1050px){
+  .studio-toolbar{align-items:flex-start;flex-direction:column}
+  .collage-paper{height:610px}
+  .collage-tile{width:22%}
+  .collage-tile img{height:160px}
+  .journal-seasons{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .journal-season{min-height:310px}
+  .journal-decor{font-size:105px}
+}
+@media (max-width:680px){
+  .magazine-section{padding:67px 18px 65px}
+  .magazine-intro{margin-bottom:26px}
+  .magazine-intro h2{font-size:38px}
+  .magazine-intro p{font-size:12px}
+  .magazine-margin-note{display:none}
+  .studio-toolbar{gap:12px}
+  .studio-presets,.studio-actions{gap:6px}
+  .studio-presets button,.studio-actions button{font-size:10px;padding:9px 11px}
+  .collage-paper{height:480px}
+  .paper-label{left:21px;right:21px;font-size:7px;letter-spacing:.1em}
+  .paper-label-top{top:20px}.paper-label-bottom{bottom:18px}
+  .paper-stamp{width:60px;height:60px;right:19px;top:25px;font-size:7px}
+  .paper-title{font-size:40px}
+  .collage-tile{width:31%;padding:5px 5px 8px}
+  .collage-tile img{height:105px}
+  .collage-tile-caption{font-size:7px;padding:5px 1px 0}
+  .studio-footer{flex-direction:column;align-items:flex-start;font-size:10px}
+  .studio-footer span:last-child{text-align:left}
+  .seasons-journal-heading{margin:37px 0}
+  .seasons-journal-heading h2{font-size:36px}
+  .journal-seasons{gap:9px}
+  .journal-season{min-height:245px;padding:15px 12px}
+  .journal-season strong{font-size:20px}
+  .journal-season small{font-size:10px}
+  .journal-no{font-size:8px}
+  .journal-decor{font-size:70px}
+  .journal-count{font-size:7px;margin-top:15px}
+  .journal-footnote{text-align:left}
+}
+@media (prefers-reduced-motion: reduce){
+  .collage-tile,.journal-season,.journal-decor{transition:none}
+}
