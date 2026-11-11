@@ -8,10 +8,10 @@
   <meta property="og:title" content="The Art of Noticing · Sunny's Photo Journal">
   <title>The Art of Noticing — Sunny's Photo Journal</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/style.css?v=20261111-8">
+  <link rel="stylesheet" href="css/style.css?v=20261111-9">
   <script defer src="data/embedded_photos.js"></script>
   <script defer src="data/photos.js?v=20261111-4"></script>
-  <script defer src="js/app.js?v=20261111-8"></script>
+  <script defer src="js/app.js?v=20261111-9"></script>
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div><canvas id="seasonCanvas" class="season-canvas" aria-hidden="true"></canvas>
@@ -78,6 +78,7 @@
 
     <section class="archive-section section-wrap" id="archive" aria-labelledby="archiveTitle">
       <div class="section-heading reveal"><div><span class="overline">02 / THE PHOTO ARCHIVE</span><h2 id="archiveTitle">The <i>collected frames.</i></h2></div><p>按章节或季节收藏瞬间。<br>地点不同，装裱也有自己的性格。</p></div>
+      <p class="living-gallery-intro"><span>✳</span> 每一张照片，都藏着一个会动的瞬间。轻点照片，看看光线、落叶与记忆如何慢慢醒来。</p>
       <div class="archive-toolbar"><div class="filter-tabs" role="group" aria-label="影像分类"><button class="active" data-filter="all" aria-pressed="true">全部 <b id="photoCount">16</b></button><button data-filter="encounters" aria-pressed="false">小小相遇</button><button data-filter="architecture" aria-pressed="false">建筑手记</button><button data-filter="landscapes" aria-pressed="false">光与四季</button><button data-filter="beijing" aria-pressed="false">北京秋日</button></div><div class="view-modes" role="group" aria-label="布局模式"><button data-mode="editorial" aria-label="杂志布局" aria-pressed="true" class="active">▦</button><button data-mode="grid" aria-label="整齐网格" aria-pressed="false">▤</button></div></div>
       <p class="filter-note" id="activeFilterNote" aria-live="polite">展示全部照片 · 地点不明确的作品仍会留在展厅中。</p>
       <div id="photoWall" class="photo-wall" aria-live="polite"></div>
@@ -115,7 +116,19 @@
     <section class="letter-section" id="letter"><div class="letter-paper reveal"><span class="overline">06 / AN OPEN-ENDED LETTER</span><span class="letter-decoration">✺</span><h2>Dear future me,</h2><p>希望很多年之后，你再翻开这里，依然记得那天的风，路边的猫，陌生城市的屋顶，还有每一场意料之外的日落。</p><p>希望你一直愿意停下来，看一眼那些并不轰轰烈烈，却让生活悄悄发光的小事。</p><p class="letter-final">Keep noticing. Keep collecting.</p><span class="letter-sign">Love, Sunny ♡</span></div></section>
   </main>
   <footer class="footer"><div><b>THE ART OF NOTICING<span>✺</span></b><p>A growing collection of little moments.</p></div><div><a href="#top">BACK TO THE TOP ↑</a><small>© 2026 · PHOTOGRAPHS BY SUNNY</small></div></footer>
-  <dialog id="lightbox" class="lightbox" aria-label="查看照片"><button id="closeLightbox" class="lightbox-close" aria-label="关闭">×</button><button id="prevPhoto" class="lightbox-prev" aria-label="上一张">←</button><figure><img id="lightboxImg" alt=""><figcaption><small id="lightboxNum"></small><h3 id="lightboxTitle"></h3><i id="lightboxEnglish"></i><p id="lightboxNote"></p><span id="lightboxPlace"></span></figcaption></figure><button id="nextPhoto" class="lightbox-next" aria-label="下一张">→</button><button id="lightboxPlay" class="lightbox-play">自动播放 ▷</button></dialog>
+  <dialog id="lightbox" class="lightbox" aria-label="查看照片"><button id="closeLightbox" class="lightbox-close" aria-label="关闭">×</button><button id="prevPhoto" class="lightbox-prev" aria-label="上一张">←</button><figure><div class="living-stage" id="livingStage" data-motion="focus">
+    <img id="lightboxImg" alt="">
+    <div class="living-atmosphere" aria-hidden="true"></div>
+    <div class="living-beam" aria-hidden="true"></div>
+    <div class="living-ripples" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="living-particles" id="livingParticles" aria-hidden="true"></div>
+    <span class="living-stage-tag" aria-hidden="true">✳ A LIVING PHOTOGRAPH</span>
+  </div><figcaption><small id="lightboxNum"></small><h3 id="lightboxTitle"></h3><i id="lightboxEnglish"></i><p id="lightboxNote"></p><span id="lightboxPlace"></span>
+    <div class="living-controls"><span class="living-kicker">这张照片的动态故事</span><strong id="livingEffectLabel">轻轻动起来</strong><p class="living-explanation">光影与镜头的艺术化动画，原始照片不会被改变。</p>
+      <div class="living-actions"><button type="button" id="livingToggle" aria-pressed="true">暂停动态 Ⅱ</button><button type="button" id="livingReplay">重播这一刻 ↺</button></div>
+      <a href="#moment" id="livingToTiles" class="living-special-link" hidden>去看昆明湖碎片拼合 ↗</a>
+    </div>
+  </figcaption></figure><button id="nextPhoto" class="lightbox-next" aria-label="下一张">→</button><button id="lightboxPlay" class="lightbox-play">自动播放 ▷</button></dialog>
   
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
