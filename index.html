@@ -9,12 +9,13 @@
   <title>The Art of Noticing — Sunny's Photo Journal</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css?v=20261111-10">
-  <link rel="stylesheet" href="css/editorial-v2.css?v=20261111-2">
+  <link rel="stylesheet" href="css/editorial-v2.css?v=20261111-3">
   <script defer src="data/embedded_photos.js"></script>
   <script defer src="data/photos.js?v=20261111-4"></script>
   <script defer src="data/worldmap.js?v=20261111-1"></script>
-  <script defer src="js/app.js?v=20261111-13"></script>
-  <script defer src="js/ambience.js?v=20261111-1"></script>
+  <script defer src="js/app.js?v=20261111-14"></script>
+  <script defer src="js/ambience.js?v=20261111-2"></script>
+  <script defer src="js/moment.js?v=20261111-1"></script>
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
@@ -22,12 +23,12 @@
   <div class="scroll-indicator" id="scrollIndicator"></div>
   <header class="header" id="top">
     <a class="wordmark" href="#top" aria-label="返回首页"><span class="mark">S<span class="mark-dot">✺</span></span><span class="brand-copy">THE ART OF NOTICING<small>A PERSONAL PHOTO JOURNAL</small></span></a>
-    <nav class="desktop-nav" aria-label="主导航"><a href="#issues">JOURNAL</a><a href="#archive">PHOTOGRAPHS</a><a href="#footprints">PLACES</a><a href="#studio">SCRAPBOOK</a></nav>
-    <a href="#archive" class="header-link">EXPLORE <span aria-hidden="true">↗</span></a>
+    <nav class="desktop-nav" aria-label="主导航"><a href="#archive">JOURNAL</a><a href="#archive">PHOTOGRAPHS</a><a href="#footprints">PLACES</a><a href="#studio">SCRAPBOOK</a></nav>
+    
   </header>
   <main>
     <section class="hero editorial-hero" aria-labelledby="heroTitle">
-  <div class="hero-topline"><span>VOL. 001 / A PRIVATE PHOTO JOURNAL</span><span>PHOTOGRAPHS & LITTLE STORIES · 2026</span></div>
+  <div class="hero-topline"><span>VOL. 001 · PHOTOGRAPHY JOURNAL</span></div>
   <div class="hero-layout">
     <figure class="hero-cover">
 <a href="#archive" class="hero-main-link" data-target-filter="beijing" aria-label="翻开北京秋日照片章节">
@@ -37,50 +38,23 @@
         <img src="assets/photos/08-gray-cat.webp" alt="一只靠近镜头的灰猫" loading="lazy">
         <span>a small hello ♡</span>
       </a>
-      <a href="#archive" data-target-filter="architecture" class="hero-photo-peek hero-photo-peek--place" aria-label="查看建筑旅行手记">
-        <img src="assets/photos/07-astana-opera.webp" alt="阿斯塔纳歌剧院的建筑立面" loading="lazy">
-        <span>elsewhere, one day.</span>
-      </a>
       <figcaption><span>COVER STORY / BEIJING IN GOLD</span><span>01 — THE BEGINNING</span></figcaption>
     </figure>
     <div class="hero-text">
       <p class="eyebrow">THE ART OF PAYING ATTENTION <span aria-hidden="true">✳</span></p>
       <h1 id="heroTitle">The Art<br><i>of</i> Noticing<span class="title-period">.</span></h1>
       <p class="hero-cn">把日子里不经意的美，<br>慢慢收藏起来。</p>
-      <p class="hero-description">秋日的光、陌生城市的屋檐、还有偶然遇见的小生命。这里不是旅行攻略，是一本仍在生长的私人摄影杂志。</p>
-<div class="hero-actions">
-        <a class="text-link hero-cta" href="#issues">FLIP THROUGH THE STORIES <span aria-hidden="true">↗</span></a>
-        <button type="button" class="hero-random" data-random-photo>✳ 随机翻开一页</button>
-      </div>
+      <p class="hero-description">关于旅途、光线，和那些偶然被记住的小事。</p>
+<div class="hero-actions"><a class="text-link hero-cta" href="#archive">翻看照片 <span aria-hidden="true">↗</span></a></div>
     </div>
   </div>
-<div class="hero-playline" aria-label="让照片与四季产生互动">
-    <div class="hero-playline-intro">
-      <span class="hero-playline-label">MAKE IT YOUR SEASON / SEASONAL MOOD</span>
-      <strong>今天，想让哪种季节飘过眼前？</strong>
-      <small>照片静静留着，花瓣、萤火、秋叶和雪花可以随你切换。</small>
-    </div>
-    <div class="hero-season-switch" role="group" aria-label="切换季节">
-      <button data-season="spring" type="button"><span aria-hidden="true">✿</span> 春</button>
-      <button data-season="summer" type="button"><span aria-hidden="true">✧</span> 夏</button>
-      <button data-season="autumn" type="button"><span aria-hidden="true">✳</span> 秋</button>
-      <button data-season="winter" type="button"><span aria-hidden="true">❄</span> 冬</button>
-    </div>
-    <button type="button" class="ambient-toggle" data-ambience-toggle aria-pressed="true"><span aria-hidden="true">◌</span> <span class="ambient-state">暂停粒子</span></button>
-  </div>
-  <div class="hero-bottom"><span>AN ONGOING COLLECTION OF REAL MOMENTS</span><span><a href="#studio" class="hero-studio-link">TRY THE SCRAPBOOK ↗</a> &nbsp; SCROLL TO EXPLORE <b aria-hidden="true">↓</b></span></div>
+<div class="hero-bottom"><span>COLLECTED MOMENTS · 2026</span><a href="#moment">A LITTLE MAGIC ↗</a></div>
 </section>
 
-    <section class="intro-paper editorial-letter" id="issues" aria-labelledby="issuesTitle">
-  <div class="chapter-number"><span>EDITOR'S NOTE</span><span>NO. 001</span></div>
-  <p class="italic-line">Collecting moments, not milestones.</p>
-  <h2 id="issuesTitle">生活不必每一天都特别，<br><em>但总有一些瞬间，值得留住。</em></h2>
-  <p>这里的照片来自不同城市、季节和偶遇。我想让它们保持原来的样子——安静、真实，也带着一点当时的心情。</p>
-  <div class="intro-signature">Love, Sunny <span aria-hidden="true">✳</span></div>
-</section>
+    
 
     <section class="issues-section section-wrap" aria-labelledby="featureTitle">
-      <div class="section-heading reveal"><div><span class="overline">01 / SELECTED STORIES</span><h2 id="featureTitle">Little stories, <i>kept close.</i></h2></div><p>每一章都来自真实的照片。<br>它们也会出现在季节与足迹里。</p></div>
+      <div class="section-heading reveal"><div><span class="overline">01 / STORIES</span><h2 id="featureTitle">Selected <i>moments.</i></h2></div></div>
       <div class="feature-grid editorial-features">
   <a href="#archive" data-target-filter="beijing" class="feature-card feature-beijing">
     <div class="feature-image"><img src="assets/photos/03-pavilion.jpg" alt="北京秋天被古树与金色阳光环绕的屋檐" loading="lazy"></div>
@@ -105,15 +79,23 @@
 </div>
 </section>
 
-    <section class="still-feature section-wrap" id="moment" aria-labelledby="stillTitle">
-      <div class="section-heading"><div><span class="overline">A STILL MOMENT / 颐和园 · 昆明湖</span><h2 id="stillTitle">那一天的 <i>湖光。</i></h2></div><p>把风景安静地留在原处。<br>静静看一张照片，也很好。</p></div>
-      <figure class="still-feature-photo"><img loading="lazy" src="assets/photos/05-kunming-sunset.jpg" alt="昆明湖落日的静态照片"><figcaption>落日替今天落款 · 颐和园昆明湖</figcaption></figure>
-    </section>
+    <section class="moment-section section-wrap" id="moment" aria-labelledby="momentTitle">
+  <div class="section-heading"><div><span class="overline">A LITTLE MAGIC / INTERACTIVE PHOTO</span><h2 id="momentTitle">慢慢，<i>拼好那一刻。</i></h2></div></div>
+  <div class="moment-stage" id="momentStage">
+    <img class="moment-fallback" id="momentFallback" src="assets/photos/05-kunming-sunset.jpg" alt="昆明湖落日">
+    <canvas class="moment-canvas" id="momentTiles" aria-label="点击重新拼合，让照片碎片飞回原位" role="img"></canvas>
+  </div>
+  <div class="moment-controls">
+    <button id="momentReplay" class="moment-replay" type="button">✳ 把照片拼好</button>
+    <label for="momentPhotoSelect">换一张 <select id="momentPhotoSelect"><option value="beijing-05">昆明湖落日</option></select></label>
+    <span id="momentStatus" class="moment-status" role="status" aria-live="polite">点击按钮，让这一刻重新组合。</span>
+  </div>
+</section>
 
-    <section class="interlude" aria-label="摄影短句"><span>“</span><blockquote>有些风景值得绕路，<br>有些相遇只需要<em>刚好经过。</em></blockquote><p>THE BEAUTY OF PAYING ATTENTION</p></section>
+    
 
     <section class="archive-section section-wrap" id="archive" aria-labelledby="archiveTitle">
-      <div class="section-heading reveal"><div><span class="overline">02 / THE COMPLETE EXHIBITION</span><h2 id="archiveTitle">Every <i>little frame.</i></h2></div><p>让照片自己说话。<br>按章节翻阅，或一次看完。</p></div>
+      <div class="section-heading reveal"><div><span class="overline">02 / ARCHIVE</span><h2 id="archiveTitle">All the <i>photographs.</i></h2></div></div>
       <div class="archive-toolbar"><div class="filter-tabs" role="group" aria-label="影像分类"><button class="active" data-filter="all" aria-pressed="true">全部 <b id="photoCount">16</b></button><button data-filter="encounters" aria-pressed="false">小小相遇</button><button data-filter="architecture" aria-pressed="false">建筑手记</button><button data-filter="landscapes" aria-pressed="false">光与四季</button><button data-filter="beijing" aria-pressed="false">北京秋日</button></div><div class="view-modes" role="group" aria-label="布局模式"><button data-mode="editorial" aria-label="杂志布局" aria-pressed="true" class="active">▦</button><button data-mode="grid" aria-label="整齐网格" aria-pressed="false">▤</button><button class="archive-surprise" type="button" data-random-photo aria-label="随机打开一张照片">✳ 随机一张</button></div></div>
       <p class="filter-note" id="activeFilterNote" aria-live="polite">展示全部照片 · 地点不明确的作品仍会留在展厅中。</p>
       <div id="photoWall" class="photo-wall" aria-live="polite"></div>
@@ -121,7 +103,7 @@
       <p class="privacy-note">上传到公开仓库的照片会出现在其他设备和访客眼前。请先去除原片中的私密 GPS；仓库内的自动同步会将新文件加入照片清单，标题和地点可随后修改。</p>
     </section>
 
-    <section class="season-section" aria-labelledby="seasonTitle"><div class="section-wrap"><div class="section-heading reveal"><div><span class="overline">03 / THE FOUR SEASONS</span><h2 id="seasonTitle">Seasons of <i>noticing.</i></h2></div><p>点一个季节，下面的照片会真的改变。<br>这些是影像的季节标签，不一定是精确拍摄日期。</p></div><div class="seasons" role="group" aria-label="切换四季氛围"><button data-season="spring" aria-pressed="false"><span class="season-mark">✿</span><b>春 · 花开</b><small>SOFT PETALS</small></button><button data-season="summer" aria-pressed="false"><span class="season-mark">❧</span><b>夏 · 绿意</b><small>GREEN WHISPERS</small></button><button data-season="autumn" aria-pressed="true" class="active"><span class="season-mark">✳</span><b>秋 · 金色</b><small>FALLING LEAVES</small></button><button data-season="winter" aria-pressed="false"><span class="season-mark">❄</span><b>冬 · 初雪</b><small>FIRST SNOW</small></button></div><div class="season-controls"><span id="seasonDescription">静静收藏金色的秋天。</span><div class="season-actions"><button id="resetSeason" class="underlined">查看全部季节</button><span id="seasonAtmosphereLabel" class="season-mood-label">金色落叶</span><button type="button" class="underlined" data-ambience-toggle aria-pressed="true"><span class="ambient-state">暂停粒子</span></button></div></div><div class="season-preview-head"><span id="seasonPreviewCount">每一种季节，都有自己的记忆。</span><a href="#archive">去完整展厅看 ↗</a></div><div id="seasonPreview" class="season-preview" aria-live="polite"></div></div></section>
+    <section class="season-section" aria-labelledby="seasonTitle"><div class="section-wrap"><div class="section-heading reveal"><div><span class="overline">03 / THE FOUR SEASONS</span><h2 id="seasonTitle">Seasons of <i>noticing.</i></h2></div><p>点一个季节，下面的照片会真的改变。<br>这些是影像的季节标签，不一定是精确拍摄日期。</p></div><div class="seasons" role="group" aria-label="切换四季氛围"><button data-season="spring" aria-pressed="false"><span class="season-mark">✿</span><b>春 · 花开</b><small>SOFT PETALS</small></button><button data-season="summer" aria-pressed="false"><span class="season-mark">❧</span><b>夏 · 绿意</b><small>GREEN WHISPERS</small></button><button data-season="autumn" aria-pressed="true" class="active"><span class="season-mark">✳</span><b>秋 · 金色</b><small>FALLING LEAVES</small></button><button data-season="winter" aria-pressed="false"><span class="season-mark">❄</span><b>冬 · 初雪</b><small>FIRST SNOW</small></button></div><div class="season-controls"><span id="seasonDescription">静静收藏金色的秋天。</span><div class="season-actions"><button id="resetSeason" class="underlined">查看全部季节</button><span id="seasonAtmosphereLabel" class="season-mood-label">金色落叶</span><button type="button" class="underlined" data-ambience-toggle aria-pressed="true"><span class="ambient-state">暂停粒子</span></button></div></div><div class="season-preview-head"><span id="seasonPreviewCount">四季照片</span><a href="#archive">查看全部照片 ↗</a></div><div id="seasonPreview" class="season-preview" aria-live="polite"></div></div></section>
 
     <section class="footprints-section section-wrap" id="footprints" aria-labelledby="footprintsTitle">
       <div class="section-heading reveal"><div><span class="overline">04 / PLACES I REMEMBER</span><h2 id="footprintsTitle">A map of <i>little journeys.</i></h2></div><p>从城市进入照片，记下旅途的方向。<br>地点是公开地标示意，而非拍摄 GPS。</p></div>
@@ -131,7 +113,7 @@
       </div>
     </section>
 
-    <section class="studio-section section-wrap" id="studio" aria-labelledby="studioTitle"><div class="section-heading reveal"><div><span class="overline">05 / A LITTLE COLLAGE STUDIO</span><h2 id="studioTitle">A scrapbook <i>of my own.</i></h2></div><p>挑照片，拖一拖，换一个排列。<br>把这些不相关的瞬间组成你自己的故事。</p></div>
+    <section class="studio-section section-wrap" id="studio" aria-labelledby="studioTitle"><div class="section-heading reveal"><div><span class="overline">05 / SCRAPBOOK</span><h2 id="studioTitle">Make a <i>memory page.</i></h2></div><p>选几张照片，拼出自己的纪念页。</p></div>
       <details class="studio-disclosure" open>
   <summary><span>正在展开的拼贴工作台</span><small>选照片 · 拖动拼贴 · 写手帐 · 导出 PNG</small><span class="entry-arrow" aria-hidden="true">＋</span></summary>
   <div class="studio-workspace">
@@ -154,7 +136,7 @@
 </details>
 </section>
 
-    <section class="letter-section" id="letter"><div class="letter-paper reveal"><span class="overline">06 / AN OPEN-ENDED LETTER</span><span class="letter-decoration">✺</span><h2>Dear future me,</h2><p>希望很多年之后，你再翻开这里，依然记得那天的风，路边的猫，陌生城市的屋顶，还有每一场意料之外的日落。</p><p>希望你一直愿意停下来，看一眼那些并不轰轰烈烈，却让生活悄悄发光的小事。</p><p class="letter-final">Keep noticing. Keep collecting.</p><span class="letter-sign">Love, Sunny ♡</span></div></section>
+    
   </main>
   <footer class="footer"><div><b>THE ART OF NOTICING<span>✺</span></b><p>A growing collection of little moments.</p></div><div><a href="#top">BACK TO THE TOP ↑</a><small>© 2026 · PHOTOGRAPHS BY SUNNY</small></div></footer>
   <dialog id="lightbox" class="lightbox" aria-label="查看照片"><button id="closeLightbox" class="lightbox-close" aria-label="关闭">×</button><button id="prevPhoto" class="lightbox-prev" aria-label="上一张">←</button><figure><img id="lightboxImg" alt=""><figcaption><small id="lightboxNum"></small><h3 id="lightboxTitle"></h3><i id="lightboxEnglish"></i><p id="lightboxNote"></p><span id="lightboxPlace"></span></figcaption></figure><button id="nextPhoto" class="lightbox-next" aria-label="下一张">→</button></dialog>
